@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PhoneInput from '../../components/onboarding/PhoneInput';
+import TermsSheet from '../../components/onboarding/TermsSheet';
 
 interface LocationState {
   nickname?: string;
@@ -12,13 +13,18 @@ export default function PhoneAuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const state = location.state as LocationState | null;
   const nickname = state?.nickname ?? '';
 
   const handleNext = () => {
     if (!isPhoneVerified) return;
-    navigate('/onboarding/terms', { state: { nickname } });
+    setShowTerms(true);
+  };
+
+  const handleSignupComplete = () => {
+    navigate('/onboarding/complete');
   };
 
   return (
@@ -44,10 +50,10 @@ export default function PhoneAuthPage() {
         </span>
       </div>
 
-      <h1 className="text-xl font-bold leading-relaxed whitespace-pre-line font-bold">
+      <h1 className="text-xl font-bold leading-relaxed whitespace-pre-line">
         전화번호를{'\n'}인증해주세요
       </h1>
-      <p className="text-sm text-[#646F7C] mt-2 mb-8 font-bold">
+      <p className="text-sm text-[#646F7C] mt-2 mb-8">
         추후 간편한 예약을 위해 필요해요
       </p>
 
@@ -84,6 +90,13 @@ export default function PhoneAuthPage() {
       >
         다음
       </button>
+
+      {showTerms && (
+        <TermsSheet
+          onComplete={handleSignupComplete}
+          onClose={() => setShowTerms(false)}
+        />
+      )}
     </div>
   );
 }
