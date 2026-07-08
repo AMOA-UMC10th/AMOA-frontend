@@ -28,7 +28,7 @@ export default function AuthTimer({
   const seconds = timeLeft % 60;
 
   return (
-    <span className="text-sm text-pink-500 font-medium tabular-nums">
+    <span className="text-sm text-[#FF3232] font-medium tabular-nums">
       {minutes}:{seconds.toString().padStart(2, '0')}
     </span>
   );
