@@ -68,7 +68,7 @@ export default function PhoneAuthPage() {
           />
           <button
             disabled
-            className="w-24 py-2 rounded-lg text-sm whitespace-nowrap bg-[#E9EBEE] text-[#ADB0B5]"
+            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#E9EBEE] text-[#ADB0B5]"
           >
             확인완료
           </button>

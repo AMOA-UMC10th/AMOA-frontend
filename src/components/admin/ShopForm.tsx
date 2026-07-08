@@ -89,7 +89,7 @@ export default function ShopForm({ editingShop, onAddShop, onUpdateShop }: ShopF
   const isFormValid = name.length > 0;
 
   return (
-    <section className="w-[300px] bg-white border-r border-[#E9ECEF] px-5 pt-6 pb-8 flex flex-col justify-between min-h-full shrink-0">
+    <section className="w-[28%] min-w-[260px] max-w-[360px] bg-white border-r border-[#E9ECEF] px-5 pt-6 pb-8 flex flex-col justify-between min-h-full shrink-0">
       <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col justify-between">
         <div className="space-y-5">
           <h3 className="text-base font-bold text-black mb-2">
@@ -112,7 +112,7 @@ export default function ShopForm({ editingShop, onAddShop, onUpdateShop }: ShopF
                 onClick={() => { setName('미니숍네일'); setLocation('성동구 성수동 123'); }}
                 className={`px-3 py-2 text-xs rounded-md font-medium whitespace-nowrap transition-colors ${name ? 'bg-black text-white' : 'bg-[#E9ECEF] text-gray-600'}`}
               >
-                자동완성
+                입력
               </button>
             </div>
           </div>
