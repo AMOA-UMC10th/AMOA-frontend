@@ -1,6 +1,7 @@
 //H102 아트 정보 입력 폼
 
 import React, { useState, useEffect } from 'react';
+import { initialShops } from '../../data/adminData';
 
 type DesignTag = '심플' | '아기자기' | '화려' | '스트릿' | '유니크' | '내추럴' | '빈티지';
 type ArtType = '이달의 아트' | '지난달 아트' | '이벤트' | '원컬러';
@@ -34,6 +35,9 @@ export default function ArtForm({ editingArt, onAddArt, onUpdateArt }: ArtFormPr
   const artTypes: ArtType[] = ['이달의 아트', '지난달 아트', '이벤트', '원컬러'];
   const allTags: DesignTag[] = ['심플', '아기자기', '화려', '스트릿', '유니크', '내추럴', '빈티지'];
 
+  const filteredShops = initialShops.filter((shop) =>
+    shop.name.toLowerCase().includes(shopInput.toLowerCase())
+  );
   // 수정 모드 진입 시 데이터 바인딩
   useEffect(() => {
     if (editingArt) {
@@ -59,26 +63,22 @@ export default function ArtForm({ editingArt, onAddArt, onUpdateArt }: ArtFormPr
     setSelectedTags([]);
   };
 
-  // 엔터를 쳤을 때도 뱃지 스타일을 유지하고 싶다면 동작하도록 놔둠
-  const handleShopKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && shopInput.trim()) {
-      e.preventDefault();
-      setSelectedShop(shopInput.trim() === '미니' ? '미니숍네일' : shopInput.trim());
-    }
-  };
-
   const handleTagClick = (tag: DesignTag) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
-  };
+  if (selectedTags.includes(tag)) {
+    setSelectedTags(selectedTags.filter((t) => t !== tag));
+    return;
+  }
+
+  if (selectedTags.length >= 3) {
+    return;
+  }
+
+  setSelectedTags([...selectedTags, tag]);
+};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // ⭐ [핵심 수정] 뱃지(selectedShop)가 선택 안 되어 있더라도, 입력창(shopInput)에 글자가 있으면 그것을 샵 이름으로 인정합니다!
     const finalShopName = selectedShop || shopInput.trim();
     if (!finalShopName) {
       alert("연결 샵 이름을 입력해주세요!");
@@ -112,7 +112,7 @@ export default function ArtForm({ editingArt, onAddArt, onUpdateArt }: ArtFormPr
   const isFormValid = selectedShop !== null || shopInput.trim() !== '';
 
   return (
-    <section className="w-[400px] bg-white border border-[#E9ECEF] rounded-xs p-6 flex flex-col justify-between min-h-[680px]">
+    <section className="w-[28%] min-w-[260px] max-w-[360px] bg-white border-r border-[#E9ECEF] px-5 pt-6 pb-8 flex flex-col justify-between min-h-full shrink-0">
       <form onSubmit={handleSubmit} className="space-y-4 flex-1 flex flex-col justify-between">
         <div className="space-y-4">
           <h3 className="text-base font-bold text-black mb-1">
@@ -123,21 +123,54 @@ export default function ArtForm({ editingArt, onAddArt, onUpdateArt }: ArtFormPr
           <div className="space-y-1.5">
             <label className="text-xs text-gray-400 block">연결 샵</label>
             {!selectedShop ? (
-              <input
-                type="text"
-                value={shopInput}
-                onChange={(e) => setShopInput(e.target.value)}
-                onKeyDown={handleShopKeyDown}
-                placeholder="샵명으로 검색 (ex: 미니 입력 후 Enter 가능)"
-                className="w-full px-3 py-2 text-sm border border-[#E9ECEF] rounded-md focus:outline-none focus:border-gray-400 placeholder:text-gray-300"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={shopInput}
+                  onChange={(e) => setShopInput(e.target.value)}
+                  placeholder="샵명으로 검색"
+                  className="w-full px-3 py-2 text-sm border border-[#E9ECEF] rounded-md focus:outline-none focus:border-gray-400 placeholder:text-gray-300"
+                />
+
+                {shopInput && filteredShops.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-md border border-[#E9ECEF] bg-white shadow-sm overflow-hidden">
+                    {filteredShops.map((shop) => (
+                      <button
+                        key={shop.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedShop(shop.name);
+                          setShopInput(shop.name);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-[#F7F7F7]"
+                      >
+                        {shop.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {shopInput && filteredShops.length === 0 && (
+                  <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-md border border-[#E9ECEF] bg-white px-3 py-2 text-sm text-gray-400 shadow-sm">
+                    검색 결과가 없어요
+                  </div>
+                )}
+              </div>
             ) : (
-              /* 선택된 샵 뱃지 */
               <div className="flex flex-col items-start gap-1.5">
                 <span className="text-[11px] text-gray-400 block">선택된 샵:</span>
                 <div className="flex items-center gap-1 bg-black text-white text-xs px-3 py-1.5 rounded-full font-medium">
                   {selectedShop}
-                  <button type="button" onClick={() => { setSelectedShop(null); setShopInput(''); }} className="ml-1 text-gray-400 hover:text-white font-bold">×</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedShop(null);
+                      setShopInput('');
+                    }}
+                    className="ml-1 text-gray-400 hover:text-white font-bold"
+                  >
+                    ×
+                  </button>
                 </div>
               </div>
             )}

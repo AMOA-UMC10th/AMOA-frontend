@@ -29,7 +29,7 @@ export default function SignupCompletePage() {
       <div className="flex-1" />
 
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/home')}
         className="w-full bg-[#000000] text-white rounded-lg py-3"
       >
         다음
