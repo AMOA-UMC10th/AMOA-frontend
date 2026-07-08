@@ -1,0 +1,16 @@
+/*일반 유저 화면 비율*/
+    .mobile-layout {
+    width: 100%;
+    max-width: 430px;
+    aspect-ratio: 9 / 16;
+    margin: 0 auto;
+    background-color: white;
+    border: 1px solid #000000; /*영역 구분 위함*/
+    box-sizing: border-box;   
+    }
+
+/* 어드민 화면 비율 */
+    .pc-layout {
+    width: 100%;
+    min-height: 100vh;
+    }
