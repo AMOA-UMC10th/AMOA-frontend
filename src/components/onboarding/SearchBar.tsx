@@ -1,5 +1,5 @@
 //A103 동/지하철/구 검색창
-import { SearchIcon, XIcon } from "./icons";
+import { SearchIcon, XIcon } from "../../assets/icons";
 
 interface SearchBarProps {
   value: string;

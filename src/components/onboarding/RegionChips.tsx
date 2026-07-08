@@ -1,5 +1,5 @@
 //A103 선택된 구 단위 Chip 영역
-import { XIcon } from "./icons";
+import { XIcon } from "../../assets/icons";
 
 export interface SelectedRegion {
   id: string;

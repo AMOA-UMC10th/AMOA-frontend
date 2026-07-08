@@ -1,5 +1,5 @@
 //A103 현재 위치로 추가 - 지도 플레이스홀더 화면 (추후 실제 지도 SDK 연동)
-import { ChevronLeftIcon, MapPinIcon } from "./icons";
+import { ChevronLeftIcon, MapPinIcon } from "../../assets/icons";
 
 interface RegionMapPickerProps {
   address: string;
