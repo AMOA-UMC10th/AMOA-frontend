@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
-import { ChevronLeftIcon } from "../../components/onboarding/icons";
+import { ChevronLeftIcon } from "../../assets/icons";
 
 const MOODS = ["심플", "아기자기", "화려", "스트릿", "유니크", "내추럴", "모던"];
 

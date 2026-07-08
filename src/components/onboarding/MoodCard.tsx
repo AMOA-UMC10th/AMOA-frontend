@@ -1,5 +1,5 @@
 //A102 7개 무드 선택 카드
-import { CheckIcon } from "./icons";
+import { CheckIcon } from "../../assets/icons";
 
 interface MoodCardProps {
   label: string;
