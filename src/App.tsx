@@ -1,15 +1,49 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import DesignPage from "./pages/onboarding/DesignPage";
-import RegionPage from "./pages/onboarding/RegionPage";
+import './App.css';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import AdminLayout from './components/admin/AdminLayout';
+import HomePage from './pages/HomePage';
+import PhoneAuthPage from './pages/onboarding/PhoneAuthPage';
+import SignupCompletePage from './pages/onboarding/SignupCompletePage';
+import SplashPage from './pages/SplashPage';
+import KakaoLoginPage from './pages/KakaoLoginPage';
+import DesignPage from './pages/onboarding/DesignPage';
+import RegionPage from './pages/onboarding/RegionPage';
+
+function LayoutWrapper({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  return (
+    <div className={isAdmin ? 'pc-layout' : 'mobile-layout'}>{children}</div>
+  );
+}
+
+function RegionPageRoute() {
+  const navigate = useNavigate();
+
+  return (
+    <RegionPage
+      onNext={() => navigate('/home')}
+      onSkip={() => navigate('/home')}
+    />
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/onboarding/design" replace />} />
-        <Route path="/onboarding/design" element={<DesignPage />} />
-        <Route path="/onboarding/region" element={<RegionPage />} />
-      </Routes>
+      <LayoutWrapper>
+        <Routes>
+          <Route path="/admin" element={<AdminLayout />} />
+          <Route path="/" element={<SplashPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/login" element={<KakaoLoginPage />} />
+          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
+          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
+          <Route path="/onboarding/design" element={<DesignPage />} />
+          <Route path="/onboarding/region" element={<RegionPageRoute />} />
+        </Routes>
+      </LayoutWrapper>
     </BrowserRouter>
   );
 }

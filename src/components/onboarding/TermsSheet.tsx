@@ -1,8 +1,7 @@
-//약관동의 A106
+// 약관동의 A106
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TermCheckbox from '../../components/onboarding/TermCheckbox';
+import TermCheckbox from './TermCheckbox';
 
 interface Term {
   id: string;
@@ -56,9 +55,13 @@ function AllCheckIcon({ checked }: { checked: boolean }) {
   );
 }
 
-export default function TermsPage() {
+interface TermsSheetProps {
+  onComplete: () => void;
+  onClose: () => void;
+}
+
+export default function TermsSheet({ onComplete, onClose }: TermsSheetProps) {
   const [terms, setTerms] = useState<Term[]>(initialTerms);
-  const navigate = useNavigate();
 
   const allChecked = terms.every((t) => t.checked);
   const isAllRequiredChecked = terms
@@ -78,12 +81,15 @@ export default function TermsPage() {
   const handleSignup = () => {
     if (!isAllRequiredChecked) return;
     // TODO: 백엔드에 약관 동의 정보 및 회원가입 완료 요청
-    navigate('/onboarding/complete');
+    onComplete();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-end justify-center">
-      <div className="w-full max-w-sm bg-white rounded-t-2xl p-6">
+    <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-40">
+      <div
+        className="w-full max-w-sm bg-white rounded-t-2xl p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={handleToggleAll}
           className="w-full flex items-center gap-3 py-3 border-b border-[#E9EBEE] mb-1"
