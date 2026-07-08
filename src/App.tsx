@@ -4,6 +4,8 @@ import AdminLayout from './components/admin/AdminLayout';
 import HomePage from './pages/HomePage';
 import PhoneAuthPage from './pages/onboarding/PhoneAuthPage';
 import SignupCompletePage from './pages/onboarding/SignupCompletePage';
+import SplashPage from './pages/SplashPage';
+import KakaoLoginPage from './pages/KakaoLoginPage';
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -20,7 +22,9 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<SplashPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/login" element={<KakaoLoginPage />} />
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
         </Routes>
