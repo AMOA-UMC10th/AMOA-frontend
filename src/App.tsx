@@ -1,7 +1,14 @@
-import HomePage from "./pages/HomePage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import TermsPage from './pages/onboarding/TermsPage';
 
 function App() {
-  return <HomePage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<TermsPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
