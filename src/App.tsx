@@ -8,6 +8,7 @@ import SplashPage from './pages/SplashPage';
 import KakaoLoginPage from './pages/KakaoLoginPage';
 import DesignPage from './pages/onboarding/DesignPage';
 import RegionPage from './pages/onboarding/RegionPage';
+import NicknamePage from './pages/onboarding/NicknamePage';
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -38,10 +39,11 @@ function App() {
           <Route path="/" element={<SplashPage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
-          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
-          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
+          <Route path='/onboarding/nickname' element={<NicknamePage />} />
+          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
+          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
