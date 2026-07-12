@@ -1,12 +1,7 @@
 // G101 필독 네일 트렌드 배너 (스와이프 캐러셀)
 
 import { useState } from 'react';
-
-export interface TrendSlide {
-  id: string;
-  title: string;
-  imageUrl: string;
-}
+import type { TrendSlide } from '../../data/homeData';
 
 interface TrendBannerProps {
   slides: TrendSlide[];
