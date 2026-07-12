@@ -1,7 +1,7 @@
 // G101 완벽한 연말을 위한 PICK 섹션
 
-import type { RecommendArt } from '../../data/homeData';
 import RecommendArtList from './RecommendArtList';
+import type { RecommendArt } from './RecommendArtList';
 
 interface PickSectionProps {
   title: string;

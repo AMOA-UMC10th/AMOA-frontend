@@ -2,7 +2,17 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { RecommendArt } from '../../data/homeData';
+
+export interface RecommendArt {
+  id: string;
+  shopId: string;
+  shopUsername: string;
+  shopProfileImage: string;
+  shopName: string;
+  location: string;
+  priceRange: string;
+  imageUrls: string[];
+}
 
 interface RecommendArtListProps {
   items: RecommendArt[];
