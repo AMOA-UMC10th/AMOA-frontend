@@ -56,7 +56,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
         <button
           onClick={handleRequestCode}
           disabled={!isPhoneValid || isVerified}
-          className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+          className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#ADB0B5] disabled:text-white"
         >
           {isVerified ? '인증완료' : '인증받기'}
         </button>
@@ -70,29 +70,29 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
         <div className="flex flex-col gap-2 mt-4">
           <label className="text-sm text-[#28323C] font-medium">인증번호</label>
           <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="4자리 입력"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full border-b border-[#E9EBEE] px-1 py-2 pr-12 outline-none"
-                />
-                <div className="absolute right-1 top-1/2 -translate-y-1/2">
-                  <AuthTimer duration={180} onExpire={handleResend} />
-                </div>
+            <div className="relative flex-1">
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="4자리 입력"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
+                className="w-full border-b border-[#E9EBEE] px-1 py-2 pr-12 outline-none"
+              />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <AuthTimer duration={180} onExpire={handleResend} />
               </div>
-
-              <button
-                onClick={handleVerify}
-                disabled={!isCodeValid}
-                className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
-              >
-                확인완료
-              </button>
             </div>
+
+            <button
+              onClick={handleVerify}
+              disabled={!isCodeValid}
+              className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#ADB0B5] disabled:text-white"
+            >
+              확인완료
+            </button>
+          </div>
           <span className="text-xs text-[#ADB0B5]">
             인증번호가 오지 않았나요?{' '}
             <button onClick={handleResend} className="text-[#000000] underline">
