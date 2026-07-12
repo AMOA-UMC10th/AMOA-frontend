@@ -73,12 +73,12 @@ export default function BottomNav() {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto bg-[#000000] flex">
+    <nav className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto h-20 bg-[#000000] flex items-center px-6">
       {NAV_ITEMS.map((item) => (
         <button
           key={item.path}
           onClick={() => navigate(item.path)}
-          className="flex-1 flex flex-col items-center gap-1 py-3"
+          className="flex-1 flex flex-col items-center gap-1"
         >
           {item.icon()}
           <span className="text-[11px] text-white">{item.label}</span>
