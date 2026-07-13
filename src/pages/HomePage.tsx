@@ -6,6 +6,7 @@ import RecommendBanner from '../components/home/RecommendBanner';
 import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
+import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
 import {
   MOCK_USER,
   MOCK_ARTS,
@@ -30,8 +31,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto pb-16">
+    <div className="max-w-sm mx-auto pb-24">
       <HomeHeader />
+
+      <TrendBanner slides={MOCK_TREND_SLIDES} />
+
       <RecommendBanner
         nickname={nickname}
         matchLabel={matchLabel}
@@ -39,13 +43,14 @@ export default function HomePage() {
       />
       <RecommendArtList items={MOCK_ARTS} />
 
-      <TrendBanner slides={MOCK_TREND_SLIDES} />
-
       <PickSection
         title="완벽한 연말을 위한 PICK"
+        highlightWord="PICK"
         items={MOCK_PICK_ARTS}
         onMoreClick={handlePickMoreClick}
       />
+
+      <ShopOwnerBanner />
     </div>
   );
 }

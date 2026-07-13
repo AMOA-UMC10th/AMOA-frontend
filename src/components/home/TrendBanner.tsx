@@ -32,12 +32,13 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
   const current = slides[index];
 
   return (
-    <div className="px-4 py-4">
-      <h3 className="text-base font-bold text-[#28323C] mb-3">
-        필독! 놓치기 아쉬운 네일 트렌드
+    <div className="px-4 pt-4 pb-6">
+      <h3 className="text-lg font-bold mb-3">
+        <span className="text-[#FF1B82]">필독!</span>
+        <span className="text-[#28323C]"> 놓치기 아쉬운 네일 트렌드 ✨</span>
       </h3>
       <div
-        className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#E9EBEE]"
+        className="relative w-full aspect-[30/9] overflow-hidden bg-[#E9EBEE]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

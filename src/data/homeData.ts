@@ -73,4 +73,14 @@ export const MOCK_PICK_ARTS: RecommendArt[] = [
     priceRange: '50,000~80,000원',
     imageUrls: [''],
   },
+  {
+    id: '4',
+    shopId: 'shop4',
+    shopUsername: 'youwho_nail',
+    shopProfileImage: '',
+    shopName: '연말 스페셜 네일',
+    location: '성동구',
+    priceRange: '50,000~80,000원',
+    imageUrls: [''],
+  },
 ];
