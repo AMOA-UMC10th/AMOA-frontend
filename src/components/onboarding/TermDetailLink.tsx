@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface TermDetailLinkProps {
-  label: string;
+  label: ReactNode;
   content: string;
 }
 
@@ -17,7 +18,7 @@ export default function TermDetailLink({
         onClick={() => setIsOpen(true)}
         className="w-full flex items-center justify-between text-left"
       >
-        <span className="text-sm text-[#28323C]">{label}</span>
+        <span>{label}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path
             d="M9 6l6 6-6 6"
