@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { NailCard } from '../../data/naildata';
+import type { NailCard } from '../../data/nailData';
 
 interface RecommendArtListProps {
   items: NailCard[];
