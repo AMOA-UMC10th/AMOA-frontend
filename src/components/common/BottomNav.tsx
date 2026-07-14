@@ -73,7 +73,7 @@ export default function BottomNav() {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-[360px] mx-auto h-20 bg-white border-t border-[#E9EBEE] flex items-center px-6">
+    <nav className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 h-16 bg-white border-t border-[#E9EBEE] flex items-center px-6">
       {NAV_ITEMS.map((item) => (
         <button
           key={item.path}
