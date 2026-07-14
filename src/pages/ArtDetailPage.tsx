@@ -28,6 +28,9 @@ export default function ArtDetailPage() {
     (c) => c.card_id !== card.card_id,
   );
 
+  // TODO: 실제 태그 데이터 연동 전까지 임시 고정값 (나중에 adminData.ts 또는 백엔드 실제 태그로 교체 필요)
+  const designTags = ['아기자기', '파스텔', '화려함'];
+
   const handleShopClick = () => {
     // TODO: D101(네일샵 상세) merge 시 실제 라우트 연결
     navigate(`/shop/${card.shop_name}`);
@@ -80,8 +83,8 @@ export default function ArtDetailPage() {
       <div className="border-t border-[#E9EBEE] mx-4 mb-4" />
 
       {/* 가격 정보 */}
-      <div className="px-4 py-4">
-        <p className="text-xs text-[#ADB0B5] mb-1">
+      <div className="px-4 py-1">
+        <p className="text-xs text-[#646F7C] font-bold mb-1">
           {card.art_type === 'MONTHLY'
             ? `${Number(card.created_month.split('-')[1])}월 이달의 아트`
             : '이벤트 아트'}
@@ -89,19 +92,36 @@ export default function ArtDetailPage() {
         <p className="text-lg font-bold text-[#171B1C] mb-3">
           {card.min_price.toLocaleString()}~{card.max_price.toLocaleString()}원
         </p>
+
+        {/* 디자인 태그 */}
+        {designTags.length > 0 && (
+          <div className="py-1">
+            <p className="text-xs text-[#646F7C] font-bold mb-2">디자인 태그</p>
+            <div className="flex flex-wrap gap-2">
+              {designTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs text-[#F70071] bg-[#FFEEF6] px-3 py-1.5 rounded-full font-bold"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <RelatedArtList cards={relatedCards} />
 
       {/* 하단 고정 CTA */}
-      <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-3 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
         <ArtLikeBtn initialLiked={card.is_liked} />
         <button onClick={handleShare} aria-label="공유하기">
           <ShareIcon className="w-5 h-6 text-[#171B1C]" />
         </button>
         <button
           onClick={() => setShowKakaoModal(true)}
-          className="flex-1 bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2"
+          className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
         >
           <KakaoIcon className="w-4 h-4" />
           카카오로 시작하기
