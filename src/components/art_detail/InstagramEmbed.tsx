@@ -1,4 +1,6 @@
 // 인스타그램 공식 임베드 렌더링 (index.html에 embed.js 전역 로드됨)
+// thumbnail variant만 pointer-events-none 적용 (클릭이 부모 카드 버튼으로 전달되게 함)
+// full variant는 클릭 가능하게 유지 (인스타그램 자체 클릭 시 원본 게시물로 이동)
 
 import { useEffect } from 'react';
 
@@ -15,13 +17,12 @@ declare global {
 interface InstagramEmbedProps {
   postUrl: string;
   variant?: 'full' | 'thumbnail';
-  cropHeight?: number; // full variant에서 자르는 높이
+  cropHeight?: number;
 }
 
-// 아래 숫자들은 실제 화면 보면서 조정하는 값
-const DEFAULT_FULL_CROP_HEIGHT = 480; // 상세페이지 상단용 기본 크롭 높이
-const THUMBNAIL_SCALE = 0.55; // 좁은 칸에서 인스타 임베드를 축소하는 배율 (326px 기준)
-const THUMBNAIL_VISIBLE_HEIGHT = 200; // 축소 후 실제로 보여줄 세로 칸 높이 (계정정보+이미지 정도)
+const DEFAULT_FULL_CROP_HEIGHT = 480;
+const THUMBNAIL_SCALE = 0.55;
+const THUMBNAIL_VISIBLE_HEIGHT = 200;
 
 export default function InstagramEmbed({
   postUrl,
@@ -41,10 +42,9 @@ export default function InstagramEmbed({
   }
 
   if (variant === 'thumbnail') {
-    // 인스타 임베드 최소너비(326px) 자체를 축소해서, 좁은 칸 안에 실제 크기로 보이게 함
     return (
       <div
-        className="w-full overflow-hidden rounded-xl bg-[#E9EBEE]"
+        className="w-full overflow-hidden rounded-xl bg-[#E9EBEE] pointer-events-none"
         style={{ height: THUMBNAIL_VISIBLE_HEIGHT }}
       >
         <div
@@ -65,7 +65,6 @@ export default function InstagramEmbed({
     );
   }
 
-  // variant === 'full': 위(계정정보+이미지)는 보이고, 아래(좋아요/댓글/캡션)만 잘림
   return (
     <div
       className="w-full overflow-hidden rounded-xl bg-[#E9EBEE]"

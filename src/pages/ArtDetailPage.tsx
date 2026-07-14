@@ -12,7 +12,7 @@ import {
   ShareIcon,
   KakaoIcon,
 } from '../assets/icons';
-import { mockCardResponse, type NailCard } from '../data/naildata';
+import { mockCardResponse, type NailCard } from '../data/nailData';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();

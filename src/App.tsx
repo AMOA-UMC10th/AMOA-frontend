@@ -1,7 +1,15 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useParams,
+  useNavigate,
+} from 'react-router-dom';
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
+import ScrollToTop from './components/common/ScrollToTop';
 import HomePage from './pages/HomePage';
 import PhoneAuthPage from './pages/onboarding/PhoneAuthPage';
 import SignupCompletePage from './pages/onboarding/SignupCompletePage';
@@ -12,7 +20,6 @@ import RegionPage from './pages/onboarding/RegionPage';
 import NicknamePage from './pages/onboarding/NicknamePage';
 import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
-import { useNavigate } from 'react-router-dom';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -42,9 +49,15 @@ function RegionPageRoute() {
   );
 }
 
+function ArtDetailPageRoute() {
+  const { cardId } = useParams();
+  return <ArtDetailPage key={cardId} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
@@ -57,7 +70,7 @@ function App() {
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
-          <Route path="/art/:cardId" element={<ArtDetailPage />} />
+          <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
