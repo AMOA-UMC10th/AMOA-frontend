@@ -34,7 +34,7 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
   return (
     <div className="px-4 pt-4 pb-6">
       <h3 className="text-lg font-bold mb-3">
-        <span className="text-[#FF1B82]">필독!</span>
+        <span className="text-[#FF007A]">필독!</span>
         <span className="text-[#28323C]"> 놓치기 아쉬운 네일 트렌드 ✨</span>
       </h3>
       <div
