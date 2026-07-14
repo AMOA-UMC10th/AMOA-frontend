@@ -10,6 +10,7 @@ import KakaoLoginPage from './pages/KakaoLoginPage';
 import DesignPage from './pages/onboarding/DesignPage';
 import RegionPage from './pages/onboarding/RegionPage';
 import NicknamePage from './pages/onboarding/NicknamePage';
+import ArtDetailPage from './pages/ArtDetailPage';
 import { useNavigate } from 'react-router-dom';
 
 // 하단바를 보여줄 페이지 목록 (온보딩/로그인/스플래시 제외)
@@ -55,6 +56,7 @@ function App() {
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
+          <Route path="/art/:cardId" element={<ArtDetailPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
