@@ -31,7 +31,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto pb-24">
+    <div className="w-full pb-[64px]">
       <HomeHeader />
 
       <TrendBanner slides={MOCK_TREND_SLIDES} />
