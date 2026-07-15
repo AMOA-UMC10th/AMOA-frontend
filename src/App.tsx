@@ -1,7 +1,15 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useParams,
+  useNavigate,
+} from 'react-router-dom';
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
+import ScrollToTop from './components/common/ScrollToTop';
 import HomePage from './pages/HomePage';
 import PhoneAuthPage from './pages/onboarding/PhoneAuthPage';
 import SignupCompletePage from './pages/onboarding/SignupCompletePage';
@@ -10,9 +18,9 @@ import KakaoLoginPage from './pages/KakaoLoginPage';
 import DesignPage from './pages/onboarding/DesignPage';
 import RegionPage from './pages/onboarding/RegionPage';
 import NicknamePage from './pages/onboarding/NicknamePage';
-import { useNavigate } from 'react-router-dom';
+import ArtDetailPage from './pages/ArtDetailPage';
+import ArtSearchPage from './pages/ArtSearchPage';
 
-// 하단바를 보여줄 페이지 목록 (온보딩/로그인/스플래시 제외)
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -41,9 +49,15 @@ function RegionPageRoute() {
   );
 }
 
+function ArtDetailPageRoute() {
+  const { cardId } = useParams();
+  return <ArtDetailPage key={cardId} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
@@ -55,6 +69,8 @@ function App() {
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
+          <Route path="/art-search" element={<ArtSearchPage />} />
+          <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>

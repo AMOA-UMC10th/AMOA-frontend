@@ -1,49 +1,44 @@
-//G101 맞춤 추천 아트 카드 리스트
-
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { RecommendArt } from '../../data/homeData';
+import type { NailCard } from '../../data/nailData';
 
 interface RecommendArtListProps {
-  items: RecommendArt[];
+  items: NailCard[];
 }
 
-function ArtCard({ item }: { item: RecommendArt }) {
+declare global {
+  interface Window {
+    instgrm?: {
+      Embeds: {
+        process: () => void;
+      };
+    };
+  }
+}
+
+function ArtCard({ item }: { item: NailCard }) {
   const navigate = useNavigate();
-  const [imageIndex, setImageIndex] = useState(0);
-  const hasMultiple = item.imageUrls.length > 1;
 
-  const handleProfileClick = () => {
-    // TODO: D101(네일샵 상세 페이지)가 merge되면 실제 라우트로 연결
-    navigate(`/shop/${item.shopId}`);
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/shop/${item.shop_name || 'unknown'}`);
   };
 
-  const showPrev = () => {
-    setImageIndex((prev) =>
-      prev === 0 ? item.imageUrls.length - 1 : prev - 1,
-    );
+  const handleCardClick = () => {
+    navigate(`/art-detail/${item.card_id}`);
   };
-  const showNext = () => {
-    setImageIndex((prev) =>
-      prev === item.imageUrls.length - 1 ? 0 : prev + 1,
-    );
-  };
+
+  const shopInitial = item.shop_name ? item.shop_name.substring(0, 1) : 'N';
 
   return (
-    <div className="w-40 shrink-0">
+    <div className="w-full cursor-pointer group" onClick={handleCardClick}>
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="w-5 h-5 rounded-full bg-[#E9EBEE] shrink-0 overflow-hidden">
-            {item.shopProfileImage && (
-              <img
-                src={item.shopProfileImage}
-                alt={item.shopUsername}
-                className="w-full h-full object-cover"
-              />
-            )}
+          <span className="w-5 h-5 rounded-full bg-[#E9EBEE] shrink-0 overflow-hidden flex items-center justify-center text-[10px] font-bold text-gray-500">
+            {shopInitial}
           </span>
           <span className="text-xs text-[#646F7C] truncate">
-            {item.shopUsername}
+            {item.shop_name || '이름 없음'}
           </span>
         </div>
         <button
@@ -54,50 +49,25 @@ function ArtCard({ item }: { item: RecommendArt }) {
         </button>
       </div>
 
-      <div className="relative w-40 h-40 rounded-xl overflow-hidden bg-[#E9EBEE]">
-        <img
-          src={item.imageUrls[imageIndex]}
-          alt={item.shopName}
-          className="w-full h-full object-cover"
-        />
-        {hasMultiple && (
-          <>
-            <button
-              onClick={showPrev}
-              aria-label="이전 이미지"
-              className="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/80 flex items-center justify-center"
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M15 18l-6-6 6-6"
-                  stroke="#28323C"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={showNext}
-              aria-label="다음 이미지"
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/80 flex items-center justify-center"
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M9 6l6 6-6 6"
-                  stroke="#28323C"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </>
+      <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 bg-[#E9EBEE] pointer-events-none">
+        {item.instagram_url ? (
+          <blockquote
+            className="instagram-media"
+            data-instgrm-permalink={item.instagram_url}
+            data-instgrm-version="14"
+            style={{ background: '#FFF', border: '0', borderRadius: '12px', margin: '0', width: '100%' }}
+          />
+        ) : (
+          <div className="aspect-square flex items-center justify-center text-xs text-gray-400 bg-gray-100">
+            이미지가 없습니다.
+          </div>
         )}
       </div>
 
-      <p className="mt-2 text-sm font-bold text-[#28323C]">{item.shopName}</p>
-      <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5">
+      <p className="mt-2 text-sm font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors">
+        {item.shop_name || '이름 없음'}
+      </p>
+      <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5 mt-0.5">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 21s-7-6.5-7-11.5a7 7 0 1114 0C19 14.5 12 21 12 21z"
@@ -107,18 +77,29 @@ function ArtCard({ item }: { item: RecommendArt }) {
           />
           <circle cx="12" cy="9.5" r="2.5" stroke="#ADB0B5" strokeWidth="2" />
         </svg>
-        {item.location}
+        {item.region_name || '지역 정보 없음'}
       </p>
-      <p className="text-xs text-[#646F7C]">{item.priceRange}</p>
+      <p className="text-xs text-[#646F7C] mt-1 font-medium">
+        {item.min_price?.toLocaleString() || 0}~{item.max_price?.toLocaleString() || 0}원
+      </p>
     </div>
   );
 }
 
 export default function RecommendArtList({ items }: RecommendArtListProps) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (window.instgrm) {
+        window.instgrm.Embeds.process();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [items]);
+
   return (
-    <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
-      {items.map((item) => (
-        <ArtCard key={item.id} item={item} />
+    <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-4 pb-4">
+      {items?.map((item, index) => (
+        <ArtCard key={item.card_id || `art-card-${index}`} item={item} />
       ))}
     </div>
   );
