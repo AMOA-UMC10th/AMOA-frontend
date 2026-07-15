@@ -5,11 +5,13 @@ import { useState } from 'react';
 interface ArtLikeBtnProps {
   initialLiked: boolean;
   size?: number;
+  onToggle?: (liked: boolean) => void;
 }
 
 export default function ArtLikeBtn({
   initialLiked,
   size = 22,
+  onToggle,
 }: ArtLikeBtnProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
@@ -22,6 +24,7 @@ export default function ArtLikeBtn({
     // TODO: POST/DELETE /api/v1/cards/{card_id}/likes
     setShowToast(true);
     setTimeout(() => setShowToast(false), 1800);
+    onToggle?.(next);
   };
 
   return (
