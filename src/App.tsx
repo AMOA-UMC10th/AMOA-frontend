@@ -20,7 +20,6 @@ import RegionPage from './pages/onboarding/RegionPage';
 import NicknamePage from './pages/onboarding/NicknamePage';
 import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
-import WishListPage from './pages/WishListPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -72,7 +71,6 @@ function App() {
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
           <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
-          <Route path="/wishlist" element={<WishListPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
