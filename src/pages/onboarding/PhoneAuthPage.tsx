@@ -53,7 +53,7 @@ export default function PhoneAuthPage() {
       <h1 className="text-xl font-bold leading-relaxed whitespace-pre-line">
         전화번호를{'\n'}인증해주세요
       </h1>
-      <p className="text-sm text-[#646F7C] mt-2 mb-8">
+      <p className="text-sm font-semibold text-[#646F7C] mt-2 mb-8">
         추후 간편한 예약을 위해 필요해요
       </p>
 
@@ -68,7 +68,7 @@ export default function PhoneAuthPage() {
           />
           <button
             disabled
-            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#E9EBEE] text-[#ADB0B5]"
+            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#ADB0B5] text-white"
           >
             확인완료
           </button>

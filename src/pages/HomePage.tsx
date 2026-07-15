@@ -31,7 +31,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-full pb-[64px]">
+    <div className="max-w-sm mx-auto pb-24">
       <HomeHeader />
 
       <TrendBanner slides={MOCK_TREND_SLIDES} />
@@ -45,6 +45,7 @@ export default function HomePage() {
 
       <PickSection
         title="완벽한 연말을 위한 PICK"
+        highlightWord="PICK"
         items={MOCK_PICK_ARTS}
         onMoreClick={handlePickMoreClick}
       />

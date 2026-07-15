@@ -1,23 +1,31 @@
 // G101 완벽한 연말을 위한 PICK 섹션
 
 import RecommendArtList from './RecommendArtList';
-import type { RecommendArt } from './RecommendArtList';
+import type { RecommendArt } from '../../data/homeData';
 
 interface PickSectionProps {
   title: string;
+  highlightWord: string;
   items: RecommendArt[];
   onMoreClick: () => void;
 }
 
 export default function PickSection({
   title,
+  highlightWord,
   items,
   onMoreClick,
 }: PickSectionProps) {
+  const parts = title.split(highlightWord);
+
   return (
-    <div className="pt-2">
+    <div className="pt-6">
       <div className="flex items-center justify-between px-4 mb-3">
-        <h3 className="text-base font-bold text-[#28323C]">{title}</h3>
+        <h3 className="text-lg font-bold text-[#28323C]">
+          {parts[0]}
+          <span className="text-[#FF1B82]">{highlightWord}</span>
+          {parts[1]}
+        </h3>
         <button
           onClick={onMoreClick}
           className="flex items-center text-sm text-[#ADB0B5]"
