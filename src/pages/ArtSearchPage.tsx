@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { FiChevronDown, FiChevronLeft, FiHeart, FiSliders } from 'react-icons/fi';
 import { mockCardResponse, type NailCard } from '../data/nailData';
 
+// 위치가 바뀐 art_search 폴더의 바텀 시트 임포트
+import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
+
 function InstagramSafeImage({ url }: { url: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -111,8 +114,31 @@ function ArtCard({ card }: { card: NailCard }) {
 
 export default function ArtSearchPage() {
   const navigate = useNavigate();
+  
+  // 정렬 순서 및 드롭다운 토글 상태 관리
   const [sortOpen, setSortOpen] = useState(false);
+  const [selectedSort, setSelectedSort] = useState<'RECOMMEND' | 'PRICE_LOW' | 'PRICE_HIGH'>('RECOMMEND');
+
+  // 필터 바텀시트 열림 여부
+  const [filterOpen, setFilterOpen] = useState(false);
+  
+  // 필터 데이터 초기 상태
+  const [filters, setFilters] = useState<FilterState>({
+    regions: [],
+    minPrice: 30000,
+    maxPrice: 100000,
+    artType: 'ALL',
+    designs: [],
+  });
+
   const cards = mockCardResponse.result.cards;
+
+  // 정렬 텍스트 변환 헬퍼
+  const getSortLabel = () => {
+    if (selectedSort === 'PRICE_LOW') return '가격 낮은 순';
+    if (selectedSort === 'PRICE_HIGH') return '가격 높은 순';
+    return '추천순';
+  };
 
   return (
     <main className="min-h-dvh bg-white pb-24">
@@ -130,8 +156,10 @@ export default function ArtSearchPage() {
 
       <section className="overflow-x-auto border-b border-[#eceef1] px-4 py-3 [scrollbar-width:none]">
         <div className="flex w-max gap-2">
+          {/* 필터 칩 클릭 시 전체 필터 바텀시트 열림 */}
           <button
             type="button"
+            onClick={() => setFilterOpen(true)}
             className="flex h-8 w-10 items-center justify-center rounded-full border border-[#b7bec8] text-lg text-[#687080]"
             aria-label="필터"
           >
@@ -141,6 +169,7 @@ export default function ArtSearchPage() {
             <button
               key={filter}
               type="button"
+              onClick={() => setFilterOpen(true)}
               className="flex h-8 items-center gap-1 rounded-full border border-[#b7bec8] px-3 text-xs text-[#56606d]"
             >
               {filter}
@@ -153,18 +182,43 @@ export default function ArtSearchPage() {
       <section className="px-4 pt-5">
         <div className="mb-5 flex items-center justify-between text-xs text-[#727b88]">
           <span>검색결과 {cards.length}개</span>
+          
+          {/* 정렬 드롭다운 컴포넌트 에러를 방지하기 위해 인라인 컴포넌트로 깔끔하게 처리 */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setSortOpen((value) => !value)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 font-semibold"
             >
-              추천순 <FiChevronDown />
+              {getSortLabel()} <FiChevronDown />
             </button>
             {sortOpen && (
-              <div className="absolute right-0 top-6 z-10 w-24 rounded-md border border-[#e5e7eb] bg-white p-2 text-center shadow">
-                추천순
-              </div>
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+                <div className="absolute right-0 top-6 z-20 w-32 rounded-lg border border-[#eceef1] bg-white py-1 shadow-lg text-center">
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedSort('RECOMMEND'); setSortOpen(false); }}
+                    className={`block w-full py-2.5 text-xs ${selectedSort === 'RECOMMEND' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
+                  >
+                    추천순
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedSort('PRICE_LOW'); setSortOpen(false); }}
+                    className={`block w-full py-2.5 text-xs border-t border-gray-50 ${selectedSort === 'PRICE_LOW' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
+                  >
+                    가격 낮은 순
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedSort('PRICE_HIGH'); setSortOpen(false); }}
+                    className={`block w-full py-2.5 text-xs border-t border-gray-50 ${selectedSort === 'PRICE_HIGH' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
+                  >
+                    가격 높은 순
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -175,6 +229,15 @@ export default function ArtSearchPage() {
           ))}
         </div>
       </section>
+
+      {/* 최종 조립된 통합 바텀 시트 연동 */}
+      <ArtFilterSheet
+        isOpen={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        filters={filters}
+        onApply={(updatedFilters) => setFilters(updatedFilters)}
+        onNavigateToLocationSearch={() => navigate('/location-search')}
+      />
     </main>
   );
 }
