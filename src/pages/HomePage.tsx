@@ -1,5 +1,3 @@
-//G101 메인 홈 화면 (추천)
-
 import { useNavigate } from 'react-router-dom';
 import HomeHeader from '../components/home/HomeHeader';
 import RecommendBanner from '../components/home/RecommendBanner';
@@ -7,28 +5,30 @@ import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
 import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
-import {
-  MOCK_USER,
-  MOCK_ARTS,
-  MOCK_TREND_SLIDES,
-  MOCK_PICK_ARTS,
-} from '../data/homeData';
+import { mockCardResponse } from '../data/nailData'; 
+import { MOCK_TREND_SLIDES } from '../data/homeData';
+import { mockSettingData } from '../data/userData';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { nickname, region, mood } = MOCK_USER;
+
+  const userSetting = mockSettingData.result;
+  const nickname = userSetting.nickname;
+  
+  const region = userSetting.interestedRegions[0] || '';
+  const mood = userSetting.preferredMoods[0] || '';
 
   const matchLabel = [mood, region].filter(Boolean).join(' · ');
 
   const handleMoreClick = () => {
-    // TODO: 현재 관심지역+무드를 필터로 아트찾기 화면에 전달
     navigate('/art-search', { state: { region, mood } });
   };
 
   const handlePickMoreClick = () => {
-    // TODO: PICK 섹션 전체보기 화면으로 이동
     navigate('/art-search');
   };
+
+  const cardsList = mockCardResponse.result.cards;
 
   return (
     <div className="w-full pb-[64px]">
@@ -41,12 +41,13 @@ export default function HomePage() {
         matchLabel={matchLabel}
         onMoreClick={handleMoreClick}
       />
-      <RecommendArtList items={MOCK_ARTS} />
+      
+      <RecommendArtList items={cardsList} />
 
       <PickSection
         title="완벽한 연말을 위한 PICK"
         highlightWord="PICK"
-        items={MOCK_PICK_ARTS}
+        items={cardsList.slice(0, 4)}
         onMoreClick={handlePickMoreClick}
       />
 

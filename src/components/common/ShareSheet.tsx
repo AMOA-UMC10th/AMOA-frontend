@@ -1,4 +1,4 @@
-// 공유하기 바텀시트
+// 공유하기 바텀시트 안 씀
 
 interface ShareSheetProps {
   isOpen: boolean;

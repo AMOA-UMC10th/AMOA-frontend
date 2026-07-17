@@ -1,6 +1,4 @@
-import React from 'react';
 
-// 시안 이미지(image_7c54e5.png) 기준 옵션
 const ART_TYPES = [
   { label: '전체', value: 'ALL' },
   { label: '이달의 아트', value: 'MONTHLY' },
@@ -26,18 +24,18 @@ export default function ArtTypeFilter({
         {ART_TYPES.map((type) => {
           const isSelected = selectedType === type.value;
           return (
-            <button
-              key={type.value}
-              type="button"
-              onClick={() => onChangeType(type.value)}
-              className={`rounded-full px-4 py-2 text-xs font-semibold border transition-all ${
-                isSelected
-                  ? 'border-transparent bg-[#FF007A] text-white' // 핫핑크 배경 + 흰색 텍스트
-                  : 'border-[#eceef1] bg-white text-[#56606d] hover:bg-gray-50'
-              }`}
-            >
-              {type.label}
-            </button>
+           <button
+            key={type.value}
+            type="button"
+            onClick={() => onChangeType(type.value)}
+            className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
+              isSelected
+                ? 'border-[#FF007A] bg-[#FF007A] text-white'
+                : 'border-[#ced4da] bg-white text-[#56606d] hover:bg-gray-50'
+            }`}
+          >
+            {type.label}
+          </button>
           );
         })}
       </div>

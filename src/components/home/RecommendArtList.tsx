@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NailCard } from '../../data/nailData';
 
@@ -6,65 +6,77 @@ interface RecommendArtListProps {
   items: NailCard[];
 }
 
-declare global {
-  interface Window {
-    instgrm?: {
-      Embeds: {
-        process: () => void;
-      };
+function InstagramSafeImage({ url }: { url: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        const targetWidth = 326;
+        if (width > 0) {
+          setScale(width / targetWidth);
+        }
+      }
     };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (!url || url.trim() === '') {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">
+        이미지가 없습니다.
+      </div>
+    );
   }
+
+  const cleanUrl = url.split('?')[0];
+  const embedUrl = `${cleanUrl}${cleanUrl.endsWith('/') ? '' : '/'}embed/?captioned=false`;
+
+  const shopInitial = item.shop_name ? item.shop_name.substring(0, 1) : 'N';
+
+  return (
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
+      <div
+        className="absolute origin-top-left"
+        style={{
+        width: '326px',
+        height: '480px', 
+        transform: `scale(${scale})`,
+        top: '-32px', 
+        left: '0px',
+      }}
+      >
+        <iframe
+          src={embedUrl}
+          className="w-full h-full border-0 pointer-events-none"
+          scrolling="no"
+          title="Instagram Image"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  );
 }
 
 function ArtCard({ item }: { item: NailCard }) {
   const navigate = useNavigate();
 
-  const handleProfileClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/shop/${item.shop_name || 'unknown'}`);
-  };
-
   const handleCardClick = () => {
     navigate(`/art-detail/${item.card_id}`);
   };
 
-  const shopInitial = item.shop_name ? item.shop_name.substring(0, 1) : 'N';
-
   return (
     <div className="w-full cursor-pointer group" onClick={handleCardClick}>
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="w-5 h-5 rounded-full bg-[#E9EBEE] shrink-0 overflow-hidden flex items-center justify-center text-[10px] font-bold text-gray-500">
-            {shopInitial}
-          </span>
-          <span className="text-xs text-[#646F7C] truncate">
-            {item.shop_name || '이름 없음'}
-          </span>
-        </div>
-        <button
-          onClick={handleProfileClick}
-          className="text-[10px] text-white bg-[#3B82F6] px-1.5 py-0.5 rounded shrink-0"
-        >
-          프로필 보기
-        </button>
+      <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-gray-100 pointer-events-none">
+        <InstagramSafeImage url={item.instagram_url} />
       </div>
 
-      <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 bg-[#E9EBEE] pointer-events-none">
-        {item.instagram_url ? (
-          <blockquote
-            className="instagram-media"
-            data-instgrm-permalink={item.instagram_url}
-            data-instgrm-version="14"
-            style={{ background: '#FFF', border: '0', borderRadius: '12px', margin: '0', width: '100%' }}
-          />
-        ) : (
-          <div className="aspect-square flex items-center justify-center text-xs text-gray-400 bg-gray-100">
-            이미지가 없습니다.
-          </div>
-        )}
-      </div>
-
-      <p className="mt-2 text-sm font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors">
+      <p className="mt-2 text-sm font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate">
         {item.shop_name || '이름 없음'}
       </p>
       <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5 mt-0.5">
@@ -79,8 +91,9 @@ function ArtCard({ item }: { item: NailCard }) {
         </svg>
         {item.region_name || '지역 정보 없음'}
       </p>
-      <p className="text-xs text-[#646F7C] mt-1 font-medium">
-        {item.min_price?.toLocaleString() || 0}~{item.max_price?.toLocaleString() || 0}원
+      <p className="text-xs text-[#646F7C] mt-1 font-semibold">
+        {item.min_price ? `${item.min_price.toLocaleString()}원` : '0원'} ~{' '}
+        {item.max_price ? `${item.max_price.toLocaleString()}원` : '0원'}
       </p>
     </div>
   );
@@ -98,9 +111,15 @@ export default function RecommendArtList({ items }: RecommendArtListProps) {
 
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-4 pb-4">
-      {items?.map((item, index) => (
-        <ArtCard key={item.card_id || `art-card-${index}`} item={item} />
-      ))}
+      {items && items.length > 0 ? (
+        items.map((item, index) => (
+          <ArtCard key={item.card_id || `art-card-${index}`} item={item} />
+        ))
+      ) : (
+        <div className="col-span-2 text-center py-10 text-gray-400 text-sm">
+          추천해 드릴 아트를 찾지 못했습니다.
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,15 @@ import { mockCardResponse, type NailCard } from '../data/nailData';
 
 // 위치가 바뀐 art_search 폴더의 바텀 시트 임포트
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
+// 정렬 드롭다운 컴포넌트 임포트
+import ArtSort, { type SortOption } from '../components/art_search/ArtSort';
+
+const ART_TYPE_LABELS: Record<string, string> = {
+  MONTHLY: '이달의 아트',
+  LAST_MONTHLY: '지난달 아트',
+  EVENT: '이벤트 아트',
+  ONE_COLOR: '원컬러',
+};
 
 function InstagramSafeImage({ url }: { url: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,7 +84,7 @@ function ArtCard({ card }: { card: NailCard }) {
       </div>
 
       <div className="relative pt-2">
-        <span className="inline-flex rounded bg-[#FCE7F3] px-1.5 py-0.5 text-[10px] font-bold text-[#FF007A]">
+        <span className="inline-flex rounded bg-[#FCE7F3] px-1.5 py-0.5 text-[10px] font-bold text-[#374553]">
           {card.created_month ? `${parseInt(card.created_month.split('-')[1], 10)}월 ` : ''}
           {card.art_type === 'EVENT' ? '이벤트' : '이달아'}
         </span>
@@ -115,9 +124,12 @@ function ArtCard({ card }: { card: NailCard }) {
 export default function ArtSearchPage() {
   const navigate = useNavigate();
   
+  // 1. 화면에 최종 보여줄 카드를 위한 state 추가
+  const [displayCards, setDisplayCards] = useState<NailCard[]>([]);
+
   // 정렬 순서 및 드롭다운 토글 상태 관리
   const [sortOpen, setSortOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState<'RECOMMEND' | 'PRICE_LOW' | 'PRICE_HIGH'>('RECOMMEND');
+  const [selectedSort, setSelectedSort] = useState<SortOption>('RECOMMEND');
 
   // 필터 바텀시트 열림 여부
   const [filterOpen, setFilterOpen] = useState(false);
@@ -131,7 +143,43 @@ export default function ArtSearchPage() {
     designs: [],
   });
 
-  const cards = mockCardResponse.result.cards;
+  // 2. 필터 조건과 정렬 기준이 바뀔 때 데이터를 재정렬/필터링하는 핵심 로직 추가
+  useEffect(() => {
+    // 원본 데이터 복사
+    let updatedCards = [...mockCardResponse.result.cards];
+
+    // [A] 위치 필터링
+    if (filters.regions.length > 0) {
+      updatedCards = updatedCards.filter((card) =>
+        filters.regions.includes(card.region_name)
+      );
+    }
+
+    // [B] 가격 필터링 (최소 가격 ~ 최대 가격 범위)
+    updatedCards = updatedCards.filter((card) => {
+      return card.max_price >= filters.minPrice && card.min_price <= filters.maxPrice;
+    });
+
+    // [C] 아트 유형 필터링
+    if (filters.artType !== 'ALL') {
+      updatedCards = updatedCards.filter((card) => card.art_type === filters.artType);
+    }
+
+    // [D] 정렬 처리
+    if (selectedSort === 'PRICE_LOW') {
+      // 가격 낮은 순 (min_price 오름차순)
+      updatedCards.sort((a, b) => a.min_price - b.min_price);
+    } else if (selectedSort === 'PRICE_HIGH') {
+      // 가격 높은 순 (max_price 내림차순)
+      updatedCards.sort((a, b) => b.max_price - a.max_price);
+    } else {
+      // 추천순 (기본 card_id 순서 등 고유 로직 처리)
+      updatedCards.sort((a, b) => a.card_id - b.card_id);
+    }
+
+    // 최종 변경 데이터를 상태에 세팅
+    setDisplayCards(updatedCards);
+  }, [filters, selectedSort]);
 
   // 정렬 텍스트 변환 헬퍼
   const getSortLabel = () => {
@@ -165,25 +213,76 @@ export default function ArtSearchPage() {
           >
             <FiSliders />
           </button>
-          {['위치', '가격', '아트', '디자인'].map((filter) => (
-            <button
-              key={filter}
-              type="button"
-              onClick={() => setFilterOpen(true)}
-              className="flex h-8 items-center gap-1 rounded-full border border-[#b7bec8] px-3 text-xs text-[#56606d]"
-            >
-              {filter}
-              <FiChevronDown />
-            </button>
-          ))}
+
+          {/* 위치 칩 */}
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
+              filters.regions.length > 0
+                ? 'border-transparent bg-[#FF007A] text-white font-semibold'
+                : 'border-[#b7bec8] text-[#56606d]'
+            }`}
+          >
+            {filters.regions.length > 0 ? filters.regions.join(', ') : '위치'}
+            <FiChevronDown />
+          </button>
+
+          {/* 가격 칩 */}
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
+              filters.minPrice !== 30000 || filters.maxPrice !== 100000
+                ? 'border-transparent bg-[#FF007A] text-white font-semibold'
+                : 'border-[#b7bec8] text-[#56606d]'
+            }`}
+          >
+            {filters.minPrice !== 30000 || filters.maxPrice !== 100000
+              ? `${(filters.minPrice / 10000).toFixed(0)}~${(filters.maxPrice / 10000).toFixed(0)}만원`
+              : '가격'}
+            <FiChevronDown />
+          </button>
+
+          {/* 아트 칩 */}
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
+              filters.artType !== 'ALL'
+                ? 'border-transparent bg-[#FF007A] text-white font-semibold'
+                : 'border-[#b7bec8] text-[#56606d]'
+            }`}
+          >
+            {filters.artType !== 'ALL' ? (ART_TYPE_LABELS[filters.artType] ?? '아트') : '아트'}
+            <FiChevronDown />
+          </button>
+
+          {/* 디자인 칩 */}
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
+              filters.designs.length > 0
+                ? 'border-transparent bg-[#FF007A] text-white font-semibold'
+                : 'border-[#b7bec8] text-[#56606d]'
+            }`}
+          >
+            {filters.designs.length > 0
+              ? filters.designs.length === 1
+                ? filters.designs[0]
+                : `${filters.designs[0]} 외 ${filters.designs.length - 1}`
+              : '디자인'}
+            <FiChevronDown />
+          </button>
         </div>
       </section>
 
       <section className="px-4 pt-5">
         <div className="mb-5 flex items-center justify-between text-xs text-[#727b88]">
-          <span>검색결과 {cards.length}개</span>
+          <span>검색결과 {displayCards.length}개</span>
           
-          {/* 정렬 드롭다운 컴포넌트 에러를 방지하기 위해 인라인 컴포넌트로 깔끔하게 처리 */}
+          {/* 3. 드롭다운 이벤트 꼬임 방지를 위해 ArtSort 컴포넌트로 대체 연동 */}
           <div className="relative">
             <button
               type="button"
@@ -192,42 +291,27 @@ export default function ArtSearchPage() {
             >
               {getSortLabel()} <FiChevronDown />
             </button>
-            {sortOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
-                <div className="absolute right-0 top-6 z-20 w-32 rounded-lg border border-[#eceef1] bg-white py-1 shadow-lg text-center">
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedSort('RECOMMEND'); setSortOpen(false); }}
-                    className={`block w-full py-2.5 text-xs ${selectedSort === 'RECOMMEND' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
-                  >
-                    추천순
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedSort('PRICE_LOW'); setSortOpen(false); }}
-                    className={`block w-full py-2.5 text-xs border-t border-gray-50 ${selectedSort === 'PRICE_LOW' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
-                  >
-                    가격 낮은 순
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedSort('PRICE_HIGH'); setSortOpen(false); }}
-                    className={`block w-full py-2.5 text-xs border-t border-gray-50 ${selectedSort === 'PRICE_HIGH' ? 'font-bold text-[#FF007A]' : 'text-gray-600'}`}
-                  >
-                    가격 높은 순
-                  </button>
-                </div>
-              </>
-            )}
+            <ArtSort
+              isOpen={sortOpen}
+              onClose={() => setSortOpen(false)}
+              selectedSort={selectedSort}
+              onSelectSort={(sort) => setSelectedSort(sort)}
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-7">
-          {cards.map((card, index) => (
-            <ArtCard key={card.card_id || `search-card-${index}`} card={card} />
-          ))}
-        </div>
+        {/* 4. displayCards 상태 데이터 기반으로 화면 그리드 렌더링 */}
+        {displayCards.length > 0 ? (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-7">
+            {displayCards.map((card, index) => (
+              <ArtCard key={card.card_id || `search-card-${index}`} card={card} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-20 text-center text-sm text-gray-400">
+            조건에 맞는 아트가 없습니다.
+          </div>
+        )}
       </section>
 
       {/* 최종 조립된 통합 바텀 시트 연동 */}

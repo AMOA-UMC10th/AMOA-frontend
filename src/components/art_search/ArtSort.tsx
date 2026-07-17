@@ -1,9 +1,5 @@
-//B102 아트 목록 정렬(drop down)
+// B102 아트 목록 정렬(drop down)
 
-
-import React from 'react';
-
-// 정렬 옵션 타입 정의
 export type SortOption = 'RECOMMEND' | 'PRICE_LOW' | 'PRICE_HIGH';
 
 interface ArtSortProps {
@@ -21,7 +17,6 @@ export default function ArtSort({
 }: ArtSortProps) {
   if (!isOpen) return null;
 
-  // 정렬 아이템 배열
   const SORT_ITEMS: { label: string; value: SortOption }[] = [
     { label: '추천순', value: 'RECOMMEND' },
     { label: '가격 낮은 순', value: 'PRICE_LOW' },
@@ -30,21 +25,29 @@ export default function ArtSort({
 
   return (
     <>
-      {/* 바깥 영역을 누르면 드롭다운이 닫히도록 투명 배경 레이어 배치 */}
-      <div className="fixed inset-0 z-20" onClick={onClose} />
+      <div 
+        className="fixed inset-0 z-40 bg-black/0" 
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }} 
+      />
 
-      {/* 정렬 메뉴 컨테이너 */}
-      <div className="absolute right-0 top-7 z-30 w-32 rounded-xl border border-[#eceef1] bg-white py-1.5 shadow-lg">
+      <div 
+        className="absolute right-0 top-9 z-50 w-32 rounded-xl border border-[#eceef1] bg-white py-1.5 shadow-lg"
+        onClick={(e) => e.stopPropagation()} 
+      >
         <ul className="flex flex-col">
           {SORT_ITEMS.map((item) => {
             const isSelected = selectedSort === item.value;
             return (
-              <li key={item.value}>
+              <li key={item.value} className="w-full">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation(); 
                     onSelectSort(item.value);
-                    onClose(); // 선택 후 드롭다운 닫기
+                    onClose();
                   }}
                   className={`w-full px-4 py-2.5 text-left text-xs font-semibold transition-colors ${
                     isSelected
