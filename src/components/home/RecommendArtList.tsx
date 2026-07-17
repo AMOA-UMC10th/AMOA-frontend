@@ -37,6 +37,8 @@ function InstagramSafeImage({ url }: { url: string }) {
   const cleanUrl = url.split('?')[0];
   const embedUrl = `${cleanUrl}${cleanUrl.endsWith('/') ? '' : '/'}embed/?captioned=false`;
 
+  const shopInitial = item.shop_name ? item.shop_name.substring(0, 1) : 'N';
+
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
       <div
@@ -98,6 +100,15 @@ function ArtCard({ item }: { item: NailCard }) {
 }
 
 export default function RecommendArtList({ items }: RecommendArtListProps) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (window.instgrm) {
+        window.instgrm.Embeds.process();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [items]);
+
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-4 pb-4">
       {items && items.length > 0 ? (
