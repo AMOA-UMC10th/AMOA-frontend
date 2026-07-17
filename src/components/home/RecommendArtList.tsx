@@ -37,8 +37,6 @@ function InstagramSafeImage({ url }: { url: string }) {
   const cleanUrl = url.split('?')[0];
   const embedUrl = `${cleanUrl}${cleanUrl.endsWith('/') ? '' : '/'}embed/?captioned=false`;
 
-  const shopInitial = item.shop_name ? item.shop_name.substring(0, 1) : 'N';
-
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
       <div
