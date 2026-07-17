@@ -1,12 +1,12 @@
 // G101 완벽한 연말을 위한 PICK 섹션
 
+import type { NailCard } from '../../data/nailData';
 import RecommendArtList from './RecommendArtList';
-import type { RecommendArt } from '../../data/homeData';
 
 interface PickSectionProps {
   title: string;
   highlightWord: string;
-  items: RecommendArt[];
+  items: NailCard[];
   onMoreClick: () => void;
 }
 
