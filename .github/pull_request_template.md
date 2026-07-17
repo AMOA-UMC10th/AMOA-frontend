@@ -2,9 +2,9 @@
 Closes #이슈번호 
 
 ## PR 타입
-[ ] 기능 추가 (Feature)
-[ ] 버그 수정 (Bug Fix)
-[ ] 리팩토링 (Refactoring)
+- [ ] 기능 추가 (Feature)
+- [ ] 버그 수정 (Bug Fix)
+- [ ] 리팩토링 (Refactoring)
 
 ## 작업 내용
 주요 내용 정리
