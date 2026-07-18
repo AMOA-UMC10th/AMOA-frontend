@@ -10,6 +10,7 @@ export interface HandStatusOption {
   id: HandStatusId;
   label: string;
   price: number;
+  badgeMinutes?: number;
 }
 
 export const HAND_STATUS_OPTIONS: HandStatusOption[] = [
@@ -51,7 +52,7 @@ export const ADDITIONAL_OPTIONS: AdditionalOption[] = [
   },
   {
     id: 'wrapping',
-    label: '래핑',
+    label: '랩핑',
     badgeMinutes: 20,
     unitPrice: 5000,
     maxCount: 10,
@@ -123,14 +124,19 @@ export function calculateTotalPrice(selection: ReservationSelection): number {
   return total;
 }
 
-// ⚠️ 단순화한 부분: 소요시간은 "기본 60분 + 선택한 아트의 소요시간"만 반영했어요.
-// 목업 스크린샷에서도 옵션(연장/래핑)을 추가해도 "1h 20m"이 안 바뀌길래, 추가옵션은 가격에만 영향 주고
-// 소요시간에는 영향 안 주는 걸로 가정했어요. 실제로 옵션도 시간에 영향을 줘야 하면 말씀해주세요.
+// ⚠️ 추가옵션(연장/래핑)도 소요시간에 영향을 줍니다. 개당 20분씩 추가돼요.
 export function calculateTotalDuration(
   selection: ReservationSelection,
 ): number {
   const art = ART_OPTIONS.find((a) => a.id === selection.selectedArtId);
-  return BASE_DURATION_MINUTES + (art?.badgeMinutes ?? 0);
+  let total = BASE_DURATION_MINUTES + (art?.badgeMinutes ?? 0);
+
+  ADDITIONAL_OPTIONS.forEach((option) => {
+    const count = selection.additionalCounts[option.id] ?? 0;
+    total += count * option.badgeMinutes;
+  });
+
+  return total;
 }
 
 export function formatDuration(minutes: number): string {
