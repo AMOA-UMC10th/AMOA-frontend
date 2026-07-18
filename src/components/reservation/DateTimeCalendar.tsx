@@ -91,20 +91,20 @@ export default function DateTimeCalendar({
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="cursor-pointer p-1 text-[#646F7C]"
+          className="cursor-pointer p-2 text-[#646F7C]"
           aria-label="이전 달"
         >
           <ChevronLeftSmallIcon className="h-3 w-2" />
         </button>
 
-        <span className="text-sm font-bold text-[#171B1C]">
+        <span className="text-lg font-bold text-[#171B1C]">
           {viewYear}년 {viewMonth + 1}월
         </span>
 
         <button
           type="button"
           onClick={handleNextMonth}
-          className="cursor-pointer p-1 text-[#646F7C]"
+          className="cursor-pointer p-2 text-[#646F7C]"
           aria-label="다음 달"
         >
           <ChevronRightSmallIcon className="h-3 w-2" />
@@ -112,53 +112,40 @@ export default function DateTimeCalendar({
       </div>
 
       {/* 요일 */}
-      <div className="mt-3 grid grid-cols-7 text-center text-xs text-[#ADB0B5]">
+      <div className="mt-8.5 grid grid-cols-7 text-center text-sm text-[#646F7C]">
         {WEEKDAYS.map((weekday, index) => (
-          <span
-            key={weekday}
-            className={
-              index === 0
-                ? 'text-[#F70071]'
-                : index === 6
-                  ? 'text-[#3B82F6]'
-                  : ''
-            }
-          >
+          <span key={weekday} className={index === 0 ? 'text-[#F70071]' : ''}>
             {weekday}
           </span>
         ))}
       </div>
 
       {/* 날짜 */}
-      <div className="mt-2 grid grid-cols-7 gap-y-2 text-center">
+      <div className="mt-4 grid grid-cols-7 gap-y-1 text-center">
         {days.map((day, index) => {
           if (day === null) {
             return <span key={`blank-${index}`} />;
           }
 
           const dateKey = toDateKey(viewYear, viewMonth, day);
-
           const currentDate = new Date(viewYear, viewMonth, day);
-
           const isSelected = selectedDate === dateKey;
           const isToday = getTodayKey() === dateKey;
-
-          // Date 객체끼리 비교한 결과는 boolean
           const isPast = currentDate < todayStart;
 
           return (
-            <div key={dateKey} className="flex flex-col items-center gap-0.5">
+            <div key={dateKey} className="flex flex-col items-center gap-0.2">
               <button
                 type="button"
                 disabled={isPast}
                 onClick={() => onSelectDate(dateKey)}
-                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-md ${
                   isPast
                     ? 'cursor-not-allowed text-[#E9EBEE]'
                     : 'cursor-pointer'
                 } ${
                   isSelected
-                    ? 'bg-[#F70071] font-bold text-white'
+                    ? 'bg-[#F70071] font-medium text-white'
                     : isPast
                       ? ''
                       : 'text-[#171B1C]'
@@ -167,9 +154,11 @@ export default function DateTimeCalendar({
                 {day}
               </button>
 
-              {isToday && (
-                <span className="text-[9px] text-[#F70071]">오늘</span>
-              )}
+              <span
+                className={`text-[11px] text-[#ADB0B5] ${isToday ? '' : 'invisible'}`}
+              >
+                오늘
+              </span>
             </div>
           );
         })}
@@ -177,7 +166,7 @@ export default function DateTimeCalendar({
 
       {/* 예약 시간 */}
       {selectedDate && (
-        <div className="mt-6 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-3">
           {timeSlots.map((slot) => {
             const isSelected = selectedTime === slot.time;
 
@@ -187,10 +176,10 @@ export default function DateTimeCalendar({
                 type="button"
                 disabled={!slot.available}
                 onClick={() => onSelectTime(slot.time)}
-                className={`cursor-pointer rounded-lg border py-2.5 text-sm disabled:cursor-not-allowed disabled:border-[#E9EBEE] disabled:text-[#E9EBEE] ${
+                className={`cursor-pointer rounded-lg border border-[2px] py-4 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8F9] disabled:text-[#D4D7DC] ${
                   isSelected
-                    ? 'border-[#F70071] bg-[#F70071] font-bold text-white'
-                    : 'border-[#E9EBEE] text-[#171B1C]'
+                    ? 'border-[#F70071] bg-[#F70071] font-medium text-white'
+                    : 'border-[#D4D7DC] text-[#171B1C]'
                 }`}
               >
                 {slot.time}

@@ -51,6 +51,20 @@ export default function ReservationPage() {
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 11);
+
+    if (numbers.length < 4) {
+      return numbers;
+    }
+
+    if (numbers.length < 8) {
+      return numbers.replace(/(\d{3})(\d+)/, '$1-$2');
+    }
+
+    return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  };
+
   const [requestNote, setRequestNote] = useState('');
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
@@ -205,7 +219,7 @@ export default function ReservationPage() {
           <div className="mt-6 w-full flex gap-2">
             <button
               onClick={() => navigate('/home')}
-              className="flex-1 border border-[#E9EBEE] text-[#171B1C] rounded-lg py-3 cursor-pointer"
+              className="flex-1 border border-[2px] border-[#D4D7DC] text-[#171B1C] rounded-lg py-3 cursor-pointer"
             >
               홈으로
             </button>
@@ -317,8 +331,13 @@ export default function ReservationPage() {
                   휴대폰 번호
                 </label>
                 <input
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={13}
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onChange={(e) => {
+                    setCustomerPhone(formatPhoneNumber(e.target.value));
+                  }}
                   placeholder="010-0000-0000"
                   className="mt-1.5 w-full bg-[#F7F8FA] rounded-lg px-3 py-3 outline-none text-sm text-[#171B1C] placeholder:text-[#ADB0B5]"
                 />
@@ -363,29 +382,47 @@ export default function ReservationPage() {
             </div>
 
             <div className="mt-6">
-              <p className="text-sm font-medium text-[#28323C] mb-2">
-                결제 수단
-              </p>
-              <div className="flex flex-col gap-2">
-                {(['KAKAO_PAY', 'CARD'] as PaymentMethod[]).map((method) => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setPaymentMethod(method)}
-                    className={`flex items-center justify-between rounded-xl border bg-white px-4 py-3 text-sm cursor-pointer ${
-                      paymentMethod === method
-                        ? 'border-[#F70071]'
-                        : 'border-[#E9EBEE]'
-                    }`}
-                  >
-                    <span className="text-[#171B1C]">
-                      {method === 'KAKAO_PAY' ? '카카오페이' : '신용/체크카드'}
-                    </span>
-                    <span
-                      className={`w-4 h-4 rounded-full border ${paymentMethod === method ? 'border-[#F70071] bg-[#F70071]' : 'border-[#E9EBEE]'}`}
-                    />
-                  </button>
-                ))}
+              <p className="mb-3 text-lg font-bold text-[#171B1C]">결제 수단</p>
+
+              <div className="flex flex-col gap-3">
+                {(['KAKAO_PAY', 'CARD'] as PaymentMethod[]).map((method) => {
+                  const isSelected = paymentMethod === method;
+
+                  return (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPaymentMethod(method)}
+                      className={`flex w-full items-center justify-between rounded-2xl border-2 bg-white px-5 py-6 text-left cursor-pointer transition-colors ${
+                        isSelected ? 'border-[#F70071]' : 'border-[#D9DBDF]'
+                      }`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="text-base font-bold text-[#171B1C]">
+                          {method === 'KAKAO_PAY'
+                            ? '카카오페이'
+                            : '신용/체크카드'}
+                        </span>
+
+                        <span className="text-sm text-[#ADB0B5]">
+                          {method === 'KAKAO_PAY'
+                            ? '카카오톡 간편결제'
+                            : '국내외 모든 카드 사용 가능'}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
+                          isSelected ? 'border-[#F70071]' : 'border-[#BFC3C8]'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="h-3 w-3 rounded-full bg-[#F70071]" />
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -414,18 +451,18 @@ export default function ReservationPage() {
       </div>
 
       {(step === 'hand-status' || step === 'art-option') && (
-        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-5 py-2.5">
+        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-5 py-3">
           <div className="flex items-center gap-2 text-xs text-[#ADB0B5]">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2">
               결제금액
-              <span className="text-sm font-bold text-[#171B1C]">
+              <span className="text-lg font-bold text-[#171B1C]">
                 {totalPrice.toLocaleString()}원
               </span>
             </span>
             <span className="text-[#E9EBEE]">·</span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2">
               소요시간
-              <span className="text-sm font-bold text-[#171B1C]">
+              <span className="text-lg font-bold text-[#171B1C]">
                 {formatDuration(totalDuration)}
               </span>
             </span>
@@ -437,7 +474,7 @@ export default function ReservationPage() {
                 ? !isHandStatusComplete
                 : !isArtOptionComplete
             }
-            className="rounded-lg bg-[#F70071] px-6 py-2.5 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="rounded-xl bg-[#F70071] px-9 py-4 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
           >
             다음
           </button>
@@ -445,11 +482,11 @@ export default function ReservationPage() {
       )}
 
       {step === 'datetime' && (
-        <div className="shrink-0 border-t border-[#E9EBEE] px-5 py-3">
+        <div className="shrink-0 px-5 py-3">
           <button
             onClick={handleNextStep}
             disabled={!isDateTimeComplete}
-            className="w-full rounded-lg bg-[#171B1C] py-3.5 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#ADB0B5] disabled:text-white"
           >
             다음
           </button>
@@ -457,11 +494,11 @@ export default function ReservationPage() {
       )}
 
       {step === 'confirm' && (
-        <div className="shrink-0 px-5 py-3 border-t border-[#E9EBEE]">
+        <div className="shrink-0 px-5 py-3">
           <button
             onClick={handleConfirmNext}
             disabled={!isConfirmComplete}
-            className="w-full rounded-lg bg-[#171B1C] py-3.5 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="mb-3 w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
           >
             다음
           </button>
