@@ -1,19 +1,9 @@
 // [E102] 찜한 아트 카드 (이미지, 아트명, 샵명, 위치, 가격 + 하트 아이콘)
 
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArtLikeBtn from '../common/ArtLikeBtn';
+import InstagramSafeImage from '../common/InstagramSafeImage';
 import type { NailCard } from '../../data/nailData';
-
-declare global {
-  interface Window {
-    instgrm?: {
-      Embeds: {
-        process: () => void;
-      };
-    };
-  }
-}
 
 interface WishArtCardProps {
   card: NailCard;
@@ -22,11 +12,6 @@ interface WishArtCardProps {
 
 export default function WishArtCard({ card, onUnlike }: WishArtCardProps) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setTimeout(() => window.instgrm?.Embeds.process(), 100);
-    return () => clearTimeout(timer);
-  }, [card.instagram_url]);
 
   const badgeLabel = `${
     card.created_month ? `${parseInt(card.created_month.split('-')[1], 10)}월 ` : ''
@@ -38,14 +23,7 @@ export default function WishArtCard({ card, onUnlike }: WishArtCardProps) {
       onClick={() => navigate(`/art/${card.card_id}`)}
     >
       <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 bg-[#E9EBEE] pointer-events-none">
-        {card.instagram_url && (
-          <blockquote
-            className="instagram-media"
-            data-instgrm-permalink={card.instagram_url}
-            data-instgrm-version="14"
-            style={{ background: '#FFF', border: '0', borderRadius: '12px', margin: '0', width: '100%' }}
-          />
-        )}
+        <InstagramSafeImage url={card.instagram_url} />
       </div>
 
       <div className="relative pt-2">
