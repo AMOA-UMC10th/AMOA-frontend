@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronDown, FiChevronLeft, FiHeart, FiSliders } from 'react-icons/fi';
 import { mockCardResponse, type NailCard } from '../data/nailData';
+import InstagramSafeImage from '../components/common/InstagramSafeImage';
 
 // 위치가 바뀐 art_search 폴더의 바텀 시트 임포트
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
@@ -14,61 +15,6 @@ const ART_TYPE_LABELS: Record<string, string> = {
   EVENT: '이벤트 아트',
   ONE_COLOR: '원컬러',
 };
-
-function InstagramSafeImage({ url }: { url: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        const width = containerRef.current.offsetWidth;
-        const targetWidth = 326; // 인스타 기본 최소 가로폭 기준
-        if (width > 0) {
-          setScale(width / targetWidth);
-        }
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  if (!url || url.trim() === '') {
-    return (
-      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">
-        이미지가 없습니다.
-      </div>
-    );
-  }
-
-  const cleanUrl = url.split('?')[0];
-  const embedUrl = `${cleanUrl}${cleanUrl.endsWith('/') ? '' : '/'}embed/?captioned=false`;
-
-  return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
-      <div
-        className="absolute origin-top-left"
-        style={{
-          width: '326px',
-          height: '435px', // 3:4 세로 비율 유지 (326 * 4/3)
-          transform: `scale(${scale})`,
-          top: '0px',      // 자르지 않고 맨 위부터 보이도록 0px로 고정
-          left: '0px',
-        }}
-      >
-        <iframe
-          src={embedUrl}
-          className="w-full h-full border-0 pointer-events-none"
-          scrolling="no"
-          title="Instagram Image"
-          loading="lazy"
-        />
-      </div>
-    </div>
-  );
-}
 
 function ArtCard({ card }: { card: NailCard }) {
   const navigate = useNavigate();
