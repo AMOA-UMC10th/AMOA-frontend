@@ -19,7 +19,6 @@ export default function ArtDetailPage() {
   const { cardId } = useParams();
   const [showKakaoModal, setShowKakaoModal] = useState(false);
 
-  // TODO: GET /api/cards/{card_id} 로 교체
   const card: NailCard =
     mockCardResponse.result.cards.find((c) => c.card_id === Number(cardId)) ??
     mockCardResponse.result.cards[0];
@@ -28,11 +27,9 @@ export default function ArtDetailPage() {
     (c) => c.card_id !== card.card_id,
   );
 
-  // TODO: 실제 태그 데이터 연동 전까지 임시 고정값 (나중에 adminData.ts 또는 백엔드 실제 태그로 교체 필요)
   const designTags = ['아기자기', '파스텔', '화려함'];
 
   const handleShopClick = () => {
-    // TODO: D101(네일샵 상세) merge 시 실제 라우트 연결
     navigate(`/shop/${card.shop_name}`);
   };
 
@@ -43,9 +40,7 @@ export default function ArtDetailPage() {
           title: card.shop_name,
           url: window.location.href,
         })
-        .catch(() => {
-          /* 사용자가 취소한 경우 등은 무시 */
-        });
+        .catch(() => {});
     }
   };
 
@@ -58,12 +53,10 @@ export default function ArtDetailPage() {
         <span className="text-sm font-bold">아트 상세</span>
       </div>
 
-      {/* 인스타 임베드 */}
       <div className="px-1">
         <InstagramEmbed postUrl={card.instagram_url} />
       </div>
 
-      {/* 샵 정보 */}
       <button
         onClick={handleShopClick}
         className="flex items-center gap-2 px-4 py-4 w-full"
@@ -73,16 +66,13 @@ export default function ArtDetailPage() {
           <p className="text-sm font-bold text-[#171B1C]">{card.shop_name}</p>
           <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5">
             <AddressPinIcon className="w-3 h-3 text-[#ADB0B5]" />
-            {/* TODO: 입점신청 페이지(미구현)에서 등록될 상세 주소로 교체 예정. 지금은 region_name(구 단위) 임시 사용 */}
             {card.region_name}
           </p>
         </div>
       </button>
 
-      {/* 구분선 */}
       <div className="border-t border-[#E9EBEE] mx-4 mb-4" />
 
-      {/* 가격 정보 */}
       <div className="px-4 py-1">
         <p className="text-xs text-[#646F7C] font-bold mb-1">
           {card.art_type === 'MONTHLY'
@@ -93,7 +83,6 @@ export default function ArtDetailPage() {
           {card.min_price.toLocaleString()}~{card.max_price.toLocaleString()}원
         </p>
 
-        {/* 디자인 태그 */}
         {designTags.length > 0 && (
           <div className="py-1">
             <p className="text-xs text-[#646F7C] font-bold mb-2">디자인 태그</p>
@@ -113,7 +102,6 @@ export default function ArtDetailPage() {
 
       <RelatedArtList cards={relatedCards} />
 
-      {/* 하단 고정 CTA */}
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
         <ArtLikeBtn initialLiked={card.is_liked} />
         <button onClick={handleShare} aria-label="공유하기">

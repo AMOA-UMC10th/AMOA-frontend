@@ -1,7 +1,13 @@
-@import "tailwindcss";
-
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+@import "tailwindcss";
 
 @theme {
   --font-sans: "Pretendard", sans-serif;
 }
+
+body {
+  font-family: var(--font-sans);
+}
+
+
+/*폰트 import 수정*/
