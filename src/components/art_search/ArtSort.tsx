@@ -1,6 +1,6 @@
 // B102 아트 목록 정렬(drop down)
 
-export type SortOption = 'RECOMMEND' | 'PRICE_LOW' | 'PRICE_HIGH';
+export type SortOption = 'RECOMMEND' | 'POPULAR' | 'LATEST' | 'PRICE_LOW' | 'PRICE_HIGH';
 
 interface ArtSortProps {
   isOpen: boolean;
@@ -17,8 +17,11 @@ export default function ArtSort({
 }: ArtSortProps) {
   if (!isOpen) return null;
 
+  // 2. 드롭다운 아이템 목록에 인기순, 최신순 추가
   const SORT_ITEMS: { label: string; value: SortOption }[] = [
     { label: '추천순', value: 'RECOMMEND' },
+    { label: '인기순', value: 'POPULAR' },
+    { label: '최신순', value: 'LATEST' },
     { label: '가격 낮은 순', value: 'PRICE_LOW' },
     { label: '가격 높은 순', value: 'PRICE_HIGH' },
   ];
@@ -49,7 +52,7 @@ export default function ArtSort({
                     onSelectSort(item.value);
                     onClose();
                   }}
-                  className={`w-full px-4 py-2.5 text-left text-xs font-semibold transition-colors ${
+                  className={`w-full px-4 py-2.5 text-left text-xs transition-colors ${
                     isSelected
                       ? 'bg-[#FFF0F6] text-[#FF007A]'
                       : 'text-[#56606d] hover:bg-gray-50'
