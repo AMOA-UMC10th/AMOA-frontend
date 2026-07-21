@@ -28,8 +28,8 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
   const currentSortLabel = SORT_ITEMS.find(item => item.value === selectedSort)?.label || '최신순';
 
   return (
-    <div className="w-full bg-white px-4 pt-4 pb-20">
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-4">
+    <div className="w-full bg-white pt-4 pb-20">
+      <div className="px-5 flex gap-2 overflow-x-auto scrollbar-hide pb-4">
         {filters.map((filter) => (
           <button
             key={filter}
@@ -45,7 +45,7 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
         ))}
       </div>
 
-      <div className="flex items-center justify-between my-3 relative">
+      <div className="px-5 flex items-center justify-between my-3 relative">
         <p className="text-xs text-[#28323C]">아트 {totalCount}개</p>
 
         <div className="relative">
@@ -96,7 +96,7 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-3 gap-y-6">
+      <div className="grid grid-cols-2 gap-x-0.5 gap-y-6">
         {cards.map((card) => (
           <ArtCard
             key={card.card_id}

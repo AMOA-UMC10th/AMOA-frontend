@@ -10,7 +10,6 @@ import {
   ChevronLeftIcon,
   AddressPinIcon,
   ShareIcon,
-  KakaoIcon,
 } from '../assets/icons';
 import { mockCardResponse, type NailCard } from '../data/nailData';
 
@@ -90,7 +89,7 @@ export default function ArtDetailPage() {
               {designTags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs text-[#F70071] bg-[#FFEEF6] px-3 py-1.5 rounded-full font-bold"
+                  className="text-xs text-[#F70071] bg-[#FFEEF6] px-3 py-1.5 rounded-full font-semibold"
                 >
                   #{tag}
                 </span>
@@ -103,17 +102,22 @@ export default function ArtDetailPage() {
       <RelatedArtList cards={relatedCards} />
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
-        <ArtLikeBtn initialLiked={card.is_liked} />
-        <button onClick={handleShare} aria-label="공유하기">
-          <ShareIcon className="w-5 h-6 text-[#171B1C]" />
-        </button>
-        <button
-          onClick={() => setShowKakaoModal(true)}
-          className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
+        <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
+          <ArtLikeBtn initialLiked={card.is_liked} size={24} />
+          <button
+          onClick={handleShare}
+          aria-label="공유하기"
+          className="flex items-center justify-center"
         >
-          <KakaoIcon className="w-4 h-4" />
-          카카오로 시작하기
+          <ShareIcon className="w-5 h-6 text-[#171B1C] block" />
         </button>
+          <button
+            onClick={() => setShowKakaoModal(true)}
+            className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
+          >
+            예약하기
+          </button>
+        </div>
       </div>
 
       <KakaoMoveModal
