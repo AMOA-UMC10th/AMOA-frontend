@@ -11,11 +11,17 @@ export default function RecommendBanner({
   matchLabel,
   onMoreClick,
 }: RecommendBannerProps) {
+  const title = `${nickname}님을 위한 추천 이달아`;
+  const highlightWord = '추천 이달아';
+  const parts = title.split(highlightWord);
+
   return (
     <div className="flex items-center justify-between px-4 py-3">
       <div>
         <h2 className="text-lg font-bold text-[#28323C]">
-          {nickname}님을 위한 추천 이달아
+          {parts[0]}
+          <span className="text-[#FF1B82]">{highlightWord}</span>
+          {parts[1]}
         </h2>
         {matchLabel && (
           <p className="text-xs text-[#ADB0B5] mt-1">{matchLabel}</p>

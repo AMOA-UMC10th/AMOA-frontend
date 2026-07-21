@@ -85,7 +85,7 @@ export function MapPinIcon({ className }: { className?: string }) {
     <svg
       className={className}
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="#ADB0B5"
       stroke="none"
     >
       <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.72 11.11 7.01 11.36a1.5 1.5 0 0 0 1.98 0C13.28 21.11 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
@@ -106,21 +106,35 @@ export function HeartFilledIcon({ className }: { className?: string }) {
   );
 }
 
-export function HeartIcon({ className }: { className?: string }) {
+export function HeartIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 57 57"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3.5}
-      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={filled ? '#F70071' : 'none'}
+      stroke={filled ? '#F70071' : '#171B1C'}
+      strokeWidth={1.8}
     >
-      <path d="M10.468 32.7122L27.6081 48.8135C27.866 49.0557 27.995 49.1769 28.1486 49.2003C28.1986 49.2079 28.2495 49.2079 28.2995 49.2003C28.4531 49.1769 28.5821 49.0557 28.84 48.8135L45.9801 32.7122C50.581 28.3901 51.1397 21.2777 47.2701 16.2902L46.5425 15.3524C41.9133 9.38589 32.6214 10.3865 29.3687 17.2018C28.9092 18.1645 27.5389 18.1645 27.0794 17.2018C23.8267 10.3865 14.5348 9.38588 9.90561 15.3523L9.178 16.2902C5.30839 21.2777 5.86712 28.3901 10.468 32.7122Z" />
+      <path d="M4.4076 13.7736L11.6245 20.5531C11.7331 20.655 11.7874 20.7061 11.852 20.7159C11.8731 20.7191 11.8945 20.7191 11.9156 20.7159C11.9803 20.7061 12.0346 20.655 12.1432 20.5531L19.36 13.7736C21.2973 11.9537 21.5325 8.959 19.9032 6.859L19.5968 6.4642C17.6477 3.952 13.7353 4.3733 12.3658 7.2429C12.1723 7.6482 11.5953 7.6482 11.4019 7.2429C10.0323 4.3733 6.1199 3.9519 4.1708 6.4641L3.8644 6.859C2.2351 8.959 2.4704 11.9537 4.4076 13.7736Z" />
     </svg>
   );
 }
 
+export function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 1.0909V15.2727M7.6364 5.4545L12 1.0909L16.3636 5.4545M3.2727 12V20.7273C3.2727 21.3059 3.5026 21.8608 3.9118 22.27C4.3209 22.6792 4.8759 22.9091 5.4545 22.9091H18.5455C19.1241 22.9091 19.679 22.6792 20.0882 22.27C20.4974 21.8608 20.7273 21.3059 20.7273 20.7273V12" />
+    </svg>
+  );
+}
 export function AddressPinIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -160,48 +174,6 @@ export function ChevronRightSmallIcon({ className }: { className?: string }) {
   );
 }
 
-export function ShareIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 18 22"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M9 1V14M5 5L9 1L13 5M1 11V19C1 19.5304 1.21071 20.0391 1.58579 20.4142C1.96086 20.7893 2.46957 21 3 21H15C15.5304 21 16.0391 20.7893 16.4142 20.4142C16.7893 20.0391 17 19.5304 17 19V11" />
-    </svg>
-  );
-}
-
-export function ClockIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 15 15"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M7.99998 12.8333C7.27081 12.8333 6.58782 12.6948 5.95102 12.4177C5.31421 12.1406 4.76005 11.7663 4.28852 11.2948C3.81699 10.8233 3.44268 10.2691 3.1656 9.63231C2.88852 8.9955 2.74998 8.31252 2.74998 7.58335C2.74998 6.85418 2.88852 6.1712 3.1656 5.53439C3.44268 4.89759 3.81699 4.34342 4.28852 3.87189C4.76005 3.40036 5.31421 3.02606 5.95102 2.74897C6.58782 2.47189 7.27081 2.33335 7.99998 2.33335C8.72914 2.33335 9.41213 2.47189 10.0489 2.74897C10.6857 3.02606 11.2399 3.40036 11.7114 3.87189C12.183 4.34342 12.5573 4.89759 12.8344 5.53439C13.1114 6.1712 13.25 6.85418 13.25 7.58335C13.25 8.31252 13.1114 8.9955 12.8344 9.63231C12.5573 10.2691 12.183 10.8233 11.7114 11.2948C11.2399 11.7663 10.6857 12.1406 10.0489 12.4177C9.41213 12.6948 8.72914 12.8333 7.99998 12.8333ZM9.63331 10.0333L10.45 9.21668L8.58331 7.35002V4.66668H7.41664V7.81668L9.63331 10.0333ZM4.26664 1.37085L5.08331 2.18752L2.60414 4.66668L1.78748 3.85002L4.26664 1.37085ZM11.7333 1.37085L14.2125 3.85002L13.3958 4.66668L10.9166 2.18752L11.7333 1.37085Z" />
-    </svg>
-  );
-}
-
-export function PhoneIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 14 14"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M7.00001 4.66675C8.14723 4.66675 9.27744 4.89765 10.3906 5.35946C11.5038 5.82126 12.4931 6.51397 13.3583 7.43758C13.475 7.55425 13.5333 7.69036 13.5333 7.84591C13.5333 8.00147 13.475 8.13758 13.3583 8.25425L12.0167 9.56675C11.9097 9.67369 11.7858 9.73203 11.6448 9.74175C11.5038 9.75147 11.375 9.71258 11.2583 9.62508L9.56668 8.34175C9.4889 8.28341 9.43056 8.21536 9.39167 8.13758C9.35279 8.0598 9.33334 7.9723 9.33334 7.87508V6.21258C8.9639 6.09591 8.58473 6.00355 8.19584 5.9355C7.80695 5.86744 7.40834 5.83341 7.00001 5.83341C6.59167 5.83341 6.19306 5.86744 5.80417 5.9355C5.41529 6.00355 5.03612 6.09591 4.66667 6.21258V7.87508C4.66667 7.9723 4.64723 8.0598 4.60834 8.13758C4.56945 8.21536 4.51112 8.28341 4.43334 8.34175L2.74167 9.62508C2.62501 9.71258 2.49619 9.75147 2.35522 9.74175C2.21424 9.73203 2.09029 9.67369 1.98334 9.56675L0.641675 8.25425C0.525008 8.13758 0.466675 8.00147 0.466675 7.84591C0.466675 7.69036 0.525008 7.55425 0.641675 7.43758C1.49723 6.51397 2.48404 5.82126 3.60209 5.35946C4.72015 4.89765 5.85279 4.66675 7.00001 4.66675Z" />
-    </svg>
-  );
-}
 
 export function KakaoIcon({ className }: { className?: string }) {
   return (
@@ -252,6 +224,88 @@ export function location_on({ className }: { className?: string }) {
       stroke="none"
     >
       <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.72 11.11 7.01 11.36a1.5 1.5 0 0 0 1.98 0C13.28 21.11 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+    </svg>
+  );
+}
+
+export function notifications({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+    >
+      <path d="M12 2C8.13 2 5 5.13 5 9v6l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7z" />
+      <path d="M9 18a3 3 0 0 0 6 0H9z" />
+    </svg>
+  );
+}
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <span className={`font-extrabold text-2xl tracking-tight text-[#171B1C] ${className ?? ''}`}>
+      AMOA.
+    </span>
+  );
+}
+
+export function star({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="#FF1B82"
+      stroke="none"
+    >
+      <path d="M12 2.5c.5 0 .96.31 1.14.79l1.94 5.19 5.53.35c.51.03.95.37 1.11.86.16.49 0 1.03-.4 1.35l-4.31 3.48 1.5 5.35c.14.5-.04 1.03-.46 1.34-.42.31-.98.32-1.41.03L12 17.9l-4.64 3.04c-.43.29-.99.28-1.41-.03-.42-.31-.6-.84-.46-1.34l1.5-5.35-4.31-3.48c-.4-.32-.56-.86-.4-1.35.16-.49.6-.83 1.11-.86l5.53-.35 1.94-5.19c.18-.48.64-.79 1.14-.79z" />
+    </svg>
+  );
+}
+
+export function HomeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinejoin="round"
+    >
+      <path d="M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-9.5z" />
+    </svg>
+  );
+}
+
+export function NavSearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  );
+}
+
+export function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" />
     </svg>
   );
 }
