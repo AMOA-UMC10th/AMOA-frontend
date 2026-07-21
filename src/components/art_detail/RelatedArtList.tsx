@@ -21,7 +21,7 @@ export default function RelatedArtList({ cards }: RelatedArtListProps) {
         {cards.map((card) => (
           <button
             key={card.card_id}
-            onClick={() => navigate(`/art/${card.card_id}`)}
+            onClick={() => navigate(`/art-detail/${card.card_id}`)}
             className="text-left min-w-0 flex flex-col gap-1"
           >
             <InstagramEmbed postUrl={card.instagram_url} variant="thumbnail" />

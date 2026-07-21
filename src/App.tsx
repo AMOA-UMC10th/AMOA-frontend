@@ -22,6 +22,7 @@ import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
 import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
+import NailShopDetailPage from './pages/NailShopDetailPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -56,6 +57,11 @@ function ArtDetailPageRoute() {
   return <ArtDetailPage key={cardId} />;
 }
 
+function NailShopDetailPageRoute() {
+  const { shopId } = useParams();
+  return <NailShopDetailPage key={shopId} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -72,12 +78,14 @@ function App() {
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
-          <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
+          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
           <Route
             path="/art/:cardId/reservation"
             element={<ReservationPage />}
           />
+
           <Route path="/wishlist" element={<WishListPage />} />
+          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
