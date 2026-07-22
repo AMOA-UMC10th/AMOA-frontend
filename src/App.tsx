@@ -26,8 +26,9 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
+import MyPage from './pages/mypage/mypage';
 
-const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
+const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -79,6 +80,7 @@ function App() {
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
@@ -86,17 +88,12 @@ function App() {
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
           <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
-          <Route
-            path="/art/:cardId/reservation"
-            element={<ReservationPage />}
-          />
+          <Route path="/art/:cardId/reservation" element={<ReservationPage />}/>
           <Route path="/wishlist" element={<WishListPage />} />
-          <Route path="/reservations" element={<MyReservationListPage />} />
-          <Route
-            path="/reservations/:reservationId"
-            element={<MyReservationDetailPageRoute />}
-          />
+          <Route path="/mypage/reservations" element={<MyReservationListPage />} />
+          <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+          <Route path="/SplashPage" element={<SplashPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
