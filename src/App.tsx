@@ -27,15 +27,22 @@ import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyPage from './pages/mypage/MyPage';
+import WithdrawPage from './pages/mypage/WithdrawPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
+const NAV_HIDDEN_PATHS = [
+  '/mypage/settings',
+  '/mypage/notice',
+  '/mypage/terms',
+  '/mypage/withdraw',
+];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const showNav = NAV_VISIBLE_PATHS.some((path) =>
-    location.pathname.startsWith(path),
-  );
+  const showNav =
+    NAV_VISIBLE_PATHS.some((path) => location.pathname.startsWith(path)) &&
+    !NAV_HIDDEN_PATHS.some((path) => location.pathname.startsWith(path));
 
   return (
     <div className={isAdmin ? 'pc-layout' : 'mobile-layout'}>
@@ -94,6 +101,7 @@ function App() {
           <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/SplashPage" element={<SplashPage />} />
+          <Route path="/mypage/withdraw" element={<WithdrawPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
