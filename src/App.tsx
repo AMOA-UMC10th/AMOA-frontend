@@ -6,6 +6,7 @@ import {
   useLocation,
   useParams,
   useNavigate,
+  Navigate,
 } from 'react-router-dom';
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
@@ -76,7 +77,7 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
-          <Route path="/" element={<SplashPage />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
