@@ -16,6 +16,7 @@ import {
   formatDuration,
   formatDateLabel,
   getTodayKey,
+  saveReservation,
   type HandStatusId,
   type GelRemovalShop,
 } from '../data/reservationData';
@@ -64,7 +65,6 @@ export default function ReservationPage() {
 
     return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
   };
-
   const [requestNote, setRequestNote] = useState('');
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
@@ -72,6 +72,7 @@ export default function ReservationPage() {
   );
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   const selection = {
     handStatus,
@@ -131,12 +132,29 @@ export default function ReservationPage() {
   };
 
   const handleConfirmNext = () => {
-    if (!isConfirmComplete) return;
+    if (!isConfirmComplete || !selectedDate || !selectedTime) return;
 
     if (paymentMethod === 'KAKAO_PAY') handleKakaoPayFlow();
     else if (paymentMethod === 'CARD') handleCardPaymentFlow();
 
-    // TODO: 실제 결제 연동 전까지는 결제 없이 바로 완료 화면으로 이동
+    const id = crypto.randomUUID();
+    // TODO: 실제 결제 연동 전까지는 결제 없이 바로 저장 + 완료 화면으로 이동
+    saveReservation({
+      id,
+      cardId: card.card_id,
+      shopName: card.shop_name,
+      artLabel: selectedArt?.label ?? '',
+      date: selectedDate,
+      time: selectedTime,
+      totalPrice,
+      depositPrice: RESERVATION_DEPOSIT,
+      customerName,
+      customerPhone,
+      requestNote,
+      isCancelled: false,
+      createdAt: Date.now(),
+    });
+    setSavedId(id);
     setStep('complete');
   };
 
@@ -185,7 +203,7 @@ export default function ReservationPage() {
             예약이 완료됐어요
           </h1>
           <p className="mt-1 text-sm text-[#ADB0B5]">
-            예약번호 A-{Date.now().toString().slice(-8)}
+            예약번호 A-{savedId?.slice(0, 8).toUpperCase()}
           </p>
 
           <div className="mt-8 w-full rounded-xl bg-[#F7F8FA] divide-y divide-[#E9EBEE] px-5">
@@ -451,18 +469,18 @@ export default function ReservationPage() {
       </div>
 
       {(step === 'hand-status' || step === 'art-option') && (
-        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-5 py-3">
+        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-5 py-4">
           <div className="flex items-center gap-2 text-xs text-[#ADB0B5]">
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5">
               결제금액
-              <span className="text-lg font-bold text-[#171B1C]">
+              <span className="text-[18px] font-bold text-[#171B1C]">
                 {totalPrice.toLocaleString()}원
               </span>
             </span>
             <span className="text-[#E9EBEE]">·</span>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5">
               소요시간
-              <span className="text-lg font-bold text-[#171B1C]">
+              <span className="text-[18px] font-bold text-[#171B1C]">
                 {formatDuration(totalDuration)}
               </span>
             </span>
@@ -474,7 +492,7 @@ export default function ReservationPage() {
                 ? !isHandStatusComplete
                 : !isArtOptionComplete
             }
-            className="rounded-xl bg-[#F70071] px-9 py-4 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="rounded-xl bg-[#F70071] px-9 py-3 text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA] disabled:text-[#ffffff]"
           >
             다음
           </button>
@@ -498,7 +516,7 @@ export default function ReservationPage() {
           <button
             onClick={handleConfirmNext}
             disabled={!isConfirmComplete}
-            className="mb-3 w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
           >
             다음
           </button>

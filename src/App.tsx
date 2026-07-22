@@ -22,6 +22,8 @@ import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
 import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
+import MyReservationListPage from './pages/mypage/MyReservationListPage';
+import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -56,6 +58,11 @@ function ArtDetailPageRoute() {
   return <ArtDetailPage key={cardId} />;
 }
 
+function MyReservationDetailPageRoute() {
+  const { reservationId } = useParams();
+  return <MyReservationDetailPage key={reservationId} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -78,6 +85,11 @@ function App() {
             element={<ReservationPage />}
           />
           <Route path="/wishlist" element={<WishListPage />} />
+          <Route path="/reservations" element={<MyReservationListPage />} />
+          <Route
+            path="/reservations/:reservationId"
+            element={<MyReservationDetailPageRoute />}
+          />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>

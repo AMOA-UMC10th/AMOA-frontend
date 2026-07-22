@@ -15,8 +15,8 @@ export interface HandStatusOption {
 
 export const HAND_STATUS_OPTIONS: HandStatusOption[] = [
   { id: 'BARE', label: '맨손이에요', price: 40000 },
-  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0},
-  { id: 'EXTENSION_REMOVAL', label: '연장 제거할게요', price: 0},
+  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0 },
+  { id: 'EXTENSION_REMOVAL', label: '연장 제거할게요', price: 0 },
 ];
 
 export const EXTENSION_REMOVAL_UNIT_PRICE = 5000;
@@ -159,4 +159,211 @@ export function getTodayKey(): string {
 export function formatDateLabel(dateKey: string): string {
   const [, month, day] = dateKey.split('-').map(Number);
   return `${month}월 ${day}일`;
+}
+
+// ─────────────────────────────────────────
+// F102/F103 예약 내역 (localStorage 저장)
+// ─────────────────────────────────────────
+
+const RESERVATIONS_STORAGE_KEY = 'amoa_reservations';
+
+export interface SavedReservation {
+  id: string;
+  cardId: number;
+  shopName: string;
+  artLabel: string;
+  date: string; // YYYY-MM-DD
+  time: string;
+  totalPrice: number;
+  depositPrice: number;
+  customerName: string;
+  customerPhone: string;
+  requestNote: string;
+  isCancelled: boolean;
+  cancelledAt?: number;
+  createdAt: number;
+}
+
+export type DisplayStatus = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+
+// '01:00'~'05:00'은 오후 시간대라 +12, 10/11/12시는 그대로 둠 (영업시간 10:00~17:00 가정)
+function to24HourMinutes(time: string): number {
+  const [hStr, mStr] = time.split(':');
+  let h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  if (h >= 1 && h <= 9) h += 12;
+  return h * 60 + m;
+}
+
+export function getReservationDateTime(dateKey: string, time: string): Date {
+  const [y, mo, d] = dateKey.split('-').map(Number);
+  const totalMinutes = to24HourMinutes(time);
+  return new Date(
+    y,
+    mo - 1,
+    d,
+    Math.floor(totalMinutes / 60),
+    totalMinutes % 60,
+  );
+}
+
+// 목록/상세 카드용 "O월 O일 · HH:mm" 라벨 — 날짜 부분은 위 formatDateLabel 재사용
+export function formatReservationDateLabel(
+  dateKey: string,
+  time: string,
+): string {
+  return `${formatDateLabel(dateKey)}  ${time}`;
+}
+
+export function formatCancelledDateLabel(timestamp: number): string {
+  const d = new Date(timestamp);
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
+
+// 상태는 저장 안 하고 매번 계산해요. isCancelled만 저장하고,
+// 취소 안 됐으면 예약 일시가 지났는지로 '완료' 여부를 판단해요.
+export function getDisplayStatus(reservation: SavedReservation): DisplayStatus {
+  if (reservation.isCancelled) {
+    return 'CANCELLED';
+  }
+
+  const reservationDateTime = getReservationDateTime(
+    reservation.date,
+    reservation.time,
+  );
+
+  const isCompleted = reservationDateTime.getTime() <= Date.now();
+
+  return isCompleted ? 'COMPLETED' : 'UPCOMING';
+}
+
+export function getReservations(): SavedReservation[] {
+  try {
+    const raw = localStorage.getItem(RESERVATIONS_STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as SavedReservation[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveReservation(reservation: SavedReservation): void {
+  const list = getReservations();
+  list.unshift(reservation);
+  localStorage.setItem(RESERVATIONS_STORAGE_KEY, JSON.stringify(list));
+}
+
+export function getReservationById(id: string): SavedReservation | undefined {
+  return getReservations().find((r) => r.id === id);
+}
+
+export function cancelReservation(id: string): SavedReservation | undefined {
+  const list = getReservations();
+  const now = Date.now();
+  const updated = list.map((r) =>
+    r.id === id ? { ...r, isCancelled: true, cancelledAt: now } : r,
+  );
+  localStorage.setItem(RESERVATIONS_STORAGE_KEY, JSON.stringify(updated));
+  return updated.find((r) => r.id === id);
+}
+
+// ─────────────────────────────────────────
+// 테스트용 목업 예약 데이터
+// 이번 달 예정 / 지난 달 완료 / 지난 달 취소
+// ─────────────────────────────────────────
+
+const MOCK_RESERVATION_PREFIX = 'mock-reservation';
+
+function toDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+export function seedMockReservations(): void {
+  const now = new Date();
+  const nowTimestamp = Date.now();
+
+  // 이번 달 미래 예약 → 시술 예정
+  const upcomingDate = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 3,
+  );
+
+  // 지난달 날짜 계산
+  const lastMonthCompletedDate = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    20,
+  );
+
+  const lastMonthCancelledDate = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    20,
+  );
+
+  const mockData: SavedReservation[] = [
+    {
+      id: `${MOCK_RESERVATION_PREFIX}-upcoming`,
+      cardId: 1,
+      shopName: '미니숍네일',
+      artLabel: '12월 이달의 아트',
+      date: toDateKey(upcomingDate),
+      time: '02:00',
+      totalPrice: 40000,
+      depositPrice: RESERVATION_DEPOSIT,
+      customerName: '홍길동',
+      customerPhone: '010-1234-5678',
+      requestNote: '경력 많은 쌤으로 예약해주세요',
+      isCancelled: false,
+      createdAt: nowTimestamp,
+    },
+    {
+      id: `${MOCK_RESERVATION_PREFIX}-completed`,
+      cardId: 4,
+      shopName: '뷰티네일',
+      artLabel: '11월 이달의 아트',
+      date: toDateKey(lastMonthCompletedDate),
+      time: '11:00',
+      totalPrice: 55000,
+      depositPrice: RESERVATION_DEPOSIT,
+      customerName: '홍길동',
+      customerPhone: '010-1234-5678',
+      requestNote: '',
+      isCancelled: false,
+      createdAt: nowTimestamp - 1000,
+    },
+    {
+      id: `${MOCK_RESERVATION_PREFIX}-cancelled`,
+      cardId: 4,
+      shopName: '뷰티네일',
+      artLabel: '11월 이달의 아트',
+      date: toDateKey(lastMonthCancelledDate),
+      time: '11:00',
+      totalPrice: 55000,
+      depositPrice: RESERVATION_DEPOSIT,
+      customerName: '홍길동',
+      customerPhone: '010-1234-5678',
+      requestNote: '',
+      isCancelled: true,
+      cancelledAt: nowTimestamp - 500,
+      createdAt: nowTimestamp - 2000,
+    },
+  ];
+
+  const existing = getReservations();
+
+  // 기존 목업 데이터 제거
+  // 사용자가 실제로 만든 예약 데이터는 유지
+  const realReservations = existing.filter(
+    (reservation) => !reservation.id.startsWith(MOCK_RESERVATION_PREFIX),
+  );
+
+  localStorage.setItem(
+    RESERVATIONS_STORAGE_KEY,
+    JSON.stringify([...mockData, ...realReservations]),
+  );
 }
