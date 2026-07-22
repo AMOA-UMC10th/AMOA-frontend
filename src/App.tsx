@@ -26,7 +26,7 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
-import MyPage from './pages/mypage/mypage';
+import MyPage from './pages/mypage/MyPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
 
