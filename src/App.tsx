@@ -24,6 +24,7 @@ import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
+import NailShopDetailPage from './pages/NailShopDetailPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -62,6 +63,10 @@ function MyReservationDetailPageRoute() {
   const { reservationId } = useParams();
   return <MyReservationDetailPage key={reservationId} />;
 }
+function NailShopDetailPageRoute() {
+  const { shopId } = useParams();
+  return <NailShopDetailPage key={shopId} />;
+}
 
 function App() {
   return (
@@ -79,7 +84,7 @@ function App() {
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
-          <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
+          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
           <Route
             path="/art/:cardId/reservation"
             element={<ReservationPage />}
@@ -90,6 +95,7 @@ function App() {
             path="/reservations/:reservationId"
             element={<MyReservationDetailPageRoute />}
           />
+          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>

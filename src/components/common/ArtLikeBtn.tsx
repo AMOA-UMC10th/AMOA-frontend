@@ -1,6 +1,7 @@
 // 공통 찜(좋아요) 버튼 - 하트 토글 + 토스트
 
 import { useState } from 'react';
+import { HeartIcon } from '../../assets/icons';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
@@ -32,21 +33,14 @@ export default function ArtLikeBtn({
       <button
         onClick={handleClick}
         aria-label="찜하기"
-        className="transition-transform active:scale-125"
+        className="transition-transform active:scale-125 flex items-center justify-center"
       >
-        <svg
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill={liked ? '#F70071' : 'none'}
+        <span
+          style={{ width: size, height: size }}
+          className="flex items-center justify-center -mt-1"
         >
-          <path
-            d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5.5 6 5c2-.3 3.5.7 6 3 2.5-2.3 4-3.3 6-3 3.5.5 5 4 3.5 7.5C19 16.65 12 21 12 21z"
-            stroke={liked ? '#F70071' : '#171B1C'}
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-        </svg>
+          {HeartIcon({ className: 'w-full h-full block', filled: liked })}
+        </span>
       </button>
 
       {showToast && (

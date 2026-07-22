@@ -35,19 +35,21 @@ export default function HandStatusSelect({
           return (
             <div
               key={option.id}
-              className={`rounded-xl border border-[2px] bg-white px-4 py-3.5 pb-6.5 transition ${active ? 'border-[#F70071]' : 'border-[#E9EBEE]'}`}
+              className={`rounded-xl border border-[2px] bg-white px-4 pt-3.5 transition ${
+                option.id === 'BARE' ? 'pb-9' : 'pb-8'
+              } ${active ? 'border-[#F70071]' : 'border-[#D4D7DC]'}`}
             >
               <button
                 type="button"
                 onClick={() => onToggle(option.id)}
                 className="w-full flex items-center justify-between text-left cursor-pointer"
               >
-                <span className="pt-3.5 pl-1 text-sm font-bold text-[#171B1C]">
+                <span className="pt-5 pl-1 text-md font-bold text-[#171B1C]">
                   {option.label}
-                  {option.id === 'EXTENSION_REMOVAL' ? ` (1ea)` : ''}
+                  {option.id === 'EXTENSION_REMOVAL' ? ' (1ea)' : ''}
                 </span>
                 <span
-                  className={`pt-3.5 text-sm font-bold ${
+                  className={`pt-5 text-md font-bold ${
                     active ? 'text-[#F70071]' : 'text-[#171B1C]'
                   }`}
                 >

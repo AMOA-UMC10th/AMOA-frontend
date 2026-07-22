@@ -176,7 +176,7 @@ export default function DateTimeCalendar({
                 type="button"
                 disabled={!slot.available}
                 onClick={() => onSelectTime(slot.time)}
-                className={`cursor-pointer rounded-lg border border-[2px] py-4 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8F9] disabled:text-[#D4D7DC] ${
+                className={`cursor-pointer rounded-lg border border-[1.5px] py-3.5 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8FA] disabled:text-[#ADB0B5] ${
                   isSelected
                     ? 'border-[#F70071] bg-[#F70071] font-medium text-white'
                     : 'border-[#D4D7DC] text-[#171B1C]'
