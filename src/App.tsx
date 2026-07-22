@@ -26,7 +26,6 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
-import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -98,7 +97,6 @@ function App() {
             element={<MyReservationDetailPageRoute />}
           />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
-          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
