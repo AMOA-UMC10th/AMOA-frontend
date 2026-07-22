@@ -11,7 +11,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: '홈', path: '/home', icon: HomeIcon },
   { label: '아트찾기', path: '/art-search', icon: NavSearchIcon },
   { label: '찜', path: '/wishlist', icon: HeartIcon },
-  { label: '마이페이지', path: '/my', icon: UserIcon },
+  { label: '마이페이지', path: '/mypage', icon: UserIcon },
 ];
 
 export default function BottomNav() {
