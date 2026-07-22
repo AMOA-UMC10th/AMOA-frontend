@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeftIcon } from '../../assets/icons';
 import { mockSettingData } from '../../data/userData';
 
 interface ToggleSwitchProps {
@@ -41,6 +43,7 @@ export default function NotificationToggle({
   onChangeReservationReminder,
   onChangeMarketingAgreed,
 }: NotificationToggleProps) {
+  const navigate = useNavigate();
   const [reservationReminder, setReservationReminder] = useState(
     initialReservationReminder,
   );
@@ -63,32 +66,44 @@ export default function NotificationToggle({
   };
 
   return (
-    <div className="divide-y divide-[#E9EBEE]">
-      <div className="flex items-center justify-between py-5 px-4">
-        <div>
-          <p className="text-base font-bold text-[#171B1C]">예약 리마인드</p>
-          <p className="text-xs font-medium text-[#646F7C] mt-1">
-            예약 두 시간 전 알림을 보내드려요
-          </p>
-        </div>
-        <ToggleSwitch
-          checked={reservationReminder}
-          onChange={handleToggleReservationReminder}
-          label="예약 리마인드 토글"
-        />
+    <div>
+      <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="absolute left-4 cursor-pointer"
+        >
+          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+        </button>
+        <span className="text-base font-bold text-[#171B1C]">알림 설정</span>
       </div>
-      <div className="flex items-center justify-between py-5 px-4">
-        <div>
-          <p className="text-base font-bold text-[#171B1C]">마케팅 수신 동의</p>
-          <p className="text-xs font-medium text-[#646F7C] mt-1">
-            새로운 이벤트 소식을 메일로 보내드려요
-          </p>
+      <div className="divide-y divide-[#E9EBEE]">
+        <div className="flex items-center justify-between py-5 px-4">
+          <div>
+            <p className="text-base font-bold text-[#171B1C]">예약 리마인드</p>
+            <p className="text-xs font-medium text-[#646F7C] mt-1">
+              예약 두 시간 전 알림을 보내드려요
+            </p>
+          </div>
+          <ToggleSwitch
+            checked={reservationReminder}
+            onChange={handleToggleReservationReminder}
+            label="예약 리마인드 토글"
+          />
         </div>
-        <ToggleSwitch
-          checked={marketingAgreed}
-          onChange={handleToggleMarketingAgreed}
-          label="마케팅 수신 동의 토글"
-        />
+        <div className="flex items-center justify-between py-5 px-4">
+          <div>
+            <p className="text-base font-bold text-[#171B1C]">마케팅 수신 동의</p>
+            <p className="text-xs font-medium text-[#646F7C] mt-1">
+              새로운 이벤트 소식을 메일로 보내드려요
+            </p>
+          </div>
+          <ToggleSwitch
+            checked={marketingAgreed}
+            onChange={handleToggleMarketingAgreed}
+            label="마케팅 수신 동의 토글"
+          />
+        </div>
       </div>
     </div>
   );
