@@ -255,12 +255,12 @@ export const mockCardResponse: CardListResponse = {
       },
       {
         "card_id": 21,
-        "shop_name": "컬러하이브",
+        "shop_name": "네코르네일",
         "instagram_url": "https://www.instagram.com/p/DY_5Zz6krYL/",
         "art_type": "EVENT",
         "min_price": 42000,
         "max_price": 55000,
-        "region_name": "노원구",
+        "region_name": "부산시 부산진구",
         "created_month": "2026-07",
         "is_liked": false
       },

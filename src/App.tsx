@@ -6,6 +6,7 @@ import {
   useLocation,
   useParams,
   useNavigate,
+  Navigate,
 } from 'react-router-dom';
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
@@ -22,8 +23,12 @@ import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
 import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
+import MyReservationListPage from './pages/mypage/MyReservationListPage';
+import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
+import NailShopDetailPage from './pages/NailShopDetailPage';
+import MyPage from './pages/mypage/MyPage';
 
-const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
+const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -56,6 +61,15 @@ function ArtDetailPageRoute() {
   return <ArtDetailPage key={cardId} />;
 }
 
+function MyReservationDetailPageRoute() {
+  const { reservationId } = useParams();
+  return <MyReservationDetailPage key={reservationId} />;
+}
+function NailShopDetailPageRoute() {
+  const { shopId } = useParams();
+  return <NailShopDetailPage key={shopId} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -63,21 +77,23 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
-          <Route path="/" element={<SplashPage />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
           <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
-          <Route path="/art/:cardId" element={<ArtDetailPageRoute />} />
-          <Route
-            path="/art/:cardId/reservation"
-            element={<ReservationPage />}
-          />
+          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
+          <Route path="/art/:cardId/reservation" element={<ReservationPage />}/>
           <Route path="/wishlist" element={<WishListPage />} />
+          <Route path="/mypage/reservations" element={<MyReservationListPage />} />
+          <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
+          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+          <Route path="/SplashPage" element={<SplashPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>

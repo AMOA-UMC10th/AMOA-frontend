@@ -85,7 +85,7 @@ export function MapPinIcon({ className }: { className?: string }) {
     <svg
       className={className}
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="#ADB0B5"
       stroke="none"
     >
       <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.72 11.11 7.01 11.36a1.5 1.5 0 0 0 1.98 0C13.28 21.11 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
@@ -106,21 +106,35 @@ export function HeartFilledIcon({ className }: { className?: string }) {
   );
 }
 
-export function HeartIcon({ className }: { className?: string }) {
+export function HeartIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 57 57"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3.5}
-      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={filled ? '#F70071' : 'none'}
+      stroke={filled ? '#F70071' : '#171B1C'}
+      strokeWidth={1.8}
     >
-      <path d="M10.468 32.7122L27.6081 48.8135C27.866 49.0557 27.995 49.1769 28.1486 49.2003C28.1986 49.2079 28.2495 49.2079 28.2995 49.2003C28.4531 49.1769 28.5821 49.0557 28.84 48.8135L45.9801 32.7122C50.581 28.3901 51.1397 21.2777 47.2701 16.2902L46.5425 15.3524C41.9133 9.38589 32.6214 10.3865 29.3687 17.2018C28.9092 18.1645 27.5389 18.1645 27.0794 17.2018C23.8267 10.3865 14.5348 9.38588 9.90561 15.3523L9.178 16.2902C5.30839 21.2777 5.86712 28.3901 10.468 32.7122Z" />
+      <path d="M4.4076 13.7736L11.6245 20.5531C11.7331 20.655 11.7874 20.7061 11.852 20.7159C11.8731 20.7191 11.8945 20.7191 11.9156 20.7159C11.9803 20.7061 12.0346 20.655 12.1432 20.5531L19.36 13.7736C21.2973 11.9537 21.5325 8.959 19.9032 6.859L19.5968 6.4642C17.6477 3.952 13.7353 4.3733 12.3658 7.2429C12.1723 7.6482 11.5953 7.6482 11.4019 7.2429C10.0323 4.3733 6.1199 3.9519 4.1708 6.4641L3.8644 6.859C2.2351 8.959 2.4704 11.9537 4.4076 13.7736Z" />
     </svg>
   );
 }
 
+export function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 1.0909V15.2727M7.6364 5.4545L12 1.0909L16.3636 5.4545M3.2727 12V20.7273C3.2727 21.3059 3.5026 21.8608 3.9118 22.27C4.3209 22.6792 4.8759 22.9091 5.4545 22.9091H18.5455C19.1241 22.9091 19.679 22.6792 20.0882 22.27C20.4974 21.8608 20.7273 21.3059 20.7273 20.7273V12" />
+    </svg>
+  );
+}
 export function AddressPinIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -160,24 +174,22 @@ export function ChevronRightSmallIcon({ className }: { className?: string }) {
   );
 }
 
-export function ShareIcon({ className }: { className?: string }) {
+
+export function KakaoIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 18 22"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 0 16 15"
+      fill="white"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M9 1V14M5 5L9 1L13 5M1 11V19C1 19.5304 1.21071 20.0391 1.58579 20.4142C1.96086 20.7893 2.46957 21 3 21H15C15.5304 21 16.0391 20.7893 16.4142 20.4142C16.7893 20.0391 17 19.5304 17 19V11" />
+      <path d="M8 14.0644C12.418 14.0644 16 10.916 16 7.03222C16 3.14842 12.418 0 8 0C3.582 0 0 3.14842 0 7.03222C0 8.80031 0.743 10.4177 1.97 11.6534C1.873 12.6741 1.553 13.7932 1.199 14.633C1.12 14.8199 1.273 15.0288 1.472 14.9967C3.728 14.625 5.069 14.0544 5.652 13.757C6.41777 13.9629 7.20727 14.0663 8 14.0644Z" />
     </svg>
   );
 }
 
-export function ClockIcon({ className }: { className?: string }) {
+
+export function alarm({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -190,7 +202,7 @@ export function ClockIcon({ className }: { className?: string }) {
   );
 }
 
-export function PhoneIcon({ className }: { className?: string }) {
+export function call_end({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -203,15 +215,97 @@ export function PhoneIcon({ className }: { className?: string }) {
   );
 }
 
-export function KakaoIcon({ className }: { className?: string }) {
+export function location_on({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 16 15"
-      fill="white"
-      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
     >
-      <path d="M8 14.0644C12.418 14.0644 16 10.916 16 7.03222C16 3.14842 12.418 0 8 0C3.582 0 0 3.14842 0 7.03222C0 8.80031 0.743 10.4177 1.97 11.6534C1.873 12.6741 1.553 13.7932 1.199 14.633C1.12 14.8199 1.273 15.0288 1.472 14.9967C3.728 14.625 5.069 14.0544 5.652 13.757C6.41777 13.9629 7.20727 14.0663 8 14.0644Z" />
+      <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.72 11.11 7.01 11.36a1.5 1.5 0 0 0 1.98 0C13.28 21.11 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+    </svg>
+  );
+}
+
+export function notifications({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+    >
+      <path d="M12 2C8.13 2 5 5.13 5 9v6l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7z" />
+      <path d="M9 18a3 3 0 0 0 6 0H9z" />
+    </svg>
+  );
+}
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <span className={`font-extrabold text-2xl tracking-tight text-[#171B1C] ${className ?? ''}`}>
+      AMOA.
+    </span>
+  );
+}
+
+export function star({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="#FF1B82"
+      stroke="none"
+    >
+      <path d="M12 2.5c.5 0 .96.31 1.14.79l1.94 5.19 5.53.35c.51.03.95.37 1.11.86.16.49 0 1.03-.4 1.35l-4.31 3.48 1.5 5.35c.14.5-.04 1.03-.46 1.34-.42.31-.98.32-1.41.03L12 17.9l-4.64 3.04c-.43.29-.99.28-1.41-.03-.42-.31-.6-.84-.46-1.34l1.5-5.35-4.31-3.48c-.4-.32-.56-.86-.4-1.35.16-.49.6-.83 1.11-.86l5.53-.35 1.94-5.19c.18-.48.64-.79 1.14-.79z" />
+    </svg>
+  );
+}
+
+export function HomeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinejoin="round"
+    >
+      <path d="M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-9.5z" />
+    </svg>
+  );
+}
+
+export function NavSearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  );
+}
+
+export function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" />
     </svg>
   );
 }
