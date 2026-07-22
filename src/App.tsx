@@ -22,6 +22,8 @@ import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
 import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
+import MyReservationListPage from './pages/mypage/MyReservationListPage';
+import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
 
@@ -58,6 +60,10 @@ function ArtDetailPageRoute() {
   return <ArtDetailPage key={cardId} />;
 }
 
+function MyReservationDetailPageRoute() {
+  const { reservationId } = useParams();
+  return <MyReservationDetailPage key={reservationId} />;
+}
 function NailShopDetailPageRoute() {
   const { shopId } = useParams();
   return <NailShopDetailPage key={shopId} />;
@@ -84,8 +90,12 @@ function App() {
             path="/art/:cardId/reservation"
             element={<ReservationPage />}
           />
-          
           <Route path="/wishlist" element={<WishListPage />} />
+          <Route path="/reservations" element={<MyReservationListPage />} />
+          <Route
+            path="/reservations/:reservationId"
+            element={<MyReservationDetailPageRoute />}
+          />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/mypage/edit" element={<MyProfileEditPage />} />
         </Routes>
