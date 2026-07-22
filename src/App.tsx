@@ -30,13 +30,19 @@ import MyPage from './pages/mypage/MyPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
+const NAV_HIDDEN_PATHS = [
+  '/mypage/settings',
+  '/mypage/notice',
+  '/mypage/terms',
+  '/mypage/withdraw',
+];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const showNav = NAV_VISIBLE_PATHS.some((path) =>
-    location.pathname.startsWith(path),
-  );
+  const showNav =
+    NAV_VISIBLE_PATHS.some((path) => location.pathname.startsWith(path)) &&
+    !NAV_HIDDEN_PATHS.some((path) => location.pathname.startsWith(path));
 
   return (
     <div className={isAdmin ? 'pc-layout' : 'mobile-layout'}>
