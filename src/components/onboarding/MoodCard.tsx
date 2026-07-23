@@ -12,11 +12,11 @@ export default function MoodCard({ label, selected, onClick }: MoodCardProps) {
     <button type="button" onClick={onClick} className="text-left">
       <div
         className={`relative aspect-square w-full rounded-2xl border ${
-          selected ? "border-2 border-black bg-white" : "border-gray-100 bg-gray-100"
+          selected ? "border-2 border-[#F70071] bg-white" : "border-gray-100 bg-gray-100"
         }`}
       >
         {selected && (
-          <span className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black text-white">
+          <span className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#F70071] text-white">
             <CheckIcon className="h-3.5 w-3.5" />
           </span>
         )}

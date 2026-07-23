@@ -136,7 +136,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
           }}
           className={`w-full rounded-2xl py-4 text-sm font-semibold ${
             canProceed
-              ? "bg-black text-white"
+              ? "bg-[#F70071] text-white"
               : "bg-gray-100 text-gray-300"
           }`}
         >
@@ -145,7 +145,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       </div>
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 rounded-full bg-[#F70071] px-4 py-2 text-sm text-white shadow-lg">
           {toast}
         </div>
       )}
