@@ -56,7 +56,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
         <button
           onClick={handleRequestCode}
           disabled={!isPhoneValid || isVerified}
-          className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#ADB0B5] disabled:text-white"
+          className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#F70071] text-white disabled:bg-[#FFC0DC] disabled:text-white"
         >
           {isVerified ? '인증완료' : '인증받기'}
         </button>
@@ -88,7 +88,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
             <button
               onClick={handleVerify}
               disabled={!isCodeValid}
-              className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#000000] text-white disabled:bg-[#ADB0B5] disabled:text-white"
+              className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#F70071] text-white disabled:bg-[#FFC0DC] disabled:text-white"
             >
               확인완료
             </button>

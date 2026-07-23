@@ -68,7 +68,7 @@ export default function PhoneAuthPage() {
           />
           <button
             disabled
-            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#ADB0B5] text-white"
+            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white"
           >
             확인완료
           </button>
@@ -86,7 +86,7 @@ export default function PhoneAuthPage() {
       <button
         onClick={handleNext}
         disabled={!isPhoneVerified}
-        className="bg-[#000000] text-white rounded-lg py-3 disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+        className="bg-[#F70071] text-white rounded-lg py-3 disabled:bg-[#FFC0DC] disabled:text-white"
       >
         다음
       </button>

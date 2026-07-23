@@ -32,6 +32,10 @@ export default function ArtDetailPage() {
     navigate(`/shop/${card.shop_name}`);
   };
 
+  const handleReservationClick = () => {
+  navigate(`/reservation/${card.card_id}`);
+};
+
   const handleShare = () => {
     if (navigator.share) {
       navigator
@@ -112,7 +116,7 @@ export default function ArtDetailPage() {
           <ShareIcon className="w-5 h-6 text-[#171B1C] block" />
         </button>
           <button
-            onClick={() => setShowKakaoModal(true)}
+            onClick={handleReservationClick}
             className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
           >
             예약하기

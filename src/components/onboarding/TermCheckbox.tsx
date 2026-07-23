@@ -17,7 +17,7 @@ function CheckIcon({ checked }: { checked: boolean }) {
   return (
     <span
       className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border ${
-        checked ? 'bg-[#000000] border-[#000000]' : 'bg-white border-[#ADB0B5]'
+        checked ? 'bg-[#F70071] border-[#F70071]' : 'bg-white border-[#ADB0B5]'
       }`}
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
