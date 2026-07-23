@@ -27,6 +27,7 @@ import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyPage from './pages/mypage/MyPage';
+import NoticeList from './components/mypage/NoticeList';
 import NotificationToggle from './components/mypage/NotificationToggle';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
@@ -101,6 +102,7 @@ function App() {
           <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/SplashPage" element={<SplashPage />} />
+          <Route path="/mypage/notice" element={<NoticeList />} />
           <Route path="/mypage/settings" element={<NotificationToggle />} />
         </Routes>
       </LayoutWrapper>
