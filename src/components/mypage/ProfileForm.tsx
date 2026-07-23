@@ -48,7 +48,7 @@ function ChangeButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="flex h-[38px] w-[81px] shrink-0 items-center justify-center rounded-[7px] bg-[#171B1C] text-[13px] font-medium text-white disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+      className="flex h-[38px] w-[81px] shrink-0 items-center justify-center rounded-[7px] bg-[#F70071] text-[13px] font-medium text-white disabled:bg-[#FFC0DC]"
     >
       {label}
     </button>
@@ -57,12 +57,12 @@ function ChangeButton({
 
 function ReadOnlyRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] py-[10px]">
+    <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] px-[6px] py-[10px]">
       <div className="flex items-center gap-1.5">
-        <span className="text-[11px] font-medium text-[#ADB0B5]">{label}</span>
+        <span className="text-[11px] font-medium leading-[1.5] text-[#ADB0B5]">{label}</span>
         <KakaoBadge />
       </div>
-      <p className="text-[15px] text-[#ADB0B5]">{value}</p>
+      <p className="text-[15px] leading-[1.5] text-[#ADB0B5]">{value}</p>
     </div>
   );
 }
@@ -192,8 +192,8 @@ export default function ProfileForm({
         <ReadOnlyRow label="이름" value={name} />
         <ReadOnlyRow label="이메일" value={email} />
 
-        <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] py-[10px]">
-          <span className="text-[11px] font-medium text-[#646F7C]">
+        <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] px-[6px] py-[10px]">
+          <span className="text-[11px] font-medium leading-[1.5] text-[#646F7C]">
             닉네임<span className="text-[#CD0000]">*</span>
           </span>
 
@@ -211,7 +211,7 @@ export default function ProfileForm({
                     setNicknameDuplicate(false);
                   }}
                   placeholder="새로운 닉네임 입력"
-                  className="flex-1 border-b border-[#E9EBEE] py-1 text-[15px] text-[#1E2427] focus:border-black focus:outline-none"
+                  className="flex-1 border-b border-[#F70071] py-1 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none"
                 />
                 <ChangeButton
                   label="중복확인"
@@ -225,14 +225,14 @@ export default function ProfileForm({
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
-              <p className="flex-1 text-[15px] text-[#1E2427]">{nicknameValue}</p>
+              <p className="flex-1 text-[15px] leading-[1.5] text-[#1E2427]">{nicknameValue}</p>
               <ChangeButton label="변경하기" onClick={startNicknameEdit} />
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] py-[10px]">
-          <span className="text-[11px] font-medium text-[#646F7C]">
+        <div className="flex flex-col gap-[3px] border-b border-[#D4D7DC] px-[6px] py-[10px]">
+          <span className="text-[11px] font-medium leading-[1.5] text-[#646F7C]">
             전화번호<span className="text-[#CD0000]">*</span>
           </span>
 
@@ -247,7 +247,7 @@ export default function ProfileForm({
                   placeholder="010-0000-0000"
                   disabled={codeRequested}
                   onChange={(e) => setPhoneDraft(formatPhoneNumber(e.target.value))}
-                  className="flex-1 border-b border-[#E9EBEE] py-1 text-[15px] text-[#1E2427] disabled:text-[#ADB0B5] focus:border-black focus:outline-none"
+                  className="flex-1 border-b border-[#F70071] py-1 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none disabled:border-[#C5C8CE] disabled:text-[#ADB0B5]"
                 />
                 <ChangeButton
                   label="인증받기"
@@ -266,7 +266,7 @@ export default function ProfileForm({
                       placeholder="인증번호 4자리"
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full border-b border-[#E9EBEE] py-1 pr-12 text-[15px] text-[#1E2427] focus:border-black focus:outline-none"
+                      className="w-full border-b border-[#F70071] py-1 pr-12 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none"
                     />
                     <div className="absolute right-1 top-1/2 -translate-y-1/2">
                       <AuthTimer duration={180} onExpire={() => setCode('')} />
@@ -278,7 +278,7 @@ export default function ProfileForm({
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
-              <p className="flex-1 text-[15px] text-[#1E2427]">{phoneValue}</p>
+              <p className="flex-1 text-[15px] leading-[1.5] text-[#1E2427]">{phoneValue}</p>
               <ChangeButton label="변경하기" onClick={startPhoneEdit} />
             </div>
           )}
@@ -286,8 +286,8 @@ export default function ProfileForm({
       </div>
 
       {phoneVerified && (
-        <span className="text-center text-xs font-semibold text-[#FF1B82]">
-          정보변경이 완료되었어요
+        <span className="self-center rounded-full bg-[#F70071] px-4 py-2 text-xs font-semibold text-white">
+          전화번호가 수정되었어요
         </span>
       )}
 
@@ -295,7 +295,7 @@ export default function ProfileForm({
         type="button"
         disabled={!canSave}
         onClick={handleSubmit}
-        className="h-[52px] w-full rounded-[10px] bg-[#171B1C] text-[15px] font-medium text-white disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+        className="h-[52px] w-full rounded-[10px] bg-[#F70071] text-[15px] font-medium text-white disabled:bg-[#FFC0DC]"
       >
         저장
       </button>

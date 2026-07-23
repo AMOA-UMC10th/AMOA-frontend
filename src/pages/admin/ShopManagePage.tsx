@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BiTrash, BiEditAlt } from 'react-icons/bi';
 import { FiSearch } from 'react-icons/fi';
 import ShopForm from '../../components/admin/ShopForm';

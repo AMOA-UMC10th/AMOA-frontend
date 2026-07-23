@@ -24,6 +24,8 @@ import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
+import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
+import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
 
@@ -88,6 +90,8 @@ function App() {
           <Route path="/wishlist" element={<WishListPage />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/mypage/edit" element={<MyProfileEditPage />} />
+          <Route path="/mypage/edit/region" element={<MyRegionReconfigPage />} />
+          <Route path="/mypage/edit/mood" element={<MyMoodReconfigPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
