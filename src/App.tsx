@@ -27,6 +27,7 @@ import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyPage from './pages/mypage/MyPage';
+import WithdrawPage from './pages/mypage/WithdrawPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
 import NoticeList from './components/mypage/NoticeList';
 import NotificationToggle from './components/mypage/NotificationToggle';
@@ -103,6 +104,7 @@ function App() {
           <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/SplashPage" element={<SplashPage />} />
+          <Route path="/mypage/withdraw" element={<WithdrawPage />} />
           <Route path="/mypage/terms" element={<TermsDetailView />} />
           <Route path="/mypage/notice" element={<NoticeList />} />
           <Route path="/mypage/settings" element={<NotificationToggle />} />
