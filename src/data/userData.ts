@@ -4,6 +4,7 @@ export interface SettingResult {
   email: string;
   phoneNumber: string;
   marketingAgreed: boolean;
+  reservationReminderAgreed: boolean;
   preferredMoods: string[];
   interestedRegions: string[];
 }
@@ -25,6 +26,7 @@ export const mockSettingData: SettingResponse = {
     email: "kinbee@gmail.com",
     phoneNumber: "01012345678",
     marketingAgreed: false,
+    reservationReminderAgreed: true,
     preferredMoods: ["SIMPLE", "UNIQUE"],
     interestedRegions: ["서울특별시 강남구", "서울특별시 성동구"]
   }
