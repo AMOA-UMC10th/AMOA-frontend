@@ -1,5 +1,6 @@
 //A103 검색 결과 리스트
-import type { RegionMatch } from "../../data/regionData";
+
+import type { RegionMatch } from "../../data/region";
 
 interface RegionResultProps {
   results: RegionMatch[];
