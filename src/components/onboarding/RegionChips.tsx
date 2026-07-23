@@ -21,7 +21,7 @@ export default function RegionChips({ regions, onRemove }: RegionChipsProps) {
         {regions.map((region) => (
           <span
             key={region.id}
-            className="flex items-center gap-1.5 rounded-full bg-black py-2 pl-4 pr-3 text-sm text-white"
+            className="flex items-center gap-1.5 rounded-full bg-[#F70071] py-2 pl-4 pr-3 text-sm text-white"
           >
             {region.label}
             <button
