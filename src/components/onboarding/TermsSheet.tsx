@@ -39,7 +39,7 @@ function AllCheckIcon({ checked }: { checked: boolean }) {
   return (
     <span
       className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border ${
-        checked ? 'bg-[#000000] border-[#000000]' : 'bg-white border-[#ADB0B5]'
+        checked ? 'bg-[#F70071] border-[#F70071]' : 'bg-white border-[#ADB0B5]'
       }`}
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -54,7 +54,6 @@ function AllCheckIcon({ checked }: { checked: boolean }) {
     </span>
   );
 }
-
 interface TermsSheetProps {
   onComplete: () => void;
   onClose: () => void;
@@ -124,7 +123,7 @@ export default function TermsSheet({ onComplete, onClose }: TermsSheetProps) {
         <button
           onClick={handleSignup}
           disabled={!isAllRequiredChecked}
-          className="w-full text-white text-sm rounded-lg py-3 bg-[#000000] disabled:bg-[#ADB0B5] disabled:text-white"
+          className="w-full text-white text-sm rounded-lg py-3 bg-[#F70071] disabled:bg-[#FFC0DC] disabled:text-white"
         >
           동의하고 가입하기
         </button>
