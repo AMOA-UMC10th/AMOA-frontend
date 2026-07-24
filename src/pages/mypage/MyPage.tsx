@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { mockSettingData } from '../../data/userData';
+import { mockSettingData } from '../../data/mockupdata/userData';
 
 interface MenuItem {
   label: string;

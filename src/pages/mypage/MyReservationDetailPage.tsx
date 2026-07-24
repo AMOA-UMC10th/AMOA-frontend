@@ -17,7 +17,7 @@ import {
   formatCancelledDateLabel,
   type SavedReservation,
   type DisplayStatus,
-} from '../../data/reservationData';
+} from '../../data/mockupdata/reservationData';
 
 const STATUS_LABEL: Record<DisplayStatus, string> = {
   UPCOMING: '시술 예정',

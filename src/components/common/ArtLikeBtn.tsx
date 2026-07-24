@@ -17,14 +17,24 @@ export default function ArtLikeBtn({
   const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [animateOut, setAnimateOut] = useState(false);
 
   const handleClick = () => {
     const next = !liked;
     setLiked(next);
     setIsSaved(next);
     // TODO: POST/DELETE /api/v1/cards/{card_id}/likes
+    setAnimateOut(false);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 1800);
+
+    setTimeout(() => {
+      setAnimateOut(true);
+    }, 1300);
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 1800);
+
     onToggle?.(next);
   };
 
@@ -45,9 +55,9 @@ export default function ArtLikeBtn({
 
       {showToast && (
         <div
-          className={`fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap z-50 ${
+          className={`fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap z-50 transition-opacity duration-500 ease-out ${
             isSaved ? 'bg-[#F70071]' : 'bg-[#171B1C]'
-          }`}
+          } ${animateOut ? 'opacity-0' : 'opacity-100'}`}
         >
           {isSaved ? '찜 목록에 저장되었어요' : '찜 목록에서 삭제되었어요'}
         </div>

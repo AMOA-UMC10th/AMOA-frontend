@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import type { NailCard } from '../../data/nailData';
+import type { NailCard } from '../../data/mockupdata/nailData';
 import ArtCard from '../common/ArtCard';
 
 interface RelatedArtListProps {

@@ -1,5 +1,5 @@
 import { alarm, call_end, AddressPinIcon, star } from "../../assets/icons";
-import type { ShopDetailResult } from "../../data/shopData";
+import type { ShopDetailResult } from "../../data/mockupdata/shopData";
 import ShopLikeBtn from "../common/ShopLikeBtn";
 
 interface ShopInfoProps {

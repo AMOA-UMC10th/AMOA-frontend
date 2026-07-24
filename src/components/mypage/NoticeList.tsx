@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
-import { noticeList } from '../../data/noticeData';
+import { noticeList } from '../../data/mockupdata/noticeData';
 
 export default function NoticeList() {
   const [selectedId, setSelectedId] = useState<string | null>(null);

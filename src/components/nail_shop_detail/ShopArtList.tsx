@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ArtCard from '../common/ArtCard';
-import type { NailCardItem } from '../../data/shopData';
+import type { NailCardItem } from '../../data/mockupdata/shopData';
 
 export type SortOption = 'RECOMMEND' | 'POPULAR' | 'LATEST' | 'PRICE_LOW' | 'PRICE_HIGH';
 

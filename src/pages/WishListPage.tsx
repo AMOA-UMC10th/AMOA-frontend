@@ -6,7 +6,7 @@ import { ChevronLeftIcon } from '../assets/icons';
 import { FiChevronDown } from 'react-icons/fi';
 import WishArtCard from '../components/wish_list/WishArtCard';
 import WishShopCard from '../components/wish_list/WishShopCard';
-import { mockCardResponse, type NailCard } from '../data/nailData';
+import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
 
 type WishTab = 'ART' | 'SHOP';
 type SortOption = 'RECOMMEND' | 'LATEST';

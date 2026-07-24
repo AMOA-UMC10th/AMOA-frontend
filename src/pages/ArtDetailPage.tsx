@@ -11,7 +11,7 @@ import {
   AddressPinIcon,
   ShareIcon,
 } from '../assets/icons';
-import { mockCardResponse, type NailCard } from '../data/nailData';
+import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
-import { searchRegions, type RegionMatch } from '../../data/regionData';
+import { searchRegions, type RegionMatch } from '../../data/mockupdata/regionData';
 
 interface LocationFilterProps {
   selectedRegions: string[];

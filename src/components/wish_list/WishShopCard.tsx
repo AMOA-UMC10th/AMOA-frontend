@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ShopLikeBtn from '../common/ShopLikeBtn';
 import InstagramSafeImage from '../common/InstagramSafeImage';
 import { ChevronRightSmallIcon } from '../../assets/icons';
-import type { NailCard } from '../../data/nailData';
+import type { NailCard } from '../../data/mockupdata/nailData';
 
 interface WishShopCardProps {
   shopName: string;

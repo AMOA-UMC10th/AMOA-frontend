@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { BiTrash, BiEditAlt } from 'react-icons/bi';
 import { FiSearch } from 'react-icons/fi';
 import ArtForm from '../../components/admin/ArtForm';
-import { initialArts, type Art } from '../../data/adminData';
+import { initialArts, type Art } from '../../data/mockupdata/adminData';
 
 export default function ArtManagePage() {
   const [arts, setArts] = useState<Art[]>(initialArts);
