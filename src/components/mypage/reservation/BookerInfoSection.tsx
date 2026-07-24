@@ -1,7 +1,7 @@
 // [F103] 예약자 상세 정보 영역
 // 이름, 연락처, 요청사항 표시
 
-import type { SavedReservation } from '../../../data/reservationData';
+import type { SavedReservation } from '../../../data/mockupdata/reservationData';
 
 interface BookerInfoSectionProps {
   reservation: SavedReservation;

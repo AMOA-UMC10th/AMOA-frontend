@@ -4,7 +4,7 @@ import LocationFilter from './LocationFilter';
 import PriceFilter from './PriceFilter';
 import ArtTypeFilter from './ArtTypeFilter';
 import DesignFilter from './DesignFilter';
-import { type ArtType, mockCardResponse } from '../../data/nailData';
+import { type ArtType, mockCardResponse } from '../../data/mockupdata/nailData';
 
 export interface FilterState {
   regions: string[];

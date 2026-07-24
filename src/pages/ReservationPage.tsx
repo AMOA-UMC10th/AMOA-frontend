@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '../assets/icons';
-import { mockCardResponse } from '../data/nailData';
+import { mockCardResponse } from '../data/mockupdata/nailData';
 import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
@@ -19,7 +19,7 @@ import {
   saveReservation,
   type HandStatusId,
   type GelRemovalShop,
-} from '../data/reservationData';
+} from '../data/mockupdata/reservationData';
 
 type Step = 'hand-status' | 'art-option' | 'datetime' | 'confirm' | 'complete';
 type PaymentMethod = 'KAKAO_PAY' | 'CARD';

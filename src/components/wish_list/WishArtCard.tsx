@@ -1,5 +1,5 @@
 import ArtCard from '../common/ArtCard';
-import type { NailCard } from '../../data/nailData';
+import type { NailCard } from '../../data/mockupdata/nailData';
 
 interface WishArtCardProps {
   card: NailCard;

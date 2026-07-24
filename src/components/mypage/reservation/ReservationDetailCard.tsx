@@ -4,7 +4,7 @@
 import {
   formatReservationDateLabel,
   type SavedReservation,
-} from '../../../data/reservationData';
+} from '../../../data/mockupdata/reservationData';
 
 interface ReservationDetailCardProps {
   reservation: SavedReservation;

@@ -5,9 +5,9 @@ import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
 import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
-import { mockCardResponse } from '../data/nailData'; 
-import { MOCK_TREND_SLIDES } from '../data/homeData';
-import { mockSettingData } from '../data/userData';
+import { mockCardResponse } from '../data/mockupdata/nailData'; 
+import { MOCK_TREND_SLIDES } from '../data/mockupdata/homeData';
+import { mockSettingData } from '../data/mockupdata/userData';
 
 export default function HomePage() {
   const navigate = useNavigate();

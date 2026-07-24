@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
-import { termsList } from '../../data/termsData';
+import { termsList } from '../../data/mockupdata/termsData';
 
 export default function TermsDetailView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);

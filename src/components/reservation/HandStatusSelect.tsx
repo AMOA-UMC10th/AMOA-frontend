@@ -4,7 +4,7 @@ import {
   EXTENSION_REMOVAL_MAX_COUNT,
   type HandStatusId,
   type GelRemovalShop,
-} from '../../data/reservationData';
+} from '../../data/mockupdata/reservationData';
 
 interface HandStatusSelectProps {
   selected: HandStatusId[];

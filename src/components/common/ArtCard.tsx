@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InstagramSafeImage from './InstagramSafeImage';
 import { AddressPinIcon } from '../../assets/icons';
-import ShopLikeBtn from './ShopLikeBtn';
+import ArtLikeBtn from './ArtLikeBtn';
 
 interface CommonArtCardProps {
   cardId: number;
@@ -57,7 +57,7 @@ export default function ArtCard({
             {artMonth}월 {getArtTypeLabel(artType)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
-            <ShopLikeBtn
+            <ArtLikeBtn
               initialLiked={liked}
               size={16}
               onToggle={(nextLiked) => setLiked(nextLiked)}

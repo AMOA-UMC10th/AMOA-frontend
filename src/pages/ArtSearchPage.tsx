@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronDown, FiChevronLeft, FiSliders } from 'react-icons/fi';
-import { mockCardResponse, type NailCard } from '../data/nailData';
+import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
 import ArtCard from '../components/common/ArtCard';
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
 import ArtSort, { type SortOption } from '../components/art_search/ArtSort';

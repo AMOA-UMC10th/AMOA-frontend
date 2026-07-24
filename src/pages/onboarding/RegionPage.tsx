@@ -6,7 +6,7 @@ import RegionChips from "../../components/onboarding/RegionChips";
 import type { SelectedRegion } from "../../components/onboarding/RegionChips";
 import RegionMapPicker from "../../components/onboarding/RegionMapPicker";
 import { ChevronLeftIcon, CrosshairIcon } from "../../assets/icons";
-import { MOCK_CURRENT_LOCATION } from "../../data/regionData";
+import { MOCK_CURRENT_LOCATION } from "../../data/mockupdata/regionData";
 import { searchRegions, type RegionMatch } from "../../data/region";
 
 const MAX_REGIONS = 3;

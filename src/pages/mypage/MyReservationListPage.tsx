@@ -8,7 +8,7 @@ import {
   getReservationDateTime,
   type SavedReservation,
   seedMockReservations,
-} from '../../data/reservationData';
+} from '../../data/mockupdata/reservationData';
 import MyReservationCard from '../../components/mypage/reservation/MyReservationCard';
 
 function getMonthGroupLabel(dateKey: string): string {

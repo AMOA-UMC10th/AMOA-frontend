@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
-import { mockSettingData } from '../../data/userData';
+import { mockSettingData } from '../../data/mockupdata/userData';
 
 interface ToggleSwitchProps {
   checked: boolean;
