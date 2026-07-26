@@ -1,14 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
 import { noticeList } from '../../data/mockupdata/noticeData';
 
 export default function NoticeList() {
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedNotice = noticeList.find((notice) => notice.id === selectedId);
 
   if (selectedNotice) {
     return (
-      <div>
+      <div className="min-h-screen bg-white">
         <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
           <button
             type="button"
@@ -36,7 +38,18 @@ export default function NoticeList() {
   }
 
   return (
-    <div className="divide-y divide-[#E9EBEE]">
+    <div className="min-h-screen bg-white">
+      <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="absolute left-4 cursor-pointer"
+        >
+          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+        </button>
+        <span className="text-base font-bold text-[#171B1C]">공지사항</span>
+      </div>
+      <div className="divide-y divide-[#E9EBEE]">
       {noticeList.map((notice) => (
         <button
           key={notice.id}
@@ -53,6 +66,7 @@ export default function NoticeList() {
           <ChevronRightSmallIcon className="w-2 h-3 text-[#ADB0B5] shrink-0" />
         </button>
       ))}
+      </div>
     </div>
   );
 }
