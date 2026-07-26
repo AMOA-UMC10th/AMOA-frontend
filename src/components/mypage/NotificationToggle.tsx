@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import {
@@ -39,15 +39,25 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
 
 export default function NotificationToggle() {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<MyProfile | null>(null);
   const [reservationReminder, setReservationReminder] = useState(false);
   const [marketingAgreed, setMarketingAgreed] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // profileRef always holds the latest known profile so overlapping saves
+  // never build their request body from a stale snapshot.
+  const profileRef = useRef<MyProfile | null>(null);
+  const saveQueueRef = useRef(Promise.resolve());
+
   useEffect(() => {
+    // StrictMode invokes this effect twice in dev; without this guard the
+    // stale run's late response can overwrite state set by the other run
+    // (or by a user interaction that happened in between).
+    let cancelled = false;
+
     fetchMyProfile()
       .then((data) => {
-        setProfile(data);
+        if (cancelled) return;
+        profileRef.current = data;
         setReservationReminder(
           data.notificationSettings.find((s) => s.notificationType === RESERVATION_TYPE)
             ?.enabled ?? false,
@@ -58,48 +68,56 @@ export default function NotificationToggle() {
         );
       })
       .catch((err) => {
+        if (cancelled) return;
         console.error(err);
         setLoadError('알림 설정을 불러오지 못했어요');
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  async function saveNotificationSetting(
+  function queueNotificationSettingSave(
     notificationType: string,
     enabled: boolean,
     revert: () => void,
   ) {
-    if (!profile) return;
+    saveQueueRef.current = saveQueueRef.current.then(async () => {
+      const profile = profileRef.current;
+      if (!profile) return;
 
-    const hasType = profile.notificationSettings.some(
-      (s) => s.notificationType === notificationType,
-    );
-    const nextSettings = profile.notificationSettings.map((s) => ({
-      notificationType: s.notificationType,
-      enabled: s.notificationType === notificationType ? enabled : s.enabled,
-    }));
-    if (!hasType) {
-      nextSettings.push({ notificationType, enabled });
-    }
+      const hasType = profile.notificationSettings.some(
+        (s) => s.notificationType === notificationType,
+      );
+      const nextSettings = profile.notificationSettings.map((s) => ({
+        notificationType: s.notificationType,
+        enabled: s.notificationType === notificationType ? enabled : s.enabled,
+      }));
+      if (!hasType) {
+        nextSettings.push({ notificationType, enabled });
+      }
 
-    try {
-      const updated = await updateNotificationSettings(profile, nextSettings);
-      setProfile(updated);
-    } catch (err) {
-      console.error(err);
-      revert();
-    }
+      try {
+        const updated = await updateNotificationSettings(profile, nextSettings);
+        profileRef.current = updated;
+      } catch (err) {
+        console.error(err);
+        revert();
+      }
+    });
   }
 
   const handleToggleReservationReminder = () => {
     const next = !reservationReminder;
     setReservationReminder(next);
-    saveNotificationSetting(RESERVATION_TYPE, next, () => setReservationReminder(!next));
+    queueNotificationSettingSave(RESERVATION_TYPE, next, () => setReservationReminder(!next));
   };
 
   const handleToggleMarketingAgreed = () => {
     const next = !marketingAgreed;
     setMarketingAgreed(next);
-    saveNotificationSetting(MARKETING_TYPE, next, () => setMarketingAgreed(!next));
+    queueNotificationSettingSave(MARKETING_TYPE, next, () => setMarketingAgreed(!next));
   };
 
   return (
