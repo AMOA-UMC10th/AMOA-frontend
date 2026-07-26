@@ -66,7 +66,7 @@ export default function NotificationToggle({
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-white">
       <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
         <button
           type="button"
