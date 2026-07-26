@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
-import { mockSettingData } from '../../data/mockupdata/userData';
+import {
+  fetchMyProfile,
+  updateNotificationSettings,
+  type MyProfile,
+} from '../../data/profile';
+
+const RESERVATION_TYPE = 'RESERVATION';
+const MARKETING_TYPE = 'MARKETING';
 
 interface ToggleSwitchProps {
   checked: boolean;
@@ -30,39 +37,69 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
   );
 }
 
-interface NotificationToggleProps {
-  initialReservationReminder?: boolean;
-  initialMarketingAgreed?: boolean;
-  onChangeReservationReminder?: (agreed: boolean) => void;
-  onChangeMarketingAgreed?: (agreed: boolean) => void;
-}
-
-export default function NotificationToggle({
-  initialReservationReminder = mockSettingData.result.reservationReminderAgreed,
-  initialMarketingAgreed = mockSettingData.result.marketingAgreed,
-  onChangeReservationReminder,
-  onChangeMarketingAgreed,
-}: NotificationToggleProps) {
+export default function NotificationToggle() {
   const navigate = useNavigate();
-  const [reservationReminder, setReservationReminder] = useState(
-    initialReservationReminder,
-  );
-  const [marketingAgreed, setMarketingAgreed] = useState(
-    initialMarketingAgreed,
-  );
+  const [profile, setProfile] = useState<MyProfile | null>(null);
+  const [reservationReminder, setReservationReminder] = useState(false);
+  const [marketingAgreed, setMarketingAgreed] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchMyProfile()
+      .then((data) => {
+        setProfile(data);
+        setReservationReminder(
+          data.notificationSettings.find((s) => s.notificationType === RESERVATION_TYPE)
+            ?.enabled ?? false,
+        );
+        setMarketingAgreed(
+          data.notificationSettings.find((s) => s.notificationType === MARKETING_TYPE)
+            ?.enabled ?? false,
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoadError('알림 설정을 불러오지 못했어요');
+      });
+  }, []);
+
+  async function saveNotificationSetting(
+    notificationType: string,
+    enabled: boolean,
+    revert: () => void,
+  ) {
+    if (!profile) return;
+
+    const hasType = profile.notificationSettings.some(
+      (s) => s.notificationType === notificationType,
+    );
+    const nextSettings = profile.notificationSettings.map((s) => ({
+      notificationType: s.notificationType,
+      enabled: s.notificationType === notificationType ? enabled : s.enabled,
+    }));
+    if (!hasType) {
+      nextSettings.push({ notificationType, enabled });
+    }
+
+    try {
+      const updated = await updateNotificationSettings(profile, nextSettings);
+      setProfile(updated);
+    } catch (err) {
+      console.error(err);
+      revert();
+    }
+  }
 
   const handleToggleReservationReminder = () => {
     const next = !reservationReminder;
     setReservationReminder(next);
-    onChangeReservationReminder?.(next);
-    // TODO: 알림 설정 저장 API 연동
+    saveNotificationSetting(RESERVATION_TYPE, next, () => setReservationReminder(!next));
   };
 
   const handleToggleMarketingAgreed = () => {
     const next = !marketingAgreed;
     setMarketingAgreed(next);
-    onChangeMarketingAgreed?.(next);
-    // TODO: 알림 설정 저장 API 연동
+    saveNotificationSetting(MARKETING_TYPE, next, () => setMarketingAgreed(!next));
   };
 
   return (
@@ -77,6 +114,9 @@ export default function NotificationToggle({
         </button>
         <span className="text-base font-bold text-[#171B1C]">알림 설정</span>
       </div>
+      {loadError && (
+        <p className="px-4 pt-6 text-sm text-[#F70071]">{loadError}</p>
+      )}
       <div className="divide-y divide-[#E9EBEE]">
         <div className="flex items-center justify-between py-5 px-4">
           <div>
