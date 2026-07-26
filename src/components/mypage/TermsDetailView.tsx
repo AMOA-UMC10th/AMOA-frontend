@@ -1,14 +1,47 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
-import { termsList } from '../../data/mockupdata/termsData';
+import {
+  fetchTermDetail,
+  fetchTermList,
+  type TermDetail,
+  type TermListItem,
+} from '../../data/terms';
 
 export default function TermsDetailView() {
   const navigate = useNavigate();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selectedTerm = termsList.find((term) => term.id === selectedId);
+  const [terms, setTerms] = useState<TermListItem[]>([]);
+  const [listError, setListError] = useState<string | null>(null);
 
-  if (selectedTerm) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedTerm, setSelectedTerm] = useState<TermDetail | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchTermList()
+      .then(setTerms)
+      .catch((err) => {
+        console.error(err);
+        setListError('이용약관을 불러오지 못했어요');
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedId === null) {
+      setSelectedTerm(null);
+      return;
+    }
+
+    setDetailError(null);
+    fetchTermDetail(selectedId)
+      .then(setSelectedTerm)
+      .catch((err) => {
+        console.error(err);
+        setDetailError('이용약관을 불러오지 못했어요');
+      });
+  }, [selectedId]);
+
+  if (selectedId !== null) {
     return (
       <div className="min-h-screen bg-white">
         <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
@@ -21,15 +54,20 @@ export default function TermsDetailView() {
           </button>
           <span className="text-base font-bold text-[#171B1C]">이용약관</span>
         </div>
-        <div className="px-4 pt-4 pb-6">
-          <p className="text-base font-bold text-[#171B1C]">
-            {selectedTerm.title}
-          </p>
-          <div className="border-t border-[#E9EBEE] mt-4 mb-5" />
-          <p className="text-sm text-[#171B1C] whitespace-pre-line leading-relaxed">
-            {selectedTerm.content}
-          </p>
-        </div>
+        {detailError && (
+          <p className="px-4 pt-6 text-sm text-[#F70071]">{detailError}</p>
+        )}
+        {selectedTerm && (
+          <div className="px-4 pt-4 pb-6">
+            <p className="text-base font-bold text-[#171B1C]">
+              {selectedTerm.title}
+            </p>
+            <div className="border-t border-[#E9EBEE] mt-4 mb-5" />
+            <p className="text-sm text-[#171B1C] whitespace-pre-line leading-relaxed">
+              {selectedTerm.content}
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -46,12 +84,15 @@ export default function TermsDetailView() {
         </button>
         <span className="text-base font-bold text-[#171B1C]">이용약관</span>
       </div>
+      {listError && (
+        <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>
+      )}
       <div className="divide-y divide-[#E9EBEE]">
-        {termsList.map((term) => (
+        {terms.map((term) => (
           <button
-            key={term.id}
+            key={term.termId}
             type="button"
-            onClick={() => setSelectedId(term.id)}
+            onClick={() => setSelectedId(term.termId)}
             className="flex w-full items-center justify-between py-5 px-4 text-left"
           >
             <p className="text-base font-bold text-[#171B1C]">{term.title}</p>
