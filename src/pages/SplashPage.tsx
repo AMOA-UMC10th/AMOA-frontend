@@ -28,7 +28,7 @@ function SplashPage() {
             : `Bearer ${rawToken}`;
         }
 
-        const response = await axios.get(`${baseUrl}/api/admin/shops/designtag`, {
+        const response = await axios.get(`${baseUrl}/admin/shops/designtag`, {
           headers,
         });
 
