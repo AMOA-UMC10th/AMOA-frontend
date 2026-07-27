@@ -8,7 +8,7 @@ export default function InstagramSafeImage({ url }: { url: string }) {
     const handleResize = () => {
       if (containerRef.current) {
         const width = containerRef.current.offsetWidth;
-        const targetWidth = 326; // 인스타 기본 최소 가로폭 기준
+        const targetWidth = 326;
         if (width > 0) {
           setScale(width / targetWidth);
         }
@@ -17,8 +17,13 @@ export default function InstagramSafeImage({ url }: { url: string }) {
 
     handleResize();
     window.addEventListener('resize', handleResize);
+
+    if (window.instgrm) {
+      window.instgrm.Embeds.process();
+    }
+
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [url]);
 
   if (!url || url.trim() === '') {
     return (
@@ -29,27 +34,33 @@ export default function InstagramSafeImage({ url }: { url: string }) {
   }
 
   const cleanUrl = url.split('?')[0];
-  const embedUrl = `${cleanUrl}${cleanUrl.endsWith('/') ? '' : '/'}embed/?captioned=false`;
+  const formattedUrl = cleanUrl.endsWith('/') ? cleanUrl : `${cleanUrl}/`;
 
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
       <div
         className="absolute origin-top-left"
         style={{
-          width: '326px',
-          height: '435px', // 3:4 세로 비율 유지 (326 * 4/3)
+          width: '328px',
+          height: '437px',
           transform: `scale(${scale})`,
-          top: '0px',      // 자르지 않고 맨 위부터 보이도록 0px로 고정
-          left: '0px',
+          top: '-1px',
+          left: '-1px',
         }}
       >
-        <iframe
-          src={embedUrl}
-          className="w-full h-full border-0 pointer-events-none"
-          scrolling="no"
-          title="Instagram Image"
-          loading="lazy"
-        />
+        <blockquote
+          className="instagram-media"
+          data-instgrm-permalink={formattedUrl}
+          data-instgrm-version="14"
+          style={{
+            width: '100%',
+            height: '100%',
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          <a href={formattedUrl} target="_blank" rel="noopener noreferrer"></a>
+        </blockquote>
       </div>
     </div>
   );

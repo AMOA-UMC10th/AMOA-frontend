@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import ProfileForm, { type ProfileFormValue } from '../../components/mypage/ProfileForm';
-import { mockSettingData } from '../../data/userData';
+import { mockSettingData } from '../../data/mockupdata/userData';
 
 export default function MyProfileEditPage() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function MyProfileEditPage() {
 
   const [profile, setProfile] = useState({
     profileImageUrl: setting.profileImageUrl,
-    name: setting.name,
+    name: setting.nickname,
     nickname: setting.nickname,
     email: setting.email,
     phoneNumber: setting.phoneNumber,

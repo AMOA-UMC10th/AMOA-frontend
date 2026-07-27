@@ -40,13 +40,13 @@ function AllCheckIcon({ checked }: { checked: boolean }) {
   return (
     <span
       className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-        checked ? 'bg-[#000000]' : 'bg-[#E9EBEE]'
+        checked ? 'bg-[#F70071]' : 'bg-[#E9EBEE]'
       }`}
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
         <path
           d="M5 13l4 4L19 7"
-          stroke={checked ? '#FFFFFF' : '#ADB0B5'}
+          stroke={checked ? '#F70071' : '#ADB0B5'}
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -101,7 +101,7 @@ export default function TermsPage() {
         <button
           onClick={handleSignup}
           disabled={!isAllRequiredChecked}
-          className="mt-4 w-full bg-[#000000] text-white rounded-lg py-3 disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+          className="mt-4 w-full bg-[#F70071] text-white rounded-lg py-3 disabled:bg-[#E9EBEE] disabled:text-[#FFC0DC]"
         >
           동의하고 가입하기
         </button>

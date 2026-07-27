@@ -5,7 +5,7 @@ import {
   ChevronLeftSmallIcon,
   ChevronRightSmallIcon,
 } from '../../assets/icons';
-import { getTimeSlotsForDate, getTodayKey } from '../../data/reservationData';
+import { getTimeSlotsForDate, getTodayKey } from '../../data/mockupdata/reservationData';
 
 interface DateTimeCalendarProps {
   selectedDate: string | null;
@@ -121,7 +121,7 @@ export default function DateTimeCalendar({
       </div>
 
       {/* 날짜 */}
-      <div className="mt-6 grid grid-cols-7 gap-y-1 text-center">
+      <div className="mt-4 grid grid-cols-7 gap-y-1 text-center">
         {days.map((day, index) => {
           if (day === null) {
             return <span key={`blank-${index}`} />;
@@ -139,7 +139,7 @@ export default function DateTimeCalendar({
                 type="button"
                 disabled={isPast}
                 onClick={() => onSelectDate(dateKey)}
-                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-md ${
                   isPast
                     ? 'cursor-not-allowed text-[#E9EBEE]'
                     : 'cursor-pointer'
@@ -166,7 +166,7 @@ export default function DateTimeCalendar({
 
       {/* 예약 시간 */}
       {selectedDate && (
-        <div className="mt-6 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-3">
           {timeSlots.map((slot) => {
             const isSelected = selectedTime === slot.time;
 

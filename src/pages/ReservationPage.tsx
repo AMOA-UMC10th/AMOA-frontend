@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '../assets/icons';
-import { mockCardResponse } from '../data/nailData';
+import { mockCardResponse } from '../data/mockupdata/nailData';
 import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
@@ -16,9 +16,10 @@ import {
   formatDuration,
   formatDateLabel,
   getTodayKey,
+  saveReservation,
   type HandStatusId,
   type GelRemovalShop,
-} from '../data/reservationData';
+} from '../data/mockupdata/reservationData';
 
 type Step = 'hand-status' | 'art-option' | 'datetime' | 'confirm' | 'complete';
 type PaymentMethod = 'KAKAO_PAY' | 'CARD';
@@ -71,6 +72,7 @@ export default function ReservationPage() {
   );
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   const selection = {
     handStatus,
@@ -130,12 +132,29 @@ export default function ReservationPage() {
   };
 
   const handleConfirmNext = () => {
-    if (!isConfirmComplete) return;
+    if (!isConfirmComplete || !selectedDate || !selectedTime) return;
 
     if (paymentMethod === 'KAKAO_PAY') handleKakaoPayFlow();
     else if (paymentMethod === 'CARD') handleCardPaymentFlow();
 
-    // TODO: 실제 결제 연동 전까지는 결제 없이 바로 완료 화면으로 이동
+    const id = crypto.randomUUID();
+    // TODO: 실제 결제 연동 전까지는 결제 없이 바로 저장 + 완료 화면으로 이동
+    saveReservation({
+      id,
+      cardId: card.card_id,
+      shopName: card.shop_name,
+      artLabel: selectedArt?.label ?? '',
+      date: selectedDate,
+      time: selectedTime,
+      totalPrice,
+      depositPrice: RESERVATION_DEPOSIT,
+      customerName,
+      customerPhone,
+      requestNote,
+      isCancelled: false,
+      createdAt: Date.now(),
+    });
+    setSavedId(id);
     setStep('complete');
   };
 
@@ -184,7 +203,7 @@ export default function ReservationPage() {
             예약이 완료됐어요
           </h1>
           <p className="mt-1 text-sm text-[#ADB0B5]">
-            예약번호 A-{Date.now().toString().slice(-8)}
+            예약번호 A-{savedId?.slice(0, 8).toUpperCase()}
           </p>
 
           <div className="mt-8 w-full rounded-xl bg-[#F7F8FA] divide-y divide-[#E9EBEE] px-5">

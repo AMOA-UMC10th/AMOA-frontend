@@ -4,7 +4,7 @@ import {
   EXTENSION_REMOVAL_MAX_COUNT,
   type HandStatusId,
   type GelRemovalShop,
-} from '../../data/reservationData';
+} from '../../data/mockupdata/reservationData';
 
 interface HandStatusSelectProps {
   selected: HandStatusId[];
@@ -26,8 +26,8 @@ export default function HandStatusSelect({
   const isSelected = (id: HandStatusId) => selected.includes(id);
 
   return (
-    <div className="px-5 pt-10">
-      <h2 className="text-xl font-bold text-[#171B1C]">현재 손 상태</h2>
+    <div className="px-5 pt-8">
+      <h2 className="text-lg font-bold text-[#171B1C]">현재 손 상태</h2>
 
       <div className="mt-4 flex flex-col gap-2 pt-3">
         {HAND_STATUS_OPTIONS.map((option) => {

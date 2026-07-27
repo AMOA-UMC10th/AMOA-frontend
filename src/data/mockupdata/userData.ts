@@ -1,10 +1,10 @@
 export interface SettingResult {
   profileImageUrl: string;
-  name: string;
   nickname: string;
   email: string;
   phoneNumber: string;
   marketingAgreed: boolean;
+  reservationReminderAgreed: boolean;
   preferredMoods: string[];
   interestedRegions: string[];
 }
@@ -22,11 +22,11 @@ export const mockSettingData: SettingResponse = {
   message: "설정 조회에 성공했습니다.",
   result: {
     profileImageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60",
-    name: "홍길동",
     nickname: "두두",
     email: "kinbee@gmail.com",
     phoneNumber: "01012345678",
     marketingAgreed: false,
+    reservationReminderAgreed: true,
     preferredMoods: ["SIMPLE", "UNIQUE"],
     interestedRegions: ["서울특별시 강남구", "서울특별시 성동구"]
   }

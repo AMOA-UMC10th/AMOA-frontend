@@ -1,7 +1,7 @@
 //H102 아트 정보 입력 폼
 
 import React, { useState, useEffect } from 'react';
-import { initialShops } from '../../data/adminData';
+import { initialShops } from '../../data/mockupdata/adminData';
 
 type DesignTag = '심플' | '아기자기' | '화려' | '스트릿' | '유니크' | '내추럴' | '빈티지';
 type ArtType = '이달의 아트' | '지난달 아트' | '이벤트' | '원컬러';

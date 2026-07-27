@@ -7,8 +7,8 @@ import SearchBar from '../../components/onboarding/SearchBar';
 import RegionResult from '../../components/onboarding/RegionResult';
 import RegionChips from '../../components/onboarding/RegionChips';
 import type { SelectedRegion } from '../../components/onboarding/RegionChips';
-import { searchRegions, type RegionMatch } from '../../data/regionData';
-import { mockSettingData } from '../../data/userData';
+import { searchRegions, type RegionMatch } from '../../data/region';
+import { mockSettingData } from '../../data/mockupdata/userData';
 
 const MAX_REGIONS = 3;
 
@@ -22,6 +22,7 @@ export default function MyRegionReconfigPage() {
   const setting = mockSettingData.result;
 
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState<RegionMatch[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<SelectedRegion[]>(() =>
     setting.interestedRegions
       .map(toShortDistrict)
@@ -35,20 +36,49 @@ export default function MyRegionReconfigPage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // TODO: 백엔드에 지역 검색 요청 (현재는 목업 데이터로 검색)
-  const results = searchRegions(query);
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
 
-  function addRegion(label: string) {
-    if (selectedRegions.some((r) => r.label === label)) return;
+    const timer = setTimeout(() => {
+      searchRegions(query)
+        .then(setResults)
+        .catch((err) => {
+          console.error(err);
+          setResults([]);
+        });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  function addRegion(region: { district?: string; keyword?: string; label?: string }) {
+    const isDuplicate = selectedRegions.some(
+      (r) =>
+        (region.district && r.district === region.district && r.keyword === region.keyword) ||
+        (region.label && r.label === region.label),
+    );
+    if (isDuplicate) return;
+
     if (selectedRegions.length >= MAX_REGIONS) {
       setToast(`최대 ${MAX_REGIONS}개까지 추가할 수 있어요`);
       return;
     }
-    setSelectedRegions((prev) => [...prev, { id: crypto.randomUUID(), label }]);
+    setSelectedRegions((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        district: region.district,
+        keyword: region.keyword,
+        label: region.label,
+      },
+    ]);
   }
 
   function handleSelectResult(match: RegionMatch) {
-    addRegion(match.shortDistrict);
+    addRegion({ district: match.district, keyword: match.keyword });
     setQuery('');
   }
 

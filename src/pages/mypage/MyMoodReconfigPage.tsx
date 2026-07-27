@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import MoodCard from '../../components/onboarding/MoodCard';
-import { mockSettingData } from '../../data/userData';
+import { mockSettingData } from '../../data/mockupdata/userData';
 
 const MOODS = ['심플', '아기자기', '화려', '스트릿', '유니크', '내추럴', '모던'];
 

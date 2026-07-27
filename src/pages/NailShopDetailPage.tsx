@@ -1,7 +1,7 @@
 //네일샵 상세 페이지 (D101)
 
 import { useNavigate } from 'react-router-dom';
-import { mockCardListData, mockShopDetailData } from '../data/shopData';
+import { mockCardListData, mockShopDetailData } from '../data/mockupdata/shopData';
 import ShopInfo from '../components/nail_shop_detail/ShopInfo';
 import ShopArtList from '../components/nail_shop_detail/ShopArtList';
 
