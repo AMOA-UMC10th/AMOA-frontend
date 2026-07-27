@@ -40,7 +40,7 @@ interface ProfileApiResponse<T> {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/users/me/profile`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/users/me/profile`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("accessToken");
