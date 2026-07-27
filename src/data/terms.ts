@@ -22,7 +22,7 @@ interface TermApiResponse<T> {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/terms`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("accessToken");
