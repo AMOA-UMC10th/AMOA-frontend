@@ -39,10 +39,7 @@ interface CardApiResponse<T> {
 
 // ===== API 호출 =====
 
-// TODO: 백엔드가 카드 관련 API를 /api/v1로 통일하면(리팩토링 예정, 날짜 미정)
-// ORIGIN 우회 없이 VITE_API_BASE_URL을 그대로 써서 다른 파일들과 통일할 것
-const ORIGIN = import.meta.env.VITE_API_BASE_URL.replace(/\/api\/v1$/, "");
-const BASE_URL = `${ORIGIN}/api/cards`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("accessToken");
