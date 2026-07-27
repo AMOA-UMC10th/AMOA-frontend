@@ -25,7 +25,7 @@ export interface RegionMatch {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/regions`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/regions`;
 
 export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   if (!keyword.trim()) return [];
