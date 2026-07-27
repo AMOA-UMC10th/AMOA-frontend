@@ -4,20 +4,38 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import ProfileForm, { type ProfileFormValue } from '../../components/mypage/ProfileForm';
-import { mockSettingData } from '../../data/mockupdata/userData';
+import { getMyProfile, updateMyProfile } from '../../data/userProfile';
 
 export default function MyProfileEditPage() {
   const navigate = useNavigate();
-  const setting = mockSettingData.result;
 
   const [profile, setProfile] = useState({
-    profileImageUrl: setting.profileImageUrl,
-    name: setting.nickname,
-    nickname: setting.nickname,
-    email: setting.email,
-    phoneNumber: setting.phoneNumber,
+    profileImageUrl: '',
+    name: '',
+    nickname: '',
+    email: '',
+    phoneNumber: '',
   });
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMyProfile()
+      .then((data) => {
+        setProfile({
+          profileImageUrl: data.profileImageUrl,
+          name: data.name,
+          nickname: data.nickname,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        setToast('프로필을 불러오지 못했어요');
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -25,10 +43,19 @@ export default function MyProfileEditPage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const handleProfileSave = (value: ProfileFormValue) => {
-    // TODO: 백엔드에 프로필(닉네임/연락처/프로필사진) 수정 요청
-    setProfile((prev) => ({ ...prev, ...value }));
-    setToast('프로필이 저장되었어요');
+  const handleProfileSave = async (value: ProfileFormValue) => {
+    try {
+      await updateMyProfile({
+        profileImageUrl: value.profileImageUrl,
+        nickname: value.nickname,
+        phoneNumber: value.phoneNumber.replace(/\D/g, ''),
+      });
+      setProfile((prev) => ({ ...prev, ...value }));
+      setToast('프로필이 저장되었어요');
+    } catch (err) {
+      console.error(err);
+      setToast('프로필 저장에 실패했어요');
+    }
   };
 
   return (
@@ -45,16 +72,18 @@ export default function MyProfileEditPage() {
         <h1 className="text-sm font-semibold text-[#171B1C]">정보수정</h1>
       </header>
 
-      <div className="px-5 py-8">
-        <ProfileForm
-          profileImageUrl={profile.profileImageUrl}
-          name={profile.name}
-          nickname={profile.nickname}
-          email={profile.email}
-          phoneNumber={profile.phoneNumber}
-          onSave={handleProfileSave}
-        />
-      </div>
+      {!loading && (
+        <div className="px-5 py-8">
+          <ProfileForm
+            profileImageUrl={profile.profileImageUrl}
+            name={profile.name}
+            nickname={profile.nickname}
+            email={profile.email}
+            phoneNumber={profile.phoneNumber}
+            onSave={handleProfileSave}
+          />
+        </div>
+      )}
 
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full bg-[#F70071] px-4 py-2 text-sm text-white shadow-lg">

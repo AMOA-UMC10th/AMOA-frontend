@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { FiCamera } from 'react-icons/fi';
 import AuthTimer from '../onboarding/AuthTimer';
+import { checkNicknameAvailable } from '../../data/userProfile';
 
 export interface ProfileFormValue {
   profileImageUrl: string;
@@ -18,6 +19,9 @@ interface ProfileFormProps {
   phoneNumber: string;
   onSave: (value: ProfileFormValue) => void;
 }
+
+type NicknameCheckState = 'idle' | 'available' | 'duplicate' | 'error';
+type CodeVerifyState = 'idle' | 'verified' | 'invalid';
 
 function formatPhoneNumber(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 11);
@@ -81,15 +85,16 @@ export default function ProfileForm({
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameEditing, setNicknameEditing] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState('');
-  const [nicknameChecked, setNicknameChecked] = useState(false);
-  const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
+  const [nicknameCheckState, setNicknameCheckState] = useState<NicknameCheckState>('idle');
+  const [nicknameChanged, setNicknameChanged] = useState(false);
 
   const [phoneValue, setPhoneValue] = useState(formatPhoneNumber(phoneNumber));
   const [phoneEditing, setPhoneEditing] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState('');
   const [codeRequested, setCodeRequested] = useState(false);
   const [code, setCode] = useState('');
-  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [codeVerifyState, setCodeVerifyState] = useState<CodeVerifyState>('idle');
+  const [phoneChanged, setPhoneChanged] = useState(false);
 
   const canSave = nicknameValue.trim().length > 0;
 
@@ -104,31 +109,35 @@ export default function ProfileForm({
 
   const startNicknameEdit = () => {
     setNicknameDraft(nicknameValue);
-    setNicknameChecked(false);
-    setNicknameDuplicate(false);
+    setNicknameCheckState('idle');
+    setNicknameChanged(false);
     setNicknameEditing(true);
   };
 
-  const handleCheckDuplicate = () => {
-    const isLengthValid = nicknameDraft.length >= 2 && nicknameDraft.length <= 10;
-    if (!isLengthValid || nicknameChecked) return;
-    // TODO: 백엔드에 닉네임 중복확인 요청
-    const isTaken = false;
-    if (isTaken) {
-      setNicknameDuplicate(true);
-      return;
+  const handleCheckDuplicate = async () => {
+    const isLengthValid = nicknameDraft.length >= 2 && nicknameDraft.length <= 12;
+    if (!isLengthValid) return;
+    try {
+      const available = await checkNicknameAvailable(nicknameDraft);
+      setNicknameCheckState(available ? 'available' : 'duplicate');
+    } catch (err) {
+      console.error(err);
+      setNicknameCheckState('error');
     }
-    setNicknameDuplicate(false);
-    setNicknameChecked(true);
+  };
+
+  const commitNickname = () => {
     setNicknameValue(nicknameDraft);
     setNicknameEditing(false);
+    setNicknameChanged(true);
   };
 
   const startPhoneEdit = () => {
     setPhoneDraft('');
     setCode('');
     setCodeRequested(false);
-    setPhoneVerified(false);
+    setCodeVerifyState('idle');
+    setPhoneChanged(false);
     setPhoneEditing(true);
   };
 
@@ -138,15 +147,22 @@ export default function ProfileForm({
   const handleRequestCode = () => {
     if (!isPhoneDraftValid) return;
     // TODO: 백엔드에 SMS 인증번호 발송 요청
+    setCode('');
+    setCodeVerifyState('idle');
     setCodeRequested(true);
   };
 
   const handleVerifyCode = () => {
     if (!isCodeValid) return;
     // TODO: 백엔드에 인증번호 검증 요청
-    setPhoneVerified(true);
+    const isValid = true;
+    setCodeVerifyState(isValid ? 'verified' : 'invalid');
+  };
+
+  const commitPhone = () => {
     setPhoneValue(phoneDraft);
     setPhoneEditing(false);
+    setPhoneChanged(true);
   };
 
   const handleSubmit = () => {
@@ -204,23 +220,32 @@ export default function ProfileForm({
                   type="text"
                   autoFocus
                   value={nicknameDraft}
-                  maxLength={10}
+                  maxLength={12}
                   onChange={(e) => {
                     setNicknameDraft(e.target.value);
-                    setNicknameChecked(false);
-                    setNicknameDuplicate(false);
+                    setNicknameCheckState('idle');
                   }}
                   placeholder="새로운 닉네임 입력"
                   className="flex-1 border-b border-[#F70071] py-1 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none"
                 />
-                <ChangeButton
-                  label="중복확인"
-                  disabled={nicknameDraft.trim().length < 2}
-                  onClick={handleCheckDuplicate}
-                />
+                {nicknameCheckState === 'available' ? (
+                  <ChangeButton label="변경하기" onClick={commitNickname} />
+                ) : (
+                  <ChangeButton
+                    label="중복확인"
+                    disabled={nicknameDraft.trim().length < 2}
+                    onClick={handleCheckDuplicate}
+                  />
+                )}
               </div>
-              {nicknameDuplicate && (
-                <span className="text-xs text-[#CD0000]">이미 사용 중인 닉네임이에요</span>
+              {nicknameCheckState === 'duplicate' && (
+                <span className="text-xs text-[#CD0000]">이미 사용중인 닉네임이에요</span>
+              )}
+              {nicknameCheckState === 'available' && (
+                <span className="text-xs text-[#F70071]">사용가능한 닉네임이에요</span>
+              )}
+              {nicknameCheckState === 'error' && (
+                <span className="text-xs text-[#CD0000]">닉네임 확인에 실패했어요. 다시 시도해주세요</span>
               )}
             </div>
           ) : (
@@ -249,30 +274,61 @@ export default function ProfileForm({
                   onChange={(e) => setPhoneDraft(formatPhoneNumber(e.target.value))}
                   className="flex-1 border-b border-[#F70071] py-1 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none disabled:border-[#C5C8CE] disabled:text-[#ADB0B5]"
                 />
-                <ChangeButton
-                  label="인증받기"
-                  disabled={!isPhoneDraftValid || codeRequested}
-                  onClick={handleRequestCode}
-                />
+                {codeVerifyState === 'verified' ? (
+                  <ChangeButton label="변경하기" onClick={commitPhone} />
+                ) : (
+                  <ChangeButton
+                    label="인증받기"
+                    disabled={!isPhoneDraftValid || codeRequested}
+                    onClick={handleRequestCode}
+                  />
+                )}
               </div>
 
               {codeRequested && (
-                <div className="flex items-center gap-2.5">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={4}
-                      placeholder="인증번호 4자리"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full border-b border-[#F70071] py-1 pr-12 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none"
-                    />
-                    <div className="absolute right-1 top-1/2 -translate-y-1/2">
-                      <AuthTimer duration={180} onExpire={() => setCode('')} />
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={4}
+                        placeholder="인증번호 4자리"
+                        value={code}
+                        onChange={(e) => {
+                          setCode(e.target.value.replace(/\D/g, ''));
+                          setCodeVerifyState('idle');
+                        }}
+                        className="w-full border-b border-[#F70071] py-1 pr-12 text-[15px] leading-[1.5] text-[#1E2427] focus:outline-none"
+                      />
+                      <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                        <AuthTimer duration={180} onExpire={() => setCode('')} />
+                      </div>
                     </div>
+                    <ChangeButton
+                      label={codeVerifyState === 'verified' ? '인증완료' : '인증하기'}
+                      disabled={codeVerifyState === 'verified' || !isCodeValid}
+                      onClick={handleVerifyCode}
+                    />
                   </div>
-                  <ChangeButton label="확인완료" disabled={!isCodeValid} onClick={handleVerifyCode} />
+                  {codeVerifyState === 'idle' && (
+                    <span className="text-xs text-[#ADB0B5]">
+                      인증번호가 오지 않았나요?{' '}
+                      <button
+                        type="button"
+                        onClick={handleRequestCode}
+                        className="font-medium text-[#1E2427] underline"
+                      >
+                        재전송
+                      </button>
+                    </span>
+                  )}
+                  {codeVerifyState === 'verified' && (
+                    <span className="text-xs text-[#F70071]">인증번호가 확인되었어요</span>
+                  )}
+                  {codeVerifyState === 'invalid' && (
+                    <span className="text-xs text-[#CD0000]">인증번호가 일치하지 않아요</span>
+                  )}
                 </div>
               )}
             </div>
@@ -285,7 +341,13 @@ export default function ProfileForm({
         </div>
       </div>
 
-      {phoneVerified && (
+      {nicknameChanged && (
+        <span className="self-center rounded-full bg-[#F70071] px-4 py-2 text-xs font-semibold text-white">
+          닉네임이 수정되었어요
+        </span>
+      )}
+
+      {phoneChanged && (
         <span className="self-center rounded-full bg-[#F70071] px-4 py-2 text-xs font-semibold text-white">
           전화번호가 수정되었어요
         </span>
