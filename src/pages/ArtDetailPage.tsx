@@ -107,7 +107,7 @@ export default function ArtDetailPage() {
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
         <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
-          <ArtLikeBtn initialLiked={card.is_liked} size={24} />
+          <ArtLikeBtn initialLiked={card.is_liked} cardId={card.card_id} size={24} />
           <button
           onClick={handleShare}
           aria-label="공유하기"
