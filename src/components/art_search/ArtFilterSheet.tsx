@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import LocationFilter from './LocationFilter';
+import LocationFilter, { type RegionSelection } from './LocationFilter';
 import PriceFilter from './PriceFilter';
 import ArtTypeFilter from './ArtTypeFilter';
 import DesignFilter from './DesignFilter';
-import { type ArtType, mockCardResponse } from '../../data/mockupdata/nailData';
+import { fetchCards } from '../../data/card';
 
 export interface FilterState {
-  regions: string[];
+  regions: RegionSelection[];
   minPrice: number;
   maxPrice: number;
-  artType: ArtType | 'ALL';
-  designs: string[];
+  artType: string;
+  designs: number[];
 }
 
 interface ArtFilterSheetProps {
@@ -19,7 +19,6 @@ interface ArtFilterSheetProps {
   onClose: () => void;
   filters: FilterState;
   onApply: (filters: FilterState) => void;
-  onNavigateToLocationSearch: () => void | Promise<void>;
 }
 
 export default function ArtFilterSheet({
@@ -29,6 +28,7 @@ export default function ArtFilterSheet({
   onApply,
 }: ArtFilterSheetProps) {
   const [tempFilters, setTempFilters] = useState<FilterState>(filters);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
     if (isOpen) {
@@ -36,41 +36,56 @@ export default function ArtFilterSheet({
     }
   }, [isOpen, filters]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await fetchCards({
+          regionIds: tempFilters.regions.map((r) => r.id),
+          minPrice: tempFilters.minPrice,
+          maxPrice: tempFilters.maxPrice,
+          artType:
+            tempFilters.artType === 'ALL' || !tempFilters.artType
+              ? undefined
+              : tempFilters.artType,
+          designTagIds: tempFilters.designs,
+          size: 1,
+        });
+        setTotalCount(result.totalCount);
+      } catch (error) {
+        console.error(error);
+        setTotalCount(0);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, tempFilters]);
+
   if (!isOpen) return null;
 
-  const handleToggleRegion = (region: string) => {
+  const handleApplyRegions = (regions: RegionSelection[]) => {
     setTempFilters((prev) => ({
       ...prev,
-      regions: prev.regions.includes(region)
-        ? prev.regions.filter((r) => r !== region)
-        : [...prev.regions, region],
+      regions,
     }));
   };
 
-  const handleToggleDesign = (design: string) => {
+  const handleRemoveRegion = (regionId: number) => {
     setTempFilters((prev) => ({
       ...prev,
-      designs: prev.designs.includes(design)
-        ? prev.designs.filter((d) => d !== design)
-        : [...prev.designs, design],
+      regions: prev.regions.filter((r) => r.id !== regionId),
     }));
   };
 
-  const filteredCount = mockCardResponse.result.cards.filter((card) => {
-    if (tempFilters.regions.length > 0 && !tempFilters.regions.includes(card.region_name)) {
-      return false;
-    }
-
-    if (card.max_price < tempFilters.minPrice || card.min_price > tempFilters.maxPrice) {
-      return false;
-    }
-
-    if (tempFilters.artType !== 'ALL' && card.art_type !== tempFilters.artType) {
-      return false;
-    }
-
-    return true;
-  }).length;
+  const handleToggleDesign = (designTagId: number) => {
+    setTempFilters((prev) => ({
+      ...prev,
+      designs: prev.designs.includes(designTagId)
+        ? prev.designs.filter((id) => id !== designTagId)
+        : [...prev.designs, designTagId],
+    }));
+  };
 
   return createPortal(
     <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-[430px] bg-white flex flex-col border-x border-[#eceef1]">
@@ -90,7 +105,7 @@ export default function ArtFilterSheet({
               regions: [],
               minPrice: 0,
               maxPrice: 200000,
-              artType: 'ALL',
+              artType: '',
               designs: [],
             });
           }}
@@ -104,7 +119,8 @@ export default function ArtFilterSheet({
         <div className="border-b border-[#eceef1] pb-4">
           <LocationFilter
             selectedRegions={tempFilters.regions}
-            onToggleRegion={handleToggleRegion}
+            onApplyRegions={handleApplyRegions}
+            onRemoveRegion={handleRemoveRegion}
           />
         </div>
 
@@ -122,7 +138,7 @@ export default function ArtFilterSheet({
           <ArtTypeFilter
             selectedType={tempFilters.artType}
             onChangeType={(type) =>
-              setTempFilters((prev) => ({ ...prev, artType: type as ArtType | 'ALL' }))
+              setTempFilters((prev) => ({ ...prev, artType: type }))
             }
           />
         </div>
@@ -144,7 +160,7 @@ export default function ArtFilterSheet({
           }}
           className="w-full rounded-2xl bg-[#FF007A] py-4 text-center text-sm font-bold text-white hover:opacity-90 transition-opacity"
         >
-          {filteredCount}개 결과보기
+          {totalCount}개 결과보기
         </button>
       </div>
     </div>,
