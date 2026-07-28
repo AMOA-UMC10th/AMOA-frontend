@@ -31,21 +31,21 @@ function MyPage() {
         <h1 className="text-lg font-bold">마이페이지</h1>
       </header>
 
-      <section className="flex items-center justify-between px-5 py-6 border-b-8 border-gray-50">
+      <section className="flex items-center justify-between px-[17px] py-[18px] border-b-8 border-gray-50">
         <div className="flex items-center gap-4">
           <img
             src={profileImageUrl}
             alt={`${nickname} 프로필 이미지`}
-            className="w-14 h-14 rounded-full object-cover shrink-0"
+            className="w-[50px] h-[50px] rounded-full object-cover shrink-0"
           />
           <div>
-            <p className="text-base font-bold text-gray-900">{nickname}</p>
-            <p className="text-sm text-gray-400">{email}</p>
+            <p className="text-[15px] font-semibold text-[#171B1C]">{nickname}</p>
+            <p className="text-[11px] font-medium text-[#ADB0B5]">{email}</p>
           </div>
         </div>
         <button
           onClick={() => navigate('/mypage/edit')}
-          className="px-3.5 py-1.5 rounded-full border border-gray-900 text-sm font-medium whitespace-nowrap"
+          className="w-[65px] h-[25px] flex items-center justify-center rounded-full border border-[#171B1C] text-sm font-medium whitespace-nowrap"
         >
           정보관리
         </button>
@@ -57,11 +57,11 @@ function MyPage() {
             <button
               key={item.label}
               onClick={() => item.path && navigate(item.path)}
-              className="w-full flex items-center px-5 h-14 border-b border-gray-100 last:border-b-0 text-left"
+              className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left"
             >
               <span
                 className={`text-[15px] ${
-                  item.danger ? 'text-gray-400' : 'text-gray-900'
+                  item.danger ? 'text-[#ADB0B5]' : 'text-[#171B1C]'
                 }`}
               >
                 {item.label}
