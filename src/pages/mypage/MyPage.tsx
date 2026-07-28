@@ -31,7 +31,7 @@ function MyPage() {
         <h1 className="text-lg font-bold">마이페이지</h1>
       </header>
 
-      <section className="flex items-center justify-between px-[17px] py-[18px] border-b-8 border-gray-50">
+      <section className="flex items-center justify-between px-[17px] py-[18px] border-b-[11px] border-gray-50">
         <div className="flex items-center gap-4">
           <img
             src={profileImageUrl}
@@ -52,7 +52,7 @@ function MyPage() {
       </section>
 
       {MENU_GROUPS.map((group, groupIdx) => (
-        <div key={groupIdx} className="border-b-8 border-gray-50 last:border-b-0">
+        <div key={groupIdx} className="border-b-[11px] border-gray-50 last:border-b-0">
           {group.map((item) => (
             <button
               key={item.label}
