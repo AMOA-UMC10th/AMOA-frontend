@@ -33,20 +33,22 @@ export default function WithdrawPage() {
         </button>
         <span className="text-[13px] font-semibold text-black">회원탈퇴</span>
       </div>
-      <div className="px-4 pt-6">
-        <p className="text-base font-bold text-[#171B1C]">탈퇴하시겠어요?</p>
-        <p className="text-xs font-medium text-[#646F7C] mt-1">
-          탈퇴하면 찜 목록과 설정이 사라져요
-        </p>
-        {errorMessage && (
-          <p className="text-xs font-medium text-[#F70071] mt-3">{errorMessage}</p>
-        )}
-        <div className="flex gap-3 mt-5">
+      <div className="flex flex-col items-start gap-[15px] px-[15px] pt-6">
+        <div>
+          <p className="text-base font-bold text-[#171B1C]">탈퇴하시겠어요?</p>
+          <p className="text-xs font-medium text-[#646F7C] mt-1">
+            탈퇴하면 찜 목록과 설정이 사라져요
+          </p>
+          {errorMessage && (
+            <p className="text-xs font-medium text-[#F70071] mt-3">{errorMessage}</p>
+          )}
+        </div>
+        <div className="flex gap-[10px]">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={isSubmitting}
-            className="flex-1 h-12 rounded-xl border border-[#E9EBEE] text-sm font-semibold text-[#171B1C]"
+            className="w-[160px] h-[42px] rounded-xl border border-[#E9EBEE] text-sm font-semibold text-[#171B1C]"
           >
             취소
           </button>
@@ -54,7 +56,7 @@ export default function WithdrawPage() {
             type="button"
             onClick={handleWithdraw}
             disabled={isSubmitting}
-            className="flex-1 h-12 rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
+            className="w-[160px] h-[42px] rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
           >
             회원 탈퇴
           </button>
