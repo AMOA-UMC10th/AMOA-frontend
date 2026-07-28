@@ -103,8 +103,8 @@ export default function NoticeList() {
             className="flex w-full items-center justify-between py-3 px-6 text-left"
           >
             <div className="flex flex-col">
-              <p className="text-base font-semibold text-[#171B1C]">{notice.title}</p>
-              <p className="text-xs font-normal text-[#646F7C]">
+              <p className="text-[15px] font-medium text-[#171B1C]">{notice.title}</p>
+              <p className="text-[11px] font-medium text-[#646F7C]">
                 {formatDate(notice.createdAt)}
               </p>
             </div>
