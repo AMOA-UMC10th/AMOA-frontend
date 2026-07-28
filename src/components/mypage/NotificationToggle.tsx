@@ -24,13 +24,13 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${
+      className={`relative w-10 h-[22px] rounded-full shrink-0 transition-colors ${
         checked ? 'bg-[#F70071]' : 'bg-[#E9EBEE]'
       }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-0'
+        className={`absolute top-0.5 left-0.5 h-[18px] w-[18px] rounded-full bg-white transition-transform ${
+          checked ? 'translate-x-[18px]' : 'translate-x-0'
         }`}
       />
     </button>
@@ -122,24 +122,24 @@ export default function NotificationToggle() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
+      <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
         <button
           type="button"
           onClick={() => navigate(-1)}
           className="absolute left-4 cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
         </button>
-        <span className="text-base font-bold text-[#171B1C]">알림 설정</span>
+        <span className="text-[13px] font-semibold text-black">알림 설정</span>
       </div>
       {loadError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{loadError}</p>
       )}
-      <div className="divide-y divide-[#E9EBEE]">
-        <div className="flex items-center justify-between py-5 px-4">
-          <div>
-            <p className="text-base font-bold text-[#171B1C]">예약 리마인드</p>
-            <p className="text-xs font-medium text-[#646F7C] mt-1">
+      <div>
+        <div className="flex items-center justify-between py-3 px-6 border-b border-[#C5C8CE]">
+          <div className="flex flex-col">
+            <p className="text-[15px] font-medium text-[#171B1C]">예약 리마인드</p>
+            <p className="text-[11px] font-medium text-[#646F7C]">
               예약 두 시간 전 알림을 보내드려요
             </p>
           </div>
@@ -149,10 +149,10 @@ export default function NotificationToggle() {
             label="예약 리마인드 토글"
           />
         </div>
-        <div className="flex items-center justify-between py-5 px-4">
-          <div>
-            <p className="text-base font-bold text-[#171B1C]">마케팅 수신 동의</p>
-            <p className="text-xs font-medium text-[#646F7C] mt-1">
+        <div className="flex items-center justify-between py-3 px-6 border-b border-[#C5C8CE]">
+          <div className="flex flex-col">
+            <p className="text-[15px] font-medium text-[#171B1C]">마케팅 수신 동의</p>
+            <p className="text-[11px] font-medium text-[#646F7C]">
               새로운 이벤트 소식을 메일로 보내드려요
             </p>
           </div>

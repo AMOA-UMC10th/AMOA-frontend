@@ -23,30 +23,32 @@ export default function WithdrawPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
+      <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
         <button
           type="button"
           onClick={() => navigate(-1)}
           className="absolute left-4 cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
         </button>
-        <span className="text-base font-bold text-[#171B1C]">회원탈퇴</span>
+        <span className="text-[13px] font-semibold text-black">회원탈퇴</span>
       </div>
-      <div className="px-4 pt-6">
-        <p className="text-base font-bold text-[#171B1C]">탈퇴하시겠어요?</p>
-        <p className="text-xs font-medium text-[#646F7C] mt-1">
-          탈퇴하면 찜 목록과 설정이 사라져요
-        </p>
-        {errorMessage && (
-          <p className="text-xs font-medium text-[#F70071] mt-3">{errorMessage}</p>
-        )}
-        <div className="flex gap-3 mt-5">
+      <div className="flex flex-col items-start gap-[15px] px-[15px] pt-6">
+        <div>
+          <p className="text-[15px] font-semibold text-[#171B1C]">탈퇴하시겠어요?</p>
+          <p className="text-[11px] font-medium text-[#646F7C] mt-1">
+            탈퇴하면 찜 목록과 설정이 사라져요
+          </p>
+          {errorMessage && (
+            <p className="text-xs font-medium text-[#F70071] mt-3">{errorMessage}</p>
+          )}
+        </div>
+        <div className="flex gap-[10px] w-full">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={isSubmitting}
-            className="flex-1 h-12 rounded-xl border border-[#E9EBEE] text-sm font-semibold text-[#171B1C]"
+            className="flex-1 h-[42px] rounded-xl border border-[#E9EBEE] text-[13px] font-medium text-[#646F7C]"
           >
             취소
           </button>
@@ -54,7 +56,7 @@ export default function WithdrawPage() {
             type="button"
             onClick={handleWithdraw}
             disabled={isSubmitting}
-            className="flex-1 h-12 rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
+            className="flex-1 h-[42px] rounded-xl bg-[#F70071] text-[13px] font-medium text-white disabled:opacity-50"
           >
             회원 탈퇴
           </button>
