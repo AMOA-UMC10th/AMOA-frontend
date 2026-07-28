@@ -35,8 +35,8 @@ export default function WithdrawPage() {
       </div>
       <div className="flex flex-col items-start gap-[15px] px-[15px] pt-6">
         <div>
-          <p className="text-base font-bold text-[#171B1C]">탈퇴하시겠어요?</p>
-          <p className="text-xs font-medium text-[#646F7C] mt-1">
+          <p className="text-[15px] font-semibold text-[#171B1C]">탈퇴하시겠어요?</p>
+          <p className="text-[11px] font-medium text-[#646F7C] mt-1">
             탈퇴하면 찜 목록과 설정이 사라져요
           </p>
           {errorMessage && (
@@ -48,7 +48,7 @@ export default function WithdrawPage() {
             type="button"
             onClick={() => navigate(-1)}
             disabled={isSubmitting}
-            className="w-[160px] h-[42px] rounded-xl border border-[#E9EBEE] text-sm font-semibold text-[#171B1C]"
+            className="w-[160px] h-[42px] rounded-xl border border-[#E9EBEE] text-[15px] font-semibold text-[#171B1C]"
           >
             취소
           </button>
