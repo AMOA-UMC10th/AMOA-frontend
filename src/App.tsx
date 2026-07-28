@@ -31,6 +31,9 @@ import WithdrawPage from './pages/mypage/WithdrawPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
 import NoticeList from './components/mypage/NoticeList';
 import NotificationToggle from './components/mypage/NotificationToggle';
+import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
+import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
+import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
 const NAV_HIDDEN_PATHS = [
@@ -57,11 +60,23 @@ function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
 function RegionPageRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const goNext = (regionIds: number[]) => {
+    navigate('/onboarding/nickname', {
+      state: { ...location.state, regionIds },
+    });
+  };
 
   return (
     <RegionPage
-      onNext={() => navigate('/home')}
-      onSkip={() => navigate('/home')}
+      onNext={(regions) =>
+        goNext(
+          regions
+            .map((r) => r.regionId)
+            .filter((id): id is number => id != null)
+        )
+      }
+      onSkip={() => goNext([])}
     />
   );
 }
@@ -108,6 +123,9 @@ function App() {
           <Route path="/mypage/terms" element={<TermsDetailView />} />
           <Route path="/mypage/notice" element={<NoticeList />} />
           <Route path="/mypage/settings" element={<NotificationToggle />} />
+          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
+          <Route path="/mypage/designre" element={<MyMoodReconfigPage />} />
+          <Route path="/mypage/regionre" element={<MyRegionReconfigPage />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>
