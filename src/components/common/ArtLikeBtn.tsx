@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
-import { likeCard, unlikeCard } from '../../data/like';
+import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
@@ -43,6 +43,8 @@ export default function ArtLikeBtn({
       const request = next ? likeCard(cardId) : unlikeCard(cardId);
       request.catch((err) => {
         console.error(err);
+        // 서버 상태가 이미 원하는 상태(중복 찜/이미 취소됨)라면 되돌리지 않고 그대로 둠
+        if (err instanceof LikeApiError && err.status === 409) return;
         setLiked(!next);
         setIsSaved(!next);
         onToggle?.(!next);
