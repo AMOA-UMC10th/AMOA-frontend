@@ -60,18 +60,10 @@ function MyPage() {
               onClick={() => item.path && navigate(item.path)}
               className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left"
             >
-              <span
-                className={`text-[15px] ${
-                  item.danger ? 'text-[#ADB0B5]' : 'text-[#171B1C]'
-                }`}
-              >
-                {item.label}
-              </span>
+              <span className="text-[15px] text-[#171B1C]">{item.label}</span>
             </button>
           ))}
-          {groupIdx < MENU_GROUPS.length - 1 && (
-            <div className="h-[11px] bg-gray-50" />
-          )}
+          <div className="h-[11px] bg-gray-50" />
         </div>
       ))}
     </div>
