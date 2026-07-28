@@ -108,7 +108,7 @@ export default function NoticeList() {
                 {formatDate(notice.createdAt)}
               </p>
             </div>
-            <ChevronRightSmallIcon className="w-2 h-3 text-[#ADB0B5] shrink-0" />
+            <ChevronRightSmallIcon className="w-2 h-3 text-[#646F7C] shrink-0" />
           </button>
         ))}
       </div>
