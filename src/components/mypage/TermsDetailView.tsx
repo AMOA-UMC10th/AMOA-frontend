@@ -50,9 +50,9 @@ export default function TermsDetailView() {
             onClick={() => setSelectedId(null)}
             className="absolute left-4 cursor-pointer"
           >
-            <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+            <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
           </button>
-          <span className="text-base font-bold text-[#171B1C]">이용약관</span>
+          <span className="text-[13px] font-semibold text-black">이용약관</span>
         </div>
         {detailError && (
           <p className="px-4 pt-6 text-sm text-[#F70071]">{detailError}</p>
@@ -80,9 +80,9 @@ export default function TermsDetailView() {
           onClick={() => navigate(-1)}
           className="absolute left-4 cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
         </button>
-        <span className="text-base font-bold text-[#171B1C]">이용약관</span>
+        <span className="text-[13px] font-semibold text-black">이용약관</span>
       </div>
       {listError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>

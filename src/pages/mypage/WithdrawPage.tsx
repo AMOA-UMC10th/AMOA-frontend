@@ -29,9 +29,9 @@ export default function WithdrawPage() {
           onClick={() => navigate(-1)}
           className="absolute left-4 cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
         </button>
-        <span className="text-base font-bold text-[#171B1C]">회원탈퇴</span>
+        <span className="text-[13px] font-semibold text-black">회원탈퇴</span>
       </div>
       <div className="px-4 pt-6">
         <p className="text-base font-bold text-[#171B1C]">탈퇴하시겠어요?</p>

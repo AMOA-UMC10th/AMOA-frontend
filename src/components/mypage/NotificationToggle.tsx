@@ -128,9 +128,9 @@ export default function NotificationToggle() {
           onClick={() => navigate(-1)}
           className="absolute left-4 cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
         </button>
-        <span className="text-base font-bold text-[#171B1C]">알림 설정</span>
+        <span className="text-[13px] font-semibold text-black">알림 설정</span>
       </div>
       {loadError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{loadError}</p>
