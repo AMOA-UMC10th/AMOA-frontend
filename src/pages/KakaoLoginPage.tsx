@@ -1,17 +1,238 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import {
+  postKakaoLogin,
+  type ExistingUserResult,
+  type NewUserResult,
+} from '../api/kakaoLogin';
+
+const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
+
 function KakaoLoginPage() {
+  const navigate = useNavigate();
+
+  const [isKakaoReady, setIsKakaoReady] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!KAKAO_JS_KEY) {
+      console.error('VITE_KAKAO_JS_KEY가 설정되지 않았습니다.');
+
+      setErrorMessage('카카오 로그인 설정을 확인해주세요.');
+
+      return;
+    }
+
+    const initializeKakao = () => {
+      if (!window.Kakao) {
+        console.error('카카오 JavaScript SDK가 로드되지 않았습니다.');
+
+        setErrorMessage('카카오 로그인 기능을 불러오지 못했습니다.');
+
+        return;
+      }
+
+      if (!window.Kakao.isInitialized()) {
+        window.Kakao.init(KAKAO_JS_KEY);
+      }
+
+      setIsKakaoReady(true);
+      setErrorMessage(null);
+    };
+
+    if (window.Kakao) {
+      initializeKakao();
+      return;
+    }
+
+    /*
+     * index.html의 카카오 SDK가 아직 로드 중일 수 있어서
+     * 잠시 기다린 후 다시 확인한다.
+     */
+    const intervalId = window.setInterval(() => {
+      if (window.Kakao) {
+        window.clearInterval(intervalId);
+        initializeKakao();
+      }
+    }, 100);
+
+    const timeoutId = window.setTimeout(() => {
+      window.clearInterval(intervalId);
+
+      if (!window.Kakao) {
+        setErrorMessage('카카오 로그인 기능을 불러오지 못했습니다.');
+      }
+    }, 5000);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const handleNewUser = (result: NewUserResult): void => {
+    localStorage.setItem('tempToken', result.tempToken);
+
+    localStorage.setItem('memberId', String(result.memberId));
+
+    if (result.kakaoEmail) {
+      localStorage.setItem('kakaoEmail', result.kakaoEmail);
+    } else {
+      localStorage.removeItem('kakaoEmail');
+    }
+
+    /*
+     * 신규 회원에게는 일반 accessToken과
+     * refreshToken을 저장하지 않는다.
+     */
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+
+    navigate('/onboarding/design', {
+      replace: true,
+    });
+  };
+
+  const handleExistingUser = (result: ExistingUserResult): void => {
+    localStorage.setItem('accessToken', result.accessToken);
+
+    localStorage.setItem('refreshToken', result.refreshToken);
+
+    localStorage.setItem('memberId', String(result.memberId));
+
+    localStorage.setItem('email', result.email);
+
+    if (result.nickName) {
+      localStorage.setItem('nickName', result.nickName);
+    } else {
+      localStorage.removeItem('nickName');
+    }
+
+    localStorage.removeItem('tempToken');
+    localStorage.removeItem('kakaoEmail');
+
+    navigate('/home', {
+      replace: true,
+    });
+  };
+
   const handleKakaoLogin = (): void => {
-    // 백엔드 연동 전 단계라 우선 클릭 핸들러만 잡아둠
-    // 추후 여기서 카카오 SDK Auth.login() 호출 예정
-    console.log('카카오로 시작하기 클릭');
+    if (isLoading) {
+      return;
+    }
+
+    setErrorMessage(null);
+
+    if (!window.Kakao?.Auth) {
+      setErrorMessage('카카오 로그인이 아직 준비되지 않았습니다.');
+
+      return;
+    }
+
+    if (!window.Kakao.isInitialized()) {
+      if (!KAKAO_JS_KEY) {
+        setErrorMessage('카카오 로그인 키가 없습니다.');
+
+        return;
+      }
+
+      window.Kakao.init(KAKAO_JS_KEY);
+    }
+
+    setIsLoading(true);
+
+    window.Kakao.Auth.login({
+      /*
+       * 모바일에 카카오톡이 설치되어 있으면
+       * 카카오톡 간편 로그인을 우선 시도한다.
+       */
+      throughTalk: true,
+
+      success: async (authResponse) => {
+        try {
+          const kakaoAccessToken = authResponse.access_token;
+
+          if (!kakaoAccessToken) {
+            throw new Error('카카오 Access Token을 받지 못했습니다.');
+          }
+
+          const data = await postKakaoLogin(kakaoAccessToken);
+
+          const result = data.result;
+
+          if (!result) {
+            throw new Error('로그인 결과가 없습니다.');
+          }
+
+          /*
+           * 신규 회원 또는 온보딩 미완료 회원
+           */
+          if (result.isNewUser || !result.onboarding_completed) {
+            if (!('tempToken' in result)) {
+              throw new Error('온보딩용 임시 토큰이 없습니다.');
+            }
+
+            handleNewUser(result as NewUserResult);
+
+            return;
+          }
+
+          /*
+           * 기존 회원
+           */
+          if (!('accessToken' in result) || !('refreshToken' in result)) {
+            throw new Error('서비스 로그인 토큰이 없습니다.');
+          }
+
+          handleExistingUser(result as ExistingUserResult);
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : '카카오 로그인 중 오류가 발생했습니다.';
+
+          console.error('카카오 로그인 API 호출 실패:', error);
+
+          setErrorMessage(message);
+          setIsLoading(false);
+        }
+      },
+
+      fail: (error) => {
+        console.error('카카오 로그인 실패:', error);
+
+        setErrorMessage(
+          error.error_description ||
+            '카카오 로그인이 취소되었거나 실패했습니다.',
+        );
+
+        setIsLoading(false);
+      },
+
+      always: () => {
+        /*
+         * 성공하면 페이지가 이동하므로 큰 영향은 없고,
+         * 실패하거나 페이지 이동이 없을 때 버튼을 다시 활성화한다.
+         */
+        window.setTimeout(() => {
+          setIsLoading(false);
+        }, 300);
+      },
+    });
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-white px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6">
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-extrabold tracking-tight text-black">
           AMOA.
         </h1>
-        <p className="mt-3 text-sm text-gray-500 text-center leading-relaxed">
+
+        <p className="mt-3 text-center text-sm leading-relaxed text-gray-500">
           아트 디자인, 가격 한눈에 비교부터
           <br />
           예약까지 한번에
@@ -19,12 +240,20 @@ function KakaoLoginPage() {
       </div>
 
       <button
+        type="button"
         onClick={handleKakaoLogin}
-        className="mt-10 w-full max-w-xs flex items-center justify-center gap-2 bg-black text-white rounded-full py-3.5 font-medium active:opacity-80 transition"
+        disabled={!isKakaoReady || isLoading}
+        className="mt-10 w-full max-w-xs flex items-center justify-center gap-2 bg-black text-white rounded-full py-3.5 font-medium active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <KakaoIcon />
-        카카오로 시작하기
+        {isLoading ? '로그인 중...' : '카카오로 시작하기'}
       </button>
+
+      {errorMessage && (
+        <p className="mt-4 max-w-xs text-center text-sm leading-relaxed text-red-500">
+          {errorMessage}
+        </p>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import NicknameInput from '../../components/onboarding/NicknameInput';
 
 export default function NicknamePage() {
   const navigate = useNavigate();
+
   const [nickname, setNickname] = useState('');
   const [isVerified, setIsVerified] = useState(false);
 
@@ -12,52 +13,86 @@ export default function NicknamePage() {
     setIsVerified(true);
   };
 
+  const handleVerificationReset = () => {
+    setNickname('');
+    setIsVerified(false);
+  };
+
   const handleNext = () => {
     if (!isVerified) return;
-    navigate('/onboarding/phone', { state: { nickname } });
+
+    navigate('/onboarding/phone', {
+      state: {
+        nickname,
+      },
+    });
   };
 
   return (
-    <div className="max-w-sm mx-auto p-6 flex flex-col h-full">
-      <div className="relative flex items-center justify-center mb-8 pb-4 border-b border-[#E9EBEE]">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-white">
+      <header className="relative flex h-[50px] shrink-0 items-center justify-center border-b border-[#E9EBEE] px-5">
         <button
-          onClick={() => navigate(-1)}
-          className="absolute left-0 p-1"
+          type="button"
+          onClick={() => navigate('/onboarding/region')}
+          className="absolute left-3.5 flex h-10 w-10 items-center justify-start"
           aria-label="뒤로가기"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
-              d="M15 18l-6-6 6-6"
-              stroke="#28323C"
+              d="M15 18L9 12L15 6"
+              stroke="#171B1C"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
         </button>
-        <span className="text-sm text-[#000000] font-bold">
+
+        <h2 className="text-[13px] font-semibold text-[#000000]">
           서비스 시작하기
-        </span>
-      </div>
+        </h2>
+      </header>
 
-      <h1 className="text-xl font-bold leading-relaxed whitespace-pre-line">
-        닉네임을{'\n'}입력해 주세요
-      </h1>
-      <p className="text-sm text-[#646F7C] mt-2 mb-8">
-        AMOA에서 사용할 이름이에요
-      </p>
+      <main className="flex flex-1 flex-col px-[24px] pb-[29px] pt-[42px]">
+        <section>
+          <h1 className="text-[21px] font-semibold leading-[1.5] text-[#000000]">
+            닉네임을
+            <br />
+            입력해 주세요
+          </h1>
 
-      <NicknameInput onVerified={handleVerified} />
+          <p className="mt-[7px] text-[13px] font-medium leading-[1.5] text-[#646F7C]">
+            AMOA에서 사용할 이름이에요
+          </p>
 
-      <div className="flex-1" />
+          <div className="mt-[42px]">
+            <NicknameInput
+              onVerified={handleVerified}
+              onVerificationReset={handleVerificationReset}
+            />
+          </div>
+        </section>
 
-      <button
-        onClick={handleNext}
-        disabled={!isVerified}
-        className="bg-[#000000] text-white rounded-lg py-3 disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
-      >
-        다음
-      </button>
+        <div className="flex-1" />
+
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!isVerified}
+          className={`h-[52px] w-full rounded-[10px] text-[15px]
+            font-medium text-white transition-colors
+            ${isVerified ? 'bg-[#F70071]' : 'cursor-not-allowed bg-[#FFC0DC]'}
+          `}
+        >
+          다음
+        </button>
+      </main>
     </div>
   );
 }
