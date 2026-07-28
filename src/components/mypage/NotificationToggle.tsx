@@ -138,8 +138,8 @@ export default function NotificationToggle() {
       <div className="divide-y divide-[#C5C8CE]">
         <div className="flex items-center justify-between py-3 px-6">
           <div className="flex flex-col gap-2.5">
-            <p className="text-base font-bold text-[#171B1C]">예약 리마인드</p>
-            <p className="text-xs font-medium text-[#646F7C]">
+            <p className="text-[15px] font-medium text-[#171B1C]">예약 리마인드</p>
+            <p className="text-[11px] font-medium text-[#646F7C]">
               예약 두 시간 전 알림을 보내드려요
             </p>
           </div>
@@ -151,8 +151,8 @@ export default function NotificationToggle() {
         </div>
         <div className="flex items-center justify-between py-3 px-6">
           <div className="flex flex-col gap-2.5">
-            <p className="text-base font-bold text-[#171B1C]">마케팅 수신 동의</p>
-            <p className="text-xs font-medium text-[#646F7C]">
+            <p className="text-[15px] font-medium text-[#171B1C]">마케팅 수신 동의</p>
+            <p className="text-[11px] font-medium text-[#646F7C]">
               새로운 이벤트 소식을 메일로 보내드려요
             </p>
           </div>
