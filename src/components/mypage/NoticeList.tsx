@@ -62,15 +62,17 @@ export default function NoticeList() {
           <p className="px-4 pt-6 text-sm text-[#F70071]">{detailError}</p>
         )}
         {selectedNotice && (
-          <div className="px-4 pt-4 pb-6">
-            <p className="text-[17px] font-semibold text-[#171B1C]">
-              {selectedNotice.title}
-            </p>
-            <p className="text-[13px] font-medium text-[#646F7C]">
-              {formatDate(selectedNotice.createdAt)}
-            </p>
-            <div className="border-t border-[#D4D7DC] mt-4 mb-5" />
-            <p className="text-[13px] font-medium text-[#171B1C] whitespace-pre-line leading-relaxed">
+          <div>
+            <div className="flex flex-col justify-center gap-2.5 h-[93px] px-6 py-3">
+              <p className="text-[17px] font-semibold text-[#171B1C]">
+                {selectedNotice.title}
+              </p>
+              <p className="text-[13px] font-medium text-[#646F7C]">
+                {formatDate(selectedNotice.createdAt)}
+              </p>
+            </div>
+            <div className="border-t border-[#D4D7DC] mx-6" />
+            <p className="text-[13px] font-medium text-[#171B1C] whitespace-pre-line leading-relaxed px-6 py-4">
               {selectedNotice.content}
             </p>
           </div>
