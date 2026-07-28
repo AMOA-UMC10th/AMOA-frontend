@@ -135,11 +135,11 @@ export default function NotificationToggle() {
       {loadError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{loadError}</p>
       )}
-      <div className="divide-y divide-[#E9EBEE]">
-        <div className="flex items-center justify-between py-5 px-4">
-          <div>
+      <div className="divide-y divide-[#C5C8CE]">
+        <div className="flex items-center justify-between py-3 px-6">
+          <div className="flex flex-col gap-2.5">
             <p className="text-base font-bold text-[#171B1C]">예약 리마인드</p>
-            <p className="text-xs font-medium text-[#646F7C] mt-1">
+            <p className="text-xs font-medium text-[#646F7C]">
               예약 두 시간 전 알림을 보내드려요
             </p>
           </div>
@@ -149,10 +149,10 @@ export default function NotificationToggle() {
             label="예약 리마인드 토글"
           />
         </div>
-        <div className="flex items-center justify-between py-5 px-4">
-          <div>
+        <div className="flex items-center justify-between py-3 px-6">
+          <div className="flex flex-col gap-2.5">
             <p className="text-base font-bold text-[#171B1C]">마케팅 수신 동의</p>
-            <p className="text-xs font-medium text-[#646F7C] mt-1">
+            <p className="text-xs font-medium text-[#646F7C]">
               새로운 이벤트 소식을 메일로 보내드려요
             </p>
           </div>
