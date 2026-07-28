@@ -83,22 +83,28 @@ export async function fetchShopCards(
   const data: ShopApiResponse<ShopCardListResult> = await res.json();
   if (!data.isSuccess) throw new Error(data.message);
 
-  const cardsWithDetails = await Promise.all(
+  const cardsWithFullDetail = await Promise.all(
     data.result.cards.map(async (card) => {
       try {
         const detail = await fetchCardDetail(card.cardId);
         return {
           ...card,
-          instagramUrl: detail.instagramUrl, 
+          // CardDetail 전체 정보를 가져와 병합
+          instagramUrl: detail.instagramUrl,
+          minPrice: detail.minPrice ?? card.minPrice,
+          maxPrice: detail.maxPrice ?? card.maxPrice,
+          artType: detail.artType || card.artType,
+          designTags: detail.designTags,
+          address: detail.address,
         };
       } catch (err) {
-        return card; 
+        return card; // 상세 불러오기 실패 시 기본 카드 정보 유지
       }
     })
   );
 
   return {
     ...data.result,
-    cards: cardsWithDetails,
+    cards: cardsWithFullDetail,
   };
 }
