@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BiTrash, BiEditAlt } from 'react-icons/bi';
 import { FiSearch } from 'react-icons/fi';
 import ShopForm from '../../components/admin/ShopForm';
-import { initialShops, type Shop } from '../../data/adminData';
+import { initialShops, type Shop } from '../../data/mockupdata/adminData';
 
 export default function ShopManagePage() {
   const [shops, setShops] = useState<Shop[]>(initialShops);

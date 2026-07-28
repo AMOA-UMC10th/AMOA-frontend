@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronDown, FiChevronLeft, FiSliders } from 'react-icons/fi';
-import { mockCardResponse, type NailCard } from '../data/nailData';
+import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
 import ArtCard from '../components/common/ArtCard';
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
 import ArtSort, { type SortOption } from '../components/art_search/ArtSort';
@@ -152,15 +152,15 @@ export default function ArtSearchPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-5">
-        <div className="mb-5 flex items-center justify-between text-xs text-[#727b88]">
+      <section className="pt-5">
+        <div className="px-5 mb-5 flex items-center justify-between text-xs text-[#727b88]">
           <span>검색결과 {displayCards.length}개</span>
           
           <div className="relative">
             <button
               type="button"
               onClick={() => setSortOpen((value) => !value)}
-              className="flex items-center gap-1 font-semibold"
+              className="flex items-center gap- font-semibold"
             >
               {getSortLabel()} <FiChevronDown />
             </button>
@@ -174,7 +174,7 @@ export default function ArtSearchPage() {
         </div>
 
         {displayCards.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-7">
+          <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
             {displayCards.map((card, index) => (
               <ArtCard 
                 key={card.card_id || `search-card-${index}`}

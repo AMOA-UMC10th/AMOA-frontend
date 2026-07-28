@@ -6,6 +6,7 @@ import {
   useLocation,
   useParams,
   useNavigate,
+  Navigate,
 } from 'react-router-dom';
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
@@ -22,16 +23,29 @@ import ArtDetailPage from './pages/ArtDetailPage';
 import ArtSearchPage from './pages/ArtSearchPage';
 import WishListPage from './pages/WishListPage';
 import ReservationPage from './pages/ReservationPage';
+import MyReservationListPage from './pages/mypage/MyReservationListPage';
+import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
+import MyPage from './pages/mypage/MyPage';
+import WithdrawPage from './pages/mypage/WithdrawPage';
+import TermsDetailView from './components/mypage/TermsDetailView';
+import NoticeList from './components/mypage/NoticeList';
+import NotificationToggle from './components/mypage/NotificationToggle';
 
-const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/my'];
+const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
+const NAV_HIDDEN_PATHS = [
+  '/mypage/settings',
+  '/mypage/notice',
+  '/mypage/terms',
+  '/mypage/withdraw',
+];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const showNav = NAV_VISIBLE_PATHS.some((path) =>
-    location.pathname.startsWith(path),
-  );
+  const showNav =
+    NAV_VISIBLE_PATHS.some((path) => location.pathname.startsWith(path)) &&
+    !NAV_HIDDEN_PATHS.some((path) => location.pathname.startsWith(path));
 
   return (
     <div className={isAdmin ? 'pc-layout' : 'mobile-layout'}>
@@ -57,6 +71,10 @@ function ArtDetailPageRoute() {
   return <ArtDetailPage key={cardId} />;
 }
 
+function MyReservationDetailPageRoute() {
+  const { reservationId } = useParams();
+  return <MyReservationDetailPage key={reservationId} />;
+}
 function NailShopDetailPageRoute() {
   const { shopId } = useParams();
   return <NailShopDetailPage key={shopId} />;
@@ -69,9 +87,10 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/admin" element={<AdminLayout />} />
-          <Route path="/" element={<SplashPage />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
@@ -83,9 +102,21 @@ function App() {
             path="/art/:cardId/reservation"
             element={<ReservationPage />}
           />
-
           <Route path="/wishlist" element={<WishListPage />} />
+          <Route
+            path="/mypage/reservations"
+            element={<MyReservationListPage />}
+          />
+          <Route
+            path="/reservations/:reservationId"
+            element={<MyReservationDetailPageRoute />}
+          />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+          <Route path="/SplashPage" element={<SplashPage />} />
+          <Route path="/mypage/withdraw" element={<WithdrawPage />} />
+          <Route path="/mypage/terms" element={<TermsDetailView />} />
+          <Route path="/mypage/notice" element={<NoticeList />} />
+          <Route path="/mypage/settings" element={<NotificationToggle />} />
         </Routes>
       </LayoutWrapper>
     </BrowserRouter>

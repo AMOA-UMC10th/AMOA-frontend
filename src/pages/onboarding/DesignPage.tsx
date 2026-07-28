@@ -68,7 +68,7 @@ export default function DesignPage() {
             navigate("/onboarding/region");
           }}
           className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            canProceed ? "bg-black text-white" : "bg-gray-100 text-gray-300"
+            canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
           }`}
         >
           다음

@@ -1,5 +1,5 @@
-import { alarm, call_end, location_on } from "../../assets/icons";
-import type { ShopDetailResult } from "../../data/shopData";
+import { alarm, call_end, AddressPinIcon, star } from "../../assets/icons";
+import type { ShopDetailResult } from "../../data/mockupdata/shopData";
 import ShopLikeBtn from "../common/ShopLikeBtn";
 
 interface ShopInfoProps {
@@ -21,23 +21,15 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
       <div className="px-6 pt-6 pb-5 relative">
         <div className="flex items-start justify-between">
           <div className="flex gap-4 items-start">
-            <div className="w-16 h-16 rounded-full bg-pink-200 text-white flex items-center justify-center font-bold text-lg shrink-0">
-              {shop.profile_image_url ? (
-                <img
-                  src={shop.profile_image_url}
-                  alt={shop.shop_name}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                shopInitial
-              )}
-            </div>
-
             <div>
+                <div className="flex items-center gap-1.5">
               <h1 className="text-xl font-bold" style={{ color: "#28323C" }}>
                 {shop.shop_name}
               </h1>
-
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                {star({ className: "w-full h-full" })}
+                </span>
+                </div>
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {shop.designtags.map((tag) => (
                   <span
@@ -53,7 +45,7 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
               <div className="mt-3 space-y-2.5 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-[#ADB0B5] w-4 h-4 flex items-center justify-center shrink-0">
-                    {location_on({ className: "w-full h-full" })}
+                    {AddressPinIcon({ className: "w-full h-full" })}
                   </span>
                   <span style={{ color: "#ADB0B5" }}>{shop.address}</span>
                 </div>
@@ -75,7 +67,7 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
 
           <ShopLikeBtn
             initialLiked={shop.is_liked}
-            size={24}
+            size={22}
             onToggle={(liked) => {
             }}
         />

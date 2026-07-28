@@ -30,7 +30,7 @@ export default function SignupCompletePage() {
 
       <button
         onClick={() => navigate('/home')}
-        className="w-full bg-[#000000] text-white rounded-lg py-3"
+        className="w-full bg-[#F70071] text-white rounded-lg py-3"
       >
         시작하기
       </button>

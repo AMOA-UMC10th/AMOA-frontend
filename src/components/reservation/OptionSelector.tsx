@@ -1,4 +1,7 @@
-import { ART_OPTIONS, ADDITIONAL_OPTIONS } from '../../data/reservationData';
+import {
+  ART_OPTIONS,
+  ADDITIONAL_OPTIONS,
+} from '../../data/mockupdata/reservationData';
 
 interface OptionSelectorProps {
   selectedArtId: string | null;
@@ -15,7 +18,7 @@ export default function OptionSelector({
 }: OptionSelectorProps) {
   return (
     <div className="px-5 pt-6">
-      <h2 className="text-lg font-bold text-[#171B1C]">
+      <h2 className="text-lg font-normal text-[#171B1C]">
         아트 선택 <span className="text-xs text-[#F70071]">필수</span>
       </h2>
 
@@ -27,26 +30,24 @@ export default function OptionSelector({
               key={art.id}
               type="button"
               onClick={() => onSelectArt(art.id)}
-              className={`flex w-full cursor-pointer items-center justify-between rounded-xl border-2 bg-white px-5 py-7.5 text-left ${
+              className={`w-full flex items-center justify-between rounded-xl border border-[2px] bg-white px-5 py-4 text-left cursor-pointer ${
                 active ? 'border-[#F70071]' : 'border-[#E9EBEE]'
               }`}
             >
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 pb-4 pt-4">
                 <span className="text-sm font-bold text-[#171B1C]">
                   {art.label}
                 </span>
-
-                <span className="rounded-full bg-[#F7F8FA] px-2 py-0.5 text-[10px] text-[#ADB0B5]">
+                <span className="text-[10px] text-[#ADB0B5] bg-[#F7F8FA] rounded-full px-2 py-0.5">
                   {art.badgeMinutes}M
                 </span>
               </span>
-
               <span
                 className={`text-sm font-bold ${
                   active ? 'text-[#F70071]' : 'text-[#ADB0B5]'
                 }`}
               >
-                +{art.price.toLocaleString()}
+                +{art.price}
               </span>
             </button>
           );

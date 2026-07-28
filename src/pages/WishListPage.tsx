@@ -6,7 +6,7 @@ import { ChevronLeftIcon } from '../assets/icons';
 import { FiChevronDown } from 'react-icons/fi';
 import WishArtCard from '../components/wish_list/WishArtCard';
 import WishShopCard from '../components/wish_list/WishShopCard';
-import { mockCardResponse, type NailCard } from '../data/nailData';
+import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
 
 type WishTab = 'ART' | 'SHOP';
 type SortOption = 'RECOMMEND' | 'LATEST';
@@ -102,8 +102,8 @@ export default function WishListPage() {
         </button>
       </div>
 
-      <section className="px-4 pt-5">
-        <div className="mb-5 flex items-center justify-between text-xs text-[#646F7C]">
+      <section className="pt-5">
+        <div className="px-4 mb-5 flex items-center justify-between text-xs text-[#646F7C]">
           <span>{tab === 'ART' ? `아트 ${sortedCards.length}개` : `샵 ${shopGroups.length}개`}</span>
 
           <div className="relative">
@@ -116,7 +116,7 @@ export default function WishListPage() {
             </button>
             {sortOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+                <div className="px-4 fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
                 <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-[#eceef1] bg-white py-1 shadow-lg text-center">
                   {(Object.keys(SORT_LABEL) as SortOption[]).map((option) => (
                     <button
@@ -141,7 +141,7 @@ export default function WishListPage() {
 
         {tab === 'ART' ? (
           sortedCards.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-7">
+            <div className="grid grid-cols-2 gap-0.5 gap-y-5">
               {sortedCards.map((card) => (
                 <WishArtCard key={card.card_id} card={card} onUnlike={handleArtUnlike} />
               ))}
