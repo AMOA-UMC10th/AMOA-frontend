@@ -136,7 +136,7 @@ export default function NotificationToggle() {
         <p className="px-4 pt-6 text-sm text-[#F70071]">{loadError}</p>
       )}
       <div>
-        <div className="flex items-center justify-between py-3 px-6 border-b border-[#C5C8CE]">
+        <div className="flex items-center justify-between py-3 px-6 border-b-2 border-[#C5C8CE]">
           <div className="flex flex-col">
             <p className="text-[15px] font-medium text-[#171B1C]">예약 리마인드</p>
             <p className="text-[11px] font-medium text-[#646F7C]">
