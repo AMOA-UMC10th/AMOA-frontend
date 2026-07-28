@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
+import { ChevronLeftIcon, ChevronRightThinIcon } from '../../assets/icons';
 import {
   fetchTermDetail,
   fetchTermList,
@@ -87,16 +87,16 @@ export default function TermsDetailView() {
       {listError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>
       )}
-      <div className="divide-y divide-[#E9EBEE]">
+      <div className="divide-y divide-[#C5C8CE]">
         {terms.map((term) => (
           <button
             key={term.termId}
             type="button"
             onClick={() => setSelectedId(term.termId)}
-            className="flex w-full items-center justify-between py-5 px-4 text-left"
+            className="flex w-full items-center justify-between py-3 px-6 text-left"
           >
-            <p className="text-base font-bold text-[#171B1C]">{term.title}</p>
-            <ChevronRightSmallIcon className="w-2 h-3 text-[#ADB0B5] shrink-0" />
+            <p className="text-[15px] font-medium text-[#171B1C]">{term.title}</p>
+            <ChevronRightThinIcon className="w-4 h-4 text-[#CCCCCC] shrink-0" />
           </button>
         ))}
       </div>
