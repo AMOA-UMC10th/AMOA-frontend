@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AuthTimer from './AuthTimer';
 
 interface PhoneInputProps {
-  onVerified: () => void;
+  onVerified: (phone: string) => void;
 }
 
 function formatPhoneNumber(input: string) {
@@ -38,7 +38,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
     if (!isCodeValid) return;
     // TODO: 백엔드에 인증번호 검증 요청
     setIsVerified(true);
-    onVerified();
+    onVerified(phone.replace(/[^0-9]/g, ''));
   };
 
   return (

@@ -35,6 +35,11 @@ export interface UserProfileUpdatePayload {
   notificationSettings?: { notificationType: string; enabled: boolean }[];
 }
 
+export interface DesignTag {
+  designtagId: number;
+  name: string;
+}
+
 interface ApiResponse<T> {
   isSuccess: boolean;
   code: string;
@@ -84,6 +89,20 @@ export async function updateMyProfile(
     throw new Error(data.message);
   }
   return data.result;
+}
+
+export async function getDesignMoods(): Promise<DesignTag[]> {
+  const res = await fetch(`${BASE_URL}/design-moods`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error(`디자인 무드 목록 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<{ designtags: DesignTag[] }> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result.designtags;
 }
 
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {

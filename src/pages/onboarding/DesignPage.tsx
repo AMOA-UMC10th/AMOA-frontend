@@ -1,22 +1,40 @@
 //선호 디자인 선택 페이지 A102
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
 import { ChevronLeftIcon } from "../../assets/icons";
+import { getDesignMoods, type DesignTag } from "../../data/userProfile";
 
-const MOODS = ["심플", "아기자기", "화려", "스트릿", "유니크", "내추럴", "모던"];
+const MAX_DESIGN_TAGS = 3;
 
 export default function DesignPage() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string[]>([]);
+  const location = useLocation();
+  const [moods, setMoods] = useState<DesignTag[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
 
-  function toggleMood(mood: string) {
-    setSelected((prev) =>
-      prev.includes(mood) ? prev.filter((m) => m !== mood) : [...prev, mood]
-    );
+  useEffect(() => {
+    getDesignMoods()
+      .then(setMoods)
+      .catch((err) => {
+        console.error(err);
+        setMoods([]);
+      });
+  }, []);
+
+  function toggleMood(id: number) {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((m) => m !== id);
+      if (prev.length >= MAX_DESIGN_TAGS) return prev;
+      return [...prev, id];
+    });
   }
 
   const canProceed = selected.length > 0;
+
+  function goNext(designTagIds: number[]) {
+    navigate("/onboarding/region", { state: { ...location.state, designTagIds } });
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -38,15 +56,17 @@ export default function DesignPage() {
           <br />
           선호하시나요?
         </h2>
-        <p className="mt-2 text-sm text-gray-400">여러 개 선택할 수 있어요</p>
+        <p className="mt-2 text-sm text-gray-400">
+          최대 {MAX_DESIGN_TAGS}개까지 선택할 수 있어요
+        </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3">
-          {MOODS.map((mood) => (
+          {moods.map((mood) => (
             <MoodCard
-              key={mood}
-              label={mood}
-              selected={selected.includes(mood)}
-              onClick={() => toggleMood(mood)}
+              key={mood.designtagId}
+              label={mood.name}
+              selected={selected.includes(mood.designtagId)}
+              onClick={() => toggleMood(mood.designtagId)}
             />
           ))}
         </div>
@@ -55,7 +75,7 @@ export default function DesignPage() {
       <div className="shrink-0 px-5 pb-8 pt-4">
         <button
           type="button"
-          onClick={() => navigate("/onboarding/region")}
+          onClick={() => goNext([])}
           className="mb-3 w-full text-center text-sm text-gray-400"
         >
           건너뛰기
@@ -63,10 +83,7 @@ export default function DesignPage() {
         <button
           type="button"
           disabled={!canProceed}
-          onClick={() => {
-            // TODO: 백엔드에 선호 디자인 선택 정보 저장 요청
-            navigate("/onboarding/region");
-          }}
+          onClick={() => goNext(selected)}
           className={`w-full rounded-2xl py-4 text-sm font-semibold ${
             canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
           }`}

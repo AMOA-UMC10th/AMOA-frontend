@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NicknameInput from '../../components/onboarding/NicknameInput';
 
 export default function NicknamePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [nickname, setNickname] = useState('');
   const [isVerified, setIsVerified] = useState(false);
 
@@ -14,7 +15,7 @@ export default function NicknamePage() {
 
   const handleNext = () => {
     if (!isVerified) return;
-    navigate('/onboarding/phone', { state: { nickname } });
+    navigate('/onboarding/phone', { state: { ...location.state, nickname } });
   };
 
   return (

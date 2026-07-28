@@ -60,11 +60,24 @@ function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
 function RegionPageRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const goNext = (regionIds: number[]) => {
+    navigate('/onboarding/nickname', {
+      state: { ...location.state, regionIds },
+    });
+  };
 
   return (
     <RegionPage
-      onNext={() => navigate('/home')}
-      onSkip={() => navigate('/home')}
+      onNext={(regions) =>
+        goNext(
+          regions
+            .map((r) => r.regionId)
+            .filter((id): id is number => id != null),
+        )
+      }
+      onSkip={() => goNext([])}
     />
   );
 }

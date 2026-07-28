@@ -7,16 +7,26 @@ import TermsSheet from '../../components/onboarding/TermsSheet';
 
 interface LocationState {
   nickname?: string;
+  designTagIds?: number[];
+  regionIds?: number[];
 }
 
 export default function PhoneAuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [showTerms, setShowTerms] = useState(false);
 
   const state = location.state as LocationState | null;
   const nickname = state?.nickname ?? '';
+  const designTagIds = state?.designTagIds ?? [];
+  const regionIds = state?.regionIds ?? [];
+
+  const handleVerified = (phone: string) => {
+    setPhoneNumber(phone);
+    setIsPhoneVerified(true);
+  };
 
   const handleNext = () => {
     if (!isPhoneVerified) return;
@@ -79,7 +89,7 @@ export default function PhoneAuthPage() {
         </div>
       </div>
 
-      <PhoneInput onVerified={() => setIsPhoneVerified(true)} />
+      <PhoneInput onVerified={handleVerified} />
 
       <div className="flex-1" />
 
@@ -93,6 +103,10 @@ export default function PhoneAuthPage() {
 
       {showTerms && (
         <TermsSheet
+          nickname={nickname}
+          phoneNumber={phoneNumber}
+          designTagIds={designTagIds}
+          regionIds={regionIds}
           onComplete={handleSignupComplete}
           onClose={() => setShowTerms(false)}
         />

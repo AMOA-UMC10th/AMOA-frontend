@@ -49,9 +49,10 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     return () => clearTimeout(timer);
   }, [query]);
 
-  function addRegion(region: { district?: string; keyword?: string; label?: string }) {
+  function addRegion(region: { regionId?: number; district?: string; keyword?: string; label?: string }) {
     const isDuplicate = selected.some(
       (r) =>
+        (region.regionId != null && r.regionId === region.regionId) ||
         (region.district && r.district === region.district && r.keyword === region.keyword) ||
         (region.label && r.label === region.label)
     );
@@ -65,7 +66,8 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     setSelected((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: region.regionId != null ? String(region.regionId) : crypto.randomUUID(),
+        regionId: region.regionId,
         district: region.district,
         keyword: region.keyword,
         label: region.label,
@@ -74,7 +76,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
   }
 
   function handleSelectResult(match: RegionMatch) {
-    addRegion({ district: match.district, keyword: match.keyword });
+    addRegion({ regionId: Number(match.id), district: match.district, keyword: match.keyword });
     setQuery("");
   }
 

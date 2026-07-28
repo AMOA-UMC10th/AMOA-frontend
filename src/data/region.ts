@@ -25,7 +25,9 @@ export interface RegionMatch {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/regions`;
+// 이 엔드포인트만 /api/v1이 아니라 /api 하위에 있음 (스웨거 기준)
+const API_ROOT = import.meta.env.VITE_API_BASE_URL.replace(/\/api\/v1$/, '/api');
+const BASE_URL = `${API_ROOT}/regions`;
 
 export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   if (!keyword.trim()) return [];
