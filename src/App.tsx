@@ -98,19 +98,10 @@ function App() {
           <Route path="/onboarding/complete" element={<SignupCompletePage />} />
           <Route path="/art-search" element={<ArtSearchPage />} />
           <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
-          <Route
-            path="/art/:cardId/reservation"
-            element={<ReservationPage />}
-          />
+          <Route path="/art/:cardId/reservation" element={<ReservationPage />}/>
           <Route path="/wishlist" element={<WishListPage />} />
-          <Route
-            path="/mypage/reservations"
-            element={<MyReservationListPage />}
-          />
-          <Route
-            path="/reservations/:reservationId"
-            element={<MyReservationDetailPageRoute />}
-          />
+          <Route path="/mypage/reservations" element={<MyReservationListPage />} />
+          <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
           <Route path="/SplashPage" element={<SplashPage />} />
           <Route path="/mypage/withdraw" element={<WithdrawPage />} />

@@ -2,15 +2,18 @@
 
 import { useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
+import { likeCard, unlikeCard } from '../../data/like';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
+  cardId?: number;
   size?: number;
   onToggle?: (liked: boolean) => void;
 }
 
 export default function ArtLikeBtn({
   initialLiked,
+  cardId,
   size = 22,
   onToggle,
 }: ArtLikeBtnProps) {
@@ -23,7 +26,6 @@ export default function ArtLikeBtn({
     const next = !liked;
     setLiked(next);
     setIsSaved(next);
-    // TODO: POST/DELETE /api/v1/cards/{card_id}/likes
     setAnimateOut(false);
     setShowToast(true);
 
@@ -36,6 +38,16 @@ export default function ArtLikeBtn({
     }, 1800);
 
     onToggle?.(next);
+
+    if (cardId !== undefined) {
+      const request = next ? likeCard(cardId) : unlikeCard(cardId);
+      request.catch((err) => {
+        console.error(err);
+        setLiked(!next);
+        setIsSaved(!next);
+        onToggle?.(!next);
+      });
+    }
   };
 
   return (

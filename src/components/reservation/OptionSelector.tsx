@@ -1,7 +1,4 @@
-import {
-  ART_OPTIONS,
-  ADDITIONAL_OPTIONS,
-} from '../../data/mockupdata/reservationData';
+import { ART_OPTIONS, ADDITIONAL_OPTIONS } from '../../data/mockupdata/reservationData';
 
 interface OptionSelectorProps {
   selectedArtId: string | null;
