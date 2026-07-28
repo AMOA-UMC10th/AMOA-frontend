@@ -44,7 +44,7 @@ export default function TermsDetailView() {
   if (selectedId !== null) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="relative flex items-center justify-center px-4 py-2.5 border-b border-[#E9EBEE]">
+        <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
           <button
             type="button"
             onClick={() => setSelectedId(null)}
@@ -74,7 +74,7 @@ export default function TermsDetailView() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative flex items-center justify-center px-4 py-2.5 border-b border-[#E9EBEE]">
+      <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
         <button
           type="button"
           onClick={() => navigate(-1)}
