@@ -49,8 +49,8 @@ export default function NicknamePage() {
           type="button"
           onClick={handleNext}
           disabled={!isVerified}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            isVerified ? 'bg-[#F70071] text-white' : 'bg-gray-100 text-gray-300'
+          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            isVerified ? 'bg-[#F70071]' : 'bg-[#FFC0DC]'
           }`}
         >
           다음

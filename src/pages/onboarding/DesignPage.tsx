@@ -12,6 +12,7 @@ export default function DesignPage() {
   const location = useLocation();
   const [moods, setMoods] = useState<DesignTag[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     getDesignMoods()
@@ -22,10 +23,19 @@ export default function DesignPage() {
       });
   }, []);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   function toggleMood(id: number) {
     setSelected((prev) => {
       if (prev.includes(id)) return prev.filter((m) => m !== id);
-      if (prev.length >= MAX_DESIGN_TAGS) return prev;
+      if (prev.length >= MAX_DESIGN_TAGS) {
+        setToast(`최대 ${MAX_DESIGN_TAGS}개까지 선택할 수 있어요`);
+        return prev;
+      }
       return [...prev, id];
     });
   }
@@ -56,9 +66,7 @@ export default function DesignPage() {
           <br />
           선호하시나요?
         </h2>
-        <p className="mt-2 text-sm text-gray-400">
-          최대 {MAX_DESIGN_TAGS}개까지 선택할 수 있어요
-        </p>
+        <p className="mt-2 text-sm text-gray-400">여러 개 선택할 수 있어요</p>
 
         <div className="mt-6 grid grid-cols-2 gap-3">
           {moods.map((mood) => (
@@ -84,13 +92,19 @@ export default function DesignPage() {
           type="button"
           disabled={!canProceed}
           onClick={() => goNext(selected)}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
           }`}
         >
           다음
         </button>
       </div>
+
+      {toast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 rounded-full bg-[#F70071] px-4 py-2 text-sm text-white shadow-lg">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeftIcon } from '../assets/icons';
+import { ChevronLeftIcon, HeartIcon } from '../assets/icons';
 import { FiChevronDown } from 'react-icons/fi';
 import WishArtCard from '../components/wish_list/WishArtCard';
 import WishShopCard from '../components/wish_list/WishShopCard';
@@ -147,7 +147,10 @@ export default function WishListPage() {
               ))}
             </div>
           ) : (
-            <p className="py-20 text-center text-sm text-[#ADB0B5]">찜한 아트가 없어요</p>
+            <WishEmptyState
+              title="아트 찜 내역이 없어요"
+              subtitle="마음에 드는 아트를 지금 저장해보세요"
+            />
           )
         ) : shopGroups.length > 0 ? (
           <div className="flex flex-col gap-6">
@@ -162,9 +165,24 @@ export default function WishListPage() {
             ))}
           </div>
         ) : (
-          <p className="py-20 text-center text-sm text-[#ADB0B5]">찜한 샵이 없어요</p>
+          <WishEmptyState
+            title="샵 찜 내역이 없어요"
+            subtitle="마음에 드는 샵을 지금 저장해보세요"
+          />
         )}
       </section>
     </main>
+  );
+}
+
+function WishEmptyState({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-24 text-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FFEEF6]">
+        <HeartIcon className="h-7 w-7 text-[#F70071]" filled />
+      </span>
+      <p className="mt-3 text-sm font-bold text-[#171B1C]">{title}</p>
+      <p className="text-xs text-[#ADB0B5]">{subtitle}</p>
+    </div>
   );
 }

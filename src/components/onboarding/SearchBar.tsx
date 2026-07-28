@@ -14,7 +14,7 @@ export default function SearchBar({ value, onChange, onClear }: SearchBarProps) 
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="동, 지하철역 이름으로 검색"
+        placeholder="구/동 이름으로 검색"
         className="w-full text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
       />
       {value.length > 0 && (

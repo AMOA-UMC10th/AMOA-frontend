@@ -160,10 +160,8 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
           onClick={() => {
             onNext?.(selected);
           }}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            canProceed
-              ? "bg-[#F70071] text-white"
-              : "bg-gray-100 text-gray-300"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
           }`}
         >
           다음
