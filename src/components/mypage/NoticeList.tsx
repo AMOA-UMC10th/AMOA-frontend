@@ -96,13 +96,13 @@ export default function NoticeList() {
       {listError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>
       )}
-      <div className="divide-y divide-[#C5C8CE]">
+      <div>
         {notices.map((notice) => (
           <button
             key={notice.noticeId}
             type="button"
             onClick={() => setSelectedId(notice.noticeId)}
-            className="flex w-full items-center justify-between py-3 px-6 text-left"
+            className="flex w-full items-center justify-between py-3 px-6 text-left border-b border-[#C5C8CE]"
           >
             <div className="flex flex-col">
               <p className="text-[15px] font-medium text-[#171B1C]">{notice.title}</p>

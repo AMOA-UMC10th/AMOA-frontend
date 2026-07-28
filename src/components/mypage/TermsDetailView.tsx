@@ -87,13 +87,13 @@ export default function TermsDetailView() {
       {listError && (
         <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>
       )}
-      <div className="divide-y divide-[#C5C8CE]">
+      <div>
         {terms.map((term) => (
           <button
             key={term.termId}
             type="button"
             onClick={() => setSelectedId(term.termId)}
-            className="flex w-full items-center justify-between py-3 px-6 text-left"
+            className="flex w-full items-center justify-between py-3 px-6 text-left border-b border-[#C5C8CE]"
           >
             <p className="text-[15px] font-medium text-[#171B1C]">{term.title}</p>
             <ChevronRightThinIcon className="w-4 h-4 text-[#CCCCCC] shrink-0" />
