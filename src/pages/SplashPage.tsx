@@ -32,15 +32,20 @@ function SplashPage() {
           headers,
         });
 
-        console.log('✅ 디자인태그 목록 조회 성공! 응답 데이터:', response.data);
-        setStatusMessage('✅ API 통신 성공! 콘솔(F12)에서 디자인태그 목록을 확인하세요.');
+        console.log(
+          '✅ 디자인태그 목록 조회 성공! 응답 데이터:',
+          response.data,
+        );
+        setStatusMessage(
+          '✅ API 통신 성공! 콘솔(F12)에서 디자인태그 목록을 확인하세요.',
+        );
       } catch (error: any) {
         if (error.response) {
           // 서버가 응답을 보냈다는 것 자체는 연결은 됐다는 뜻 (401/403/500 등)
           const errorData = error.response.data;
           console.error('❌ 디자인태그 목록 조회 실패:', errorData);
           setStatusMessage(
-            `❌ 요청 실패 (status ${error.response.status}): ${JSON.stringify(errorData)}`
+            `❌ 요청 실패 (status ${error.response.status}): ${JSON.stringify(errorData)}`,
           );
         } else {
           // 응답 자체가 없는 경우 = 네트워크/연결 문제 (CORS, 서버 다운, 잘못된 baseUrl 등)
