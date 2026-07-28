@@ -1,12 +1,10 @@
-// G101 완벽한 연말을 위한 PICK 섹션
-
-import type { NailCard } from '../../data/mockupdata/nailData';
+import type { RecommendedCard } from '../../data/card';
 import RecommendArtList from './RecommendArtList';
 
 interface PickSectionProps {
   title: string;
   highlightWord: string;
-  items: NailCard[];
+  items: RecommendedCard[];
   onMoreClick: () => void;
 }
 
@@ -27,6 +25,7 @@ export default function PickSection({
           {parts[1]}
         </h3>
         <button
+          type="button"
           onClick={onMoreClick}
           className="flex items-center text-sm text-[#ADB0B5]"
         >
