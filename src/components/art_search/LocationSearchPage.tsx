@@ -83,9 +83,13 @@ export default function LocationSearchPage({
   if (view === 'map') {
     return (
       <RegionMapPicker
-        address={MOCK_CURRENT_LOCATION.fullAddress}
-        onBack={() => setView('search')}
-        onConfirm={handleConfirmCurrentLocation}
+        center={{
+        latitude: MOCK_CURRENT_LOCATION.latitude || 37.5446,
+        longitude: MOCK_CURRENT_LOCATION.longitude || 127.0557,
+      }}
+      address={MOCK_CURRENT_LOCATION.fullAddress}
+      onBack={() => setView('search')}
+      onConfirm={handleConfirmCurrentLocation}
       />
     );
   }

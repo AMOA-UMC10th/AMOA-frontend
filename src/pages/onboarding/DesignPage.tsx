@@ -1,19 +1,72 @@
 //선호 디자인 선택 페이지 A102
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
 import { ChevronLeftIcon } from "../../assets/icons";
+import { getMoodImage } from "../../assets/moods";
 
-const MOODS = ["심플", "아기자기", "화려", "스트릿", "유니크", "내추럴", "모던"];
+interface DesignTag {
+  designtagId: number;
+  name: string;
+}
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+// 무드 목록은 서버가 내려주는 designtagId를 그대로 온보딩 저장에 써야 해서 API로 받아온다.
+async function fetchDesignMoods(): Promise<DesignTag[]> {
+  const token = localStorage.getItem("accessToken");
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`, {
+    headers: token
+      ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+      : {},
+  });
+  if (!res.ok) {
+    throw new Error(`디자인 무드 목록 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<{ designtags: DesignTag[] }> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result.designtags;
+}
 
 export default function DesignPage() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string[]>([]);
+  const location = useLocation();
 
-  function toggleMood(mood: string) {
+  const [moods, setMoods] = useState<DesignTag[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetchDesignMoods()
+      .then(setMoods)
+      .catch((err) => console.error(err));
+  }, []);
+
+  function toggleMood(designtagId: number) {
     setSelected((prev) =>
-      prev.includes(mood) ? prev.filter((m) => m !== mood) : [...prev, mood]
+      prev.includes(designtagId)
+        ? prev.filter((id) => id !== designtagId)
+        : [...prev, designtagId]
     );
+  }
+
+  // 뒤로가기는 히스토리(-1) 대신 경로를 고정한다. 새로고침이나 주소 직접 진입처럼
+  // 돌아갈 기록이 없을 때 앱 밖으로 나가버리는 걸 막는다.
+  function handleBack() {
+    navigate("/home", { replace: true });
+  }
+
+  // 선택한 디자인태그 ID를 다음 단계(지역 → 닉네임 → 전화번호)까지 state로 들고 간다.
+  function goNext(designTagIds: number[]) {
+    navigate("/onboarding/region", {
+      state: { ...location.state, designTagIds },
+    });
   }
 
   const canProceed = selected.length > 0;
@@ -23,7 +76,7 @@ export default function DesignPage() {
       <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           aria-label="뒤로가기"
           className="absolute left-4 text-gray-700"
         >
@@ -41,12 +94,13 @@ export default function DesignPage() {
         <p className="mt-2 text-sm text-gray-400">여러 개 선택할 수 있어요</p>
 
         <div className="mt-6 grid grid-cols-2 gap-3">
-          {MOODS.map((mood) => (
+          {moods.map((mood) => (
             <MoodCard
-              key={mood}
-              label={mood}
-              selected={selected.includes(mood)}
-              onClick={() => toggleMood(mood)}
+              key={mood.designtagId}
+              label={mood.name}
+              imageUrl={getMoodImage(mood.name)}
+              selected={selected.includes(mood.designtagId)}
+              onClick={() => toggleMood(mood.designtagId)}
             />
           ))}
         </div>
@@ -55,7 +109,7 @@ export default function DesignPage() {
       <div className="shrink-0 px-5 pb-8 pt-4">
         <button
           type="button"
-          onClick={() => navigate("/onboarding/region")}
+          onClick={() => goNext([])}
           className="mb-3 w-full text-center text-sm text-gray-400"
         >
           건너뛰기
@@ -63,10 +117,7 @@ export default function DesignPage() {
         <button
           type="button"
           disabled={!canProceed}
-          onClick={() => {
-            // TODO: 백엔드에 선호 디자인 선택 정보 저장 요청
-            navigate("/onboarding/region");
-          }}
+          onClick={() => goNext(selected)}
           className={`w-full rounded-2xl py-4 text-sm font-semibold ${
             canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
           }`}
