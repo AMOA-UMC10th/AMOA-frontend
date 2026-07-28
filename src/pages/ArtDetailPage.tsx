@@ -1,7 +1,7 @@
 //아트 상세 페이지 (C101)
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InstagramEmbed from '../components/art_detail/InstagramEmbed';
 import ArtLikeBtn from '../components/common/ArtLikeBtn';
 import RelatedArtList from '../components/art_detail/RelatedArtList';
@@ -11,41 +11,80 @@ import {
   AddressPinIcon,
   ShareIcon,
 } from '../assets/icons';
-import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
+import {
+  fetchCardDetail,
+  fetchRecommendedCards,
+  type CardDetail,
+  type RecommendedCard,
+} from '../data/card';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();
   const { cardId } = useParams();
   const [showKakaoModal, setShowKakaoModal] = useState(false);
+  const [card, setCard] = useState<CardDetail | null>(null);
+  const [relatedCards, setRelatedCards] = useState<RecommendedCard[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const card: NailCard =
-    mockCardResponse.result.cards.find((c) => c.card_id === Number(cardId)) ??
-    mockCardResponse.result.cards[0];
+  useEffect(() => {
+    if (!cardId) return;
+    let cancelled = false;
 
-  const relatedCards = mockCardResponse.result.cards.filter(
-    (c) => c.card_id !== card.card_id,
-  );
+    fetchCardDetail(Number(cardId))
+      .then((data) => {
+        if (!cancelled) setCard(data);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (!cancelled) setError('아트 정보를 불러오지 못했어요');
+      });
 
-  const designTags = ['아기자기', '파스텔', '화려함'];
+    fetchRecommendedCards(Number(cardId))
+      .then((data) => {
+        if (!cancelled) setRelatedCards(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cardId]);
 
   const handleShopClick = () => {
-    navigate(`/shop/${card.shop_name}`);
+    if (!card) return;
+    navigate(`/shop/${card.shopId}`);
   };
 
   const handleReservationClick = () => {
-  navigate(`/reservation/${card.card_id}`);
-};
+    if (!card) return;
+    navigate(`/reservation/${card.cardId}`);
+  };
 
   const handleShare = () => {
+    if (!card) return;
     if (navigator.share) {
       navigator
         .share({
-          title: card.shop_name,
+          title: card.shopName,
           url: window.location.href,
         })
         .catch(() => {});
     }
   };
+
+  if (error) {
+    return (
+      <div className="w-full pb-24 px-4 pt-6">
+        <p className="text-sm text-[#F70071]">{error}</p>
+      </div>
+    );
+  }
+
+  if (!card) {
+    return <div className="w-full pb-24" />;
+  }
 
   return (
     <div className="w-full pb-24">
@@ -57,7 +96,7 @@ export default function ArtDetailPage() {
       </div>
 
       <div className="px-1">
-        <InstagramEmbed postUrl={card.instagram_url} />
+        <InstagramEmbed postUrl={card.instagramUrl} />
       </div>
 
       <button
@@ -66,10 +105,10 @@ export default function ArtDetailPage() {
       >
         <span className="w-9 h-9 rounded-full bg-[#E9EBEE] shrink-0" />
         <div className="text-left">
-          <p className="text-sm font-bold text-[#171B1C]">{card.shop_name}</p>
+          <p className="text-sm font-bold text-[#171B1C]">{card.shopName}</p>
           <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5">
             <AddressPinIcon className="w-3 h-3 text-[#ADB0B5]" />
-            {card.region_name}
+            {card.address}
           </p>
         </div>
       </button>
@@ -78,24 +117,24 @@ export default function ArtDetailPage() {
 
       <div className="px-4 py-1">
         <p className="text-xs text-[#646F7C] font-bold mb-1">
-          {card.art_type === 'MONTHLY'
-            ? `${Number(card.created_month.split('-')[1])}월 이달의 아트`
+          {card.artType === 'MONTHLY'
+            ? `${Number(card.createdMonth.split('-')[1])}월 이달의 아트`
             : '이벤트 아트'}
         </p>
         <p className="text-lg font-bold text-[#171B1C] mb-3">
-          {card.min_price.toLocaleString()}~{card.max_price.toLocaleString()}원
+          {card.minPrice.toLocaleString()}~{card.maxPrice.toLocaleString()}원
         </p>
 
-        {designTags.length > 0 && (
+        {card.designTags.length > 0 && (
           <div className="py-1">
             <p className="text-xs text-[#646F7C] font-bold mb-2">디자인 태그</p>
             <div className="flex flex-wrap gap-2">
-              {designTags.map((tag) => (
+              {card.designTags.map((tag) => (
                 <span
-                  key={tag}
+                  key={tag.designTagId}
                   className="text-xs text-[#F70071] bg-[#FFEEF6] px-3 py-1.5 rounded-full font-semibold"
                 >
-                  #{tag}
+                  #{tag.name}
                 </span>
               ))}
             </div>
@@ -106,28 +145,26 @@ export default function ArtDetailPage() {
       <RelatedArtList cards={relatedCards} />
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
-        <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
-          <ArtLikeBtn initialLiked={card.is_liked} cardId={card.card_id} size={24} />
-          <button
+        <ArtLikeBtn initialLiked={false} cardId={card.cardId} size={24} />
+        <button
           onClick={handleShare}
           aria-label="공유하기"
           className="flex items-center justify-center"
         >
           <ShareIcon className="w-5 h-6 text-[#171B1C] block" />
         </button>
-          <button
-            onClick={handleReservationClick}
-            className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
-          >
-            예약하기
-          </button>
-        </div>
+        <button
+          onClick={handleReservationClick}
+          className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
+        >
+          예약하기
+        </button>
       </div>
 
       <KakaoMoveModal
         isOpen={showKakaoModal}
         onClose={() => setShowKakaoModal(false)}
-        shopName={card.shop_name}
+        shopName={card.shopName}
       />
     </div>
   );

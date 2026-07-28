@@ -1,14 +1,11 @@
-import { useNavigate } from 'react-router-dom';
-import type { NailCard } from '../../data/mockupdata/nailData';
+import type { RecommendedCard } from '../../data/card';
 import ArtCard from '../common/ArtCard';
 
 interface RelatedArtListProps {
-  cards: NailCard[];
+  cards: RecommendedCard[];
 }
 
 export default function RelatedArtList({ cards }: RelatedArtListProps) {
-  const navigate = useNavigate();
-
   return (
     <div className="py-6">
       <h3 className="px-4 text-base font-bold text-[#171B1C] mb-3">
@@ -17,14 +14,15 @@ export default function RelatedArtList({ cards }: RelatedArtListProps) {
       <div className="grid grid-cols-2 gap-0.5 gap-y-5">
         {cards.map((card) => (
           <ArtCard
-            key={card.card_id}
-            cardId={card.card_id}
-            instagramUrl={card.instagram_url}
-            shopName={card.shop_name}
-            regionName={card.region_name}
-            minPrice={card.min_price}
-            maxPrice={card.max_price}
-            artType={card.art_type}
+            key={card.cardId}
+            cardId={card.cardId}
+            instagramUrl={card.instagramUrl}
+            shopName={card.shopName}
+            regionName={card.regionName}
+            minPrice={card.minPrice}
+            maxPrice={card.maxPrice}
+            artType={card.artType}
+            isLiked={card.isLiked}
           />
         ))}
       </div>
