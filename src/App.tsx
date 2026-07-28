@@ -70,6 +70,7 @@ function RegionPageRoute() {
 
   return (
     <RegionPage
+      onBack={() => navigate('/onboarding/design', { state: location.state })}
       onNext={(regions) =>
         goNext(
           regions

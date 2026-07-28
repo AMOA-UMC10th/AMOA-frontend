@@ -41,7 +41,7 @@ export default function DesignPage() {
       <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/login")}
           aria-label="뒤로가기"
           className="absolute left-4 text-gray-700"
         >

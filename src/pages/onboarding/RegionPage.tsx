@@ -106,7 +106,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
         <button
           type="button"
-          onClick={() => (onBack ? onBack() : navigate(-1))}
+          onClick={() => (onBack ? onBack() : navigate('/onboarding/design'))}
           aria-label="뒤로가기"
           className="absolute left-4 text-gray-700"
         >
