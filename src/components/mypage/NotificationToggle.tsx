@@ -24,13 +24,13 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${
+      className={`relative w-10 h-[22px] rounded-full shrink-0 transition-colors ${
         checked ? 'bg-[#F70071]' : 'bg-[#E9EBEE]'
       }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-0'
+        className={`absolute top-0.5 left-0.5 h-[18px] w-[18px] rounded-full bg-white transition-transform ${
+          checked ? 'translate-x-[18px]' : 'translate-x-0'
         }`}
       />
     </button>
