@@ -1,24 +1,38 @@
-
-const DESIGN_STYLES = [
-  '청순',
-  '시크',
-  '아기자기',
-  '화려',
-  '스트릿',
-  '유니크',
-  '내추럴',
-];
+import React, { useEffect, useState } from 'react';
+import { fetchDesignTags, type DesignTag } from '../../data/designTag';
 
 interface DesignFilterProps {
-  selectedDesigns: string[];
-  onToggleDesign: (design: string) => void;
+  selectedDesigns: number[];
+  onToggleDesign: (designTagId: number) => void;
 }
 
 export default function DesignFilter({
-  selectedDesigns,
+  selectedDesigns = [],
   onToggleDesign,
 }: DesignFilterProps) {
+  const [designTags, setDesignTags] = useState<DesignTag[]>([]);
   const isAllSelected = selectedDesigns.length === 0;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchDesignTags()
+      .then((tags) => {
+        if (isMounted) {
+          setDesignTags(Array.isArray(tags) ? tags : []);
+        }
+      })
+      .catch((err) => {
+        console.error('디자인 태그 목록 로드 실패:', err);
+        if (isMounted) {
+          setDesignTags([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="py-2">
@@ -29,36 +43,37 @@ export default function DesignFilter({
           type="button"
           onClick={() => {
             if (!isAllSelected) {
-              selectedDesigns.forEach((d) => onToggleDesign(d));
+              selectedDesigns.forEach((id) => onToggleDesign(id));
             }
           }}
-          className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs  transition-all ${
-          isAllSelected
-            ? 'border-[#FF007A] bg-[#FF007A] text-white'
-            : 'border-[#ced4da] bg-white text-[#495057] hover:bg-gray-50'
-        }`}
+          className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
+            isAllSelected
+              ? 'border-[#FF007A] bg-[#FF007A] text-white'
+              : 'border-[#ced4da] bg-white text-[#495057] hover:bg-gray-50'
+          }`}
         >
           전체
         </button>
 
-        {DESIGN_STYLES.map((design) => {
-          const isSelected = selectedDesigns.includes(design);
+        {(designTags || []).map((tag) => {
+          if (!tag) return null;
+          const isSelected = selectedDesigns.includes(tag.designtagId);
           return (
             <button
-            key={design}
-            type="button"
-            onClick={() => onToggleDesign(design)}
-            className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
-              isSelected
-                ? 'border-[#FF007A] bg-[#FF007A] text-white'
-                : 'border-[#ced4da] bg-white text-[#56606d] hover:bg-gray-50'
-            }`}
-          >
-            {design}
-          </button>
+              key={tag.designtagId}
+              type="button"
+              onClick={() => onToggleDesign(tag.designtagId)}
+              className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
+                isSelected
+                  ? 'border-[#FF007A] bg-[#FF007A] text-white'
+                  : 'border-[#ced4da] bg-white text-[#56606d] hover:bg-gray-50'
+              }`}
+            >
+              {tag.name}
+            </button>
           );
         })}
       </div>
     </div>
   );
-} 
+}

@@ -37,13 +37,64 @@ interface CardApiResponse<T> {
   result: T;
 }
 
+// ===== 아트 검색 API =====
+
+export interface CardSearchParams {
+  regionIds?: number[];
+  minPrice?: number;
+  maxPrice?: number;
+  artType?: string; // 'ALL'이면 보내지 않음
+  designTagIds?: number[];
+  sort?: string;
+  cursor?: string;
+  size?: number;
+}
+
+export interface CardSearchResult {
+  totalCount: number;
+  size: number;
+  cards: RecommendedCard[];
+  nextCursor: string | null;
+  hasNext: boolean;
+}
+
 // ===== API 호출 =====
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("accessToken");
-  return { Authorization: `Bearer ${token}` };
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function fetchCards(params: CardSearchParams): Promise<CardSearchResult> {
+  const query = new URLSearchParams();
+
+  params.regionIds?.forEach((id) => query.append('regionIds', String(id)));
+  params.designTagIds?.forEach((id) => query.append('designTagIds', String(id)));
+
+  if (params.minPrice !== undefined) query.append('minPrice', String(params.minPrice));
+  if (params.maxPrice !== undefined) query.append('maxPrice', String(params.maxPrice));
+  if (params.artType) query.append('artType', params.artType);
+  if (params.sort) query.append('sort', params.sort);
+  if (params.cursor) query.append('cursor', params.cursor);
+  if (params.size !== undefined) query.append('size', String(params.size));
+
+  const res = await fetch(`${BASE_URL}?${query.toString()}`, {
+    headers: authHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`아트 목록 조회 실패: ${res.status}`);
+  }
+
+  const data: CardApiResponse<CardSearchResult> = await res.json();
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data.result;
 }
 
 export async function fetchCardDetail(cardId: number): Promise<CardDetail> {
