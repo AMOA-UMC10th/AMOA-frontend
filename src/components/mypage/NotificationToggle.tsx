@@ -149,7 +149,7 @@ export default function NotificationToggle() {
             label="예약 리마인드 토글"
           />
         </div>
-        <div className="flex items-center justify-between py-3 px-6">
+        <div className="flex items-center justify-between py-3 px-6 border-b border-[#C5C8CE]">
           <div className="flex flex-col">
             <p className="text-[15px] font-medium text-[#171B1C]">마케팅 수신 동의</p>
             <p className="text-[11px] font-medium text-[#646F7C]">
