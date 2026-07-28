@@ -31,7 +31,7 @@ function MyPage() {
         <h1 className="text-lg font-bold">마이페이지</h1>
       </header>
 
-      <section className="flex items-center justify-between px-[17px] py-[18px] border-b-[11px] border-gray-50">
+      <section className="flex items-center justify-between px-[17px] py-[18px] border-b border-[#E9EBEE]">
         <div className="flex items-center gap-4">
           <img
             src={profileImageUrl}
@@ -50,9 +50,10 @@ function MyPage() {
           정보관리
         </button>
       </section>
+      <div className="h-[11px] bg-gray-50" />
 
       {MENU_GROUPS.map((group, groupIdx) => (
-        <div key={groupIdx} className="border-b-[11px] border-gray-50 last:border-b-0">
+        <div key={groupIdx}>
           {group.map((item) => (
             <button
               key={item.label}
@@ -68,6 +69,9 @@ function MyPage() {
               </span>
             </button>
           ))}
+          {groupIdx < MENU_GROUPS.length - 1 && (
+            <div className="h-[11px] bg-gray-50" />
+          )}
         </div>
       ))}
     </div>
