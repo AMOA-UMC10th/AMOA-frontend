@@ -43,12 +43,12 @@ export default function WithdrawPage() {
             <p className="text-xs font-medium text-[#F70071] mt-3">{errorMessage}</p>
           )}
         </div>
-        <div className="flex gap-[10px]">
+        <div className="flex gap-[10px] w-full">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={isSubmitting}
-            className="w-[160px] h-[42px] rounded-xl border border-[#E9EBEE] text-[15px] font-semibold text-[#171B1C]"
+            className="flex-1 h-[42px] rounded-xl border border-[#E9EBEE] text-[15px] font-semibold text-[#171B1C]"
           >
             취소
           </button>
@@ -56,7 +56,7 @@ export default function WithdrawPage() {
             type="button"
             onClick={handleWithdraw}
             disabled={isSubmitting}
-            className="w-[160px] h-[42px] rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
+            className="flex-1 h-[42px] rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
           >
             회원 탈퇴
           </button>
