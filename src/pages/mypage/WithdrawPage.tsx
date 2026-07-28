@@ -56,7 +56,7 @@ export default function WithdrawPage() {
             type="button"
             onClick={handleWithdraw}
             disabled={isSubmitting}
-            className="flex-1 h-[42px] rounded-xl bg-[#F70071] text-sm font-semibold text-white disabled:opacity-50"
+            className="flex-1 h-[42px] rounded-xl bg-[#F70071] text-[13px] font-medium text-white disabled:opacity-50"
           >
             회원 탈퇴
           </button>
