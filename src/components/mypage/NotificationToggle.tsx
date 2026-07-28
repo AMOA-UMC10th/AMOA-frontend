@@ -122,7 +122,7 @@ export default function NotificationToggle() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative flex items-center justify-center px-4 py-4 border-b border-[#E9EBEE]">
+      <div className="relative flex items-center justify-center px-4 py-2.5 border-b border-[#E9EBEE]">
         <button
           type="button"
           onClick={() => navigate(-1)}
