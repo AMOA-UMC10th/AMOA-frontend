@@ -1,41 +1,22 @@
-// [F101] 내 정보 관리 - 정보수정 화면 (프로필 조회/수정 전용)
+// [F101, F104] 내 정보 관리 화면 (프로필 수정 및 관심 지역/무드 재설정 통합 진입점)
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
-import ProfileForm, { type ProfileFormValue } from '../../components/mypage/ProfileForm';
-import { getMyProfile, updateMyProfile } from '../../data/userProfile';
+import ProfileForm from '../../components/mypage/ProfileForm';
+import {
+  getMyProfile,
+  updateMyProfile,
+  type UserProfile,
+} from '../../api/user';
 
 export default function MyProfileEditPage() {
   const navigate = useNavigate();
 
-  const [profile, setProfile] = useState({
-    profileImageUrl: '',
-    name: '',
-    nickname: '',
-    email: '',
-    phoneNumber: '',
-  });
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-
-  useEffect(() => {
-    getMyProfile()
-      .then((data) => {
-        setProfile({
-          profileImageUrl: data.profileImageUrl,
-          name: data.name,
-          nickname: data.nickname,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        setToast('프로필을 불러오지 못했어요');
-      })
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -43,24 +24,70 @@ export default function MyProfileEditPage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const handleProfileSave = async (value: ProfileFormValue) => {
-    try {
-      await updateMyProfile({
-        profileImageUrl: value.profileImageUrl,
-        nickname: value.nickname,
-        phoneNumber: value.phoneNumber.replace(/\D/g, ''),
+  useEffect(() => {
+    let cancelled = false;
+
+    getMyProfile()
+      .then((data) => {
+        if (cancelled) return;
+        setProfile(data);
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        console.error(err);
+        setLoadError('내 정보를 불러오지 못했어요.');
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
       });
-      setProfile((prev) => ({ ...prev, ...value }));
-      setToast('프로필이 저장되었어요');
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // PATCH는 디자인태그와 관심지역을 필수로 요구한다.
+  // 지금 화면에서 바꾸지 않는 값은 조회해온 값을 그대로 다시 보내 유지시킨다.
+  function keepSelections(current: UserProfile) {
+    return {
+      selectedDesignTagIds: current.selectedDesignTagIds,
+      interestedRegionIds: current.interestedRegions.map((r) => r.regionId),
+    };
+  }
+
+  // 항목별 [변경하기]가 곧 저장이다. 성공했을 때만 true를 돌려줘서
+  // 폼이 입력 상태를 닫도록 한다.
+  async function saveField(
+    patch: { nickname?: string; phoneNumber?: string; profileImageUrl?: string },
+    successMessage: string,
+  ): Promise<boolean> {
+    if (!profile) return false;
+
+    try {
+      const updated = await updateMyProfile({
+        ...keepSelections(profile),
+        ...patch,
+      });
+      setProfile(updated);
+      setToast(successMessage);
+      return true;
     } catch (err) {
       console.error(err);
-      setToast('프로필 저장에 실패했어요');
+      setToast(err instanceof Error ? err.message : '저장에 실패했어요');
+      return false;
     }
-  };
+  }
+
+  const handleSaveNickname = (nickname: string) =>
+    saveField({ nickname }, '닉네임이 수정되었어요');
+
+  const handleSavePhone = (phoneNumber: string) =>
+    saveField({ phoneNumber }, '전화번호가 수정되었어요');
+
 
   return (
     <main className="min-h-dvh bg-white pb-16">
-      <header className="relative flex h-[72px] items-center justify-center border-b border-[#E9EBEE] px-4">
+      <header className="relative flex h-[72px] items-center justify-center border-b border-[#eceef1] px-4">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -69,24 +96,38 @@ export default function MyProfileEditPage() {
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        <h1 className="text-sm font-semibold text-[#171B1C]">정보수정</h1>
+        <h1 className="text-sm font-semibold text-[#171B1C]">정보 수정</h1>
       </header>
 
-      {!loading && (
-        <div className="px-5 py-8">
+      {isLoading && (
+        <p className="px-5 py-10 text-center text-sm text-[#ADB0B5]">
+          불러오는 중...
+        </p>
+      )}
+
+      {!isLoading && loadError && (
+        <p className="px-5 py-10 text-center text-sm text-[#ADB0B5]">
+          {loadError}
+        </p>
+      )}
+
+      {!isLoading && !loadError && profile && (
+        <div className="flex flex-col gap-10 px-5 py-8">
           <ProfileForm
             profileImageUrl={profile.profileImageUrl}
             name={profile.name}
             nickname={profile.nickname}
             email={profile.email}
             phoneNumber={profile.phoneNumber}
-            onSave={handleProfileSave}
+            onSaveNickname={handleSaveNickname}
+            onSavePhone={handleSavePhone}
           />
         </div>
       )}
 
+      {/* 하단 탭 네비게이션에 가리지 않도록 그 위에 띄운다. */}
       {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full bg-[#F70071] px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-28 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#F70071] px-5 py-2.5 text-sm font-medium text-white shadow-lg">
           {toast}
         </div>
       )}

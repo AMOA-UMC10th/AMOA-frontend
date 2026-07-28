@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../../components/onboarding/SearchBar";
 import RegionResult from "../../components/onboarding/RegionResult";
@@ -6,24 +6,108 @@ import RegionChips from "../../components/onboarding/RegionChips";
 import type { SelectedRegion } from "../../components/onboarding/RegionChips";
 import RegionMapPicker from "../../components/onboarding/RegionMapPicker";
 import { ChevronLeftIcon, CrosshairIcon } from "../../assets/icons";
-import { MOCK_CURRENT_LOCATION } from "../../data/mockupdata/regionData";
 import { searchRegions, type RegionMatch } from "../../data/region";
 
 const MAX_REGIONS = 3;
 
+interface RegionInfo {
+  regionId: number;
+  firstDepth: string;
+  secondDepth: string;
+  thirdDepth: string;
+}
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+// 좌표를 법정동으로 바꿔주는 API. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
+async function fetchPresentRegion(
+  latitude: number,
+  longitude: number
+): Promise<RegionInfo> {
+  const token = localStorage.getItem("accessToken");
+  const res = await fetch(
+    `${import.meta.env.VITE_API_BASE_URL}/regions/present?latitude=${latitude}&longitude=${longitude}`,
+    {
+      headers: token
+        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+        : {},
+    }
+  );
+  if (!res.ok) {
+    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<RegionInfo> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result;
+}
+
+// 브라우저 위치 권한은 콜백 기반이라 await로 쓰기 위해 감싼다.
+function getCurrentPosition(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    });
+  });
+}
+
+function toLocationErrorMessage(err: unknown): string {
+  if (err instanceof GeolocationPositionError) {
+    if (err.code === err.PERMISSION_DENIED) {
+      return "위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.";
+    }
+    if (err.code === err.TIMEOUT) {
+      return "위치 확인이 오래 걸려요. 다시 시도해주세요.";
+    }
+    return "현재 위치를 확인할 수 없어요.";
+  }
+  return "현재 위치를 불러오지 못했어요.";
+}
+
+// 온보딩 저장에는 지역 ID가 필요한데 RegionChips의 SelectedRegion에는 없어서,
+// 이 화면 안에서만 regionId를 덧붙여 들고 다닌다.
+type SelectedRegionWithId = SelectedRegion & { regionId?: number };
+
 interface RegionPageProps {
   onBack?: () => void;
-  onNext?: (regions: SelectedRegion[]) => void;
+  onNext?: (regions: SelectedRegionWithId[]) => void;
   onSkip?: () => void;
 }
 
 export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) {
   const navigate = useNavigate();
+
+  // 온보딩 이전 단계는 항상 디자인 선택이라 경로를 고정한다.
+  // navigate(-1)을 쓰면, 닉네임 화면의 뒤로가기가 이 화면을 새로 push 하는 탓에
+  // 지역 ↔ 닉네임을 오가는 왕복이 생긴다. replace로 넣어 기록이 쌓이지 않게 한다.
+  function handleBack() {
+    if (onBack) {
+      onBack();
+      return;
+    }
+    navigate("/onboarding/design", { replace: true });
+  }
   const [view, setView] = useState<"search" | "map">("search");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<RegionMatch[]>([]);
-  const [selected, setSelected] = useState<SelectedRegion[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selected, setSelected] = useState<SelectedRegionWithId[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [currentRegion, setCurrentRegion] = useState<RegionInfo | null>(null);
+  const [mapCenter, setMapCenter] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -34,22 +118,42 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
+      setIsSearching(false);
       return;
     }
 
+    // 입력하는 즉시 검색 중으로 두고, 응답이 온 뒤에 결과를 그린다.
+    let cancelled = false;
+    setIsSearching(true);
+
     const timer = setTimeout(() => {
       searchRegions(query)
-        .then(setResults)
+        .then((matches) => {
+          if (!cancelled) setResults(matches);
+        })
         .catch((err) => {
+          if (cancelled) return;
           console.error(err);
           setResults([]);
+        })
+        .finally(() => {
+          if (!cancelled) setIsSearching(false);
         });
     }, 300);
 
-    return () => clearTimeout(timer);
+    // 검색어가 바뀌면 이전 요청의 응답은 버린다.
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query]);
 
-  function addRegion(region: { regionId?: number; district?: string; keyword?: string; label?: string }) {
+  function addRegion(region: {
+    regionId?: number;
+    district?: string;
+    keyword?: string;
+    label?: string;
+  }) {
     const isDuplicate = selected.some(
       (r) =>
         (region.regionId != null && r.regionId === region.regionId) ||
@@ -75,8 +179,13 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     ]);
   }
 
+  // 온보딩 저장에는 regionId가 필요해서 검색 결과의 id를 함께 담아둔다.
   function handleSelectResult(match: RegionMatch) {
-    addRegion({ regionId: Number(match.id), district: match.district, keyword: match.keyword });
+    addRegion({
+      regionId: Number(match.id),
+      district: match.district,
+      keyword: match.keyword,
+    });
     setQuery("");
   }
 
@@ -84,15 +193,90 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     setSelected((prev) => prev.filter((r) => r.id !== id));
   }
 
+  // 지도 화면으로 넘어가면서 위치 권한 → 좌표 → 지역 조회를 순서대로 진행한다.
+  async function loadCurrentLocation() {
+    setIsLocating(true);
+    setLocationError(null);
+    setCurrentRegion(null);
+
+    if (!("geolocation" in navigator)) {
+      setLocationError("이 브라우저에서는 현재 위치를 쓸 수 없어요.");
+      setIsLocating(false);
+      return;
+    }
+    // 위치 API는 HTTPS(또는 localhost)에서만 동작한다.
+    if (!window.isSecureContext) {
+      setLocationError("보안 연결(HTTPS)에서만 현재 위치를 쓸 수 있어요.");
+      setIsLocating(false);
+      return;
+    }
+
+    try {
+      const position = await getCurrentPosition();
+      const { latitude, longitude } = position.coords;
+      setMapCenter({ latitude, longitude });
+      const region = await fetchPresentRegion(latitude, longitude);
+      setCurrentRegion(region);
+    } catch (err) {
+      console.error(err);
+      setLocationError(toLocationErrorMessage(err));
+    } finally {
+      setIsLocating(false);
+    }
+  }
+
+  // 지도를 드래그하면 중앙 핀 좌표로 주소를 다시 조회한다.
+  // 드래그가 연달아 일어나면 마지막 요청 결과만 반영한다.
+  const centerRequestId = useRef(0);
+
+  async function handleCenterChange(latitude: number, longitude: number) {
+    const requestId = ++centerRequestId.current;
+    setIsLocating(true);
+    setLocationError(null);
+
+    try {
+      const region = await fetchPresentRegion(latitude, longitude);
+      if (requestId !== centerRequestId.current) return;
+      setCurrentRegion(region);
+    } catch (err) {
+      if (requestId !== centerRequestId.current) return;
+      console.error(err);
+      setCurrentRegion(null);
+      setLocationError("이 위치의 지역 정보를 찾지 못했어요.");
+    } finally {
+      if (requestId === centerRequestId.current) setIsLocating(false);
+    }
+  }
+
+  function handleOpenCurrentLocation() {
+    setView("map");
+    loadCurrentLocation();
+  }
+
   function handleConfirmCurrentLocation() {
-    addRegion({ label: MOCK_CURRENT_LOCATION.shortDistrict });
+    if (!currentRegion) return;
+    // 검색 결과로 담을 때와 같은 모양으로 넣어야 중복 판정과 칩 표기가 맞는다.
+    addRegion({
+      regionId: currentRegion.regionId,
+      district: `${currentRegion.firstDepth} ${currentRegion.secondDepth}`.trim(),
+      keyword: currentRegion.thirdDepth,
+    });
     setView("search");
   }
 
   if (view === "map") {
+    const address = currentRegion
+      ? `${currentRegion.firstDepth} ${currentRegion.secondDepth} ${currentRegion.thirdDepth}`.trim()
+      : "";
+
     return (
       <RegionMapPicker
-        address={MOCK_CURRENT_LOCATION.fullAddress}
+        center={mapCenter}
+        address={address}
+        loading={isLocating}
+        error={locationError}
+        onCenterChange={handleCenterChange}
+        onRetry={loadCurrentLocation}
         onBack={() => setView("search")}
         onConfirm={handleConfirmCurrentLocation}
       />
@@ -106,7 +290,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
         <button
           type="button"
-          onClick={() => (onBack ? onBack() : navigate('/onboarding/design'))}
+          onClick={handleBack}
           aria-label="뒤로가기"
           className="absolute left-4 text-gray-700"
         >
@@ -130,7 +314,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
 
         <button
           type="button"
-          onClick={() => setView("map")}
+          onClick={handleOpenCurrentLocation}
           className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3.5 text-sm text-gray-500"
         >
           <CrosshairIcon className="h-4 w-4" />
@@ -139,7 +323,11 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
 
         <div className="mt-4">
           {query.trim().length > 0 ? (
-            <RegionResult results={results} onSelect={handleSelectResult} />
+            <RegionResult
+              results={results}
+              loading={isSearching}
+              onSelect={handleSelectResult}
+            />
           ) : (
             <RegionChips regions={selected} onRemove={handleRemoveRegion} />
           )}
@@ -160,8 +348,10 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
           onClick={() => {
             onNext?.(selected);
           }}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
-            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
+            canProceed
+              ? "bg-[#F70071] text-white"
+              : "bg-gray-100 text-gray-300"
           }`}
         >
           다음

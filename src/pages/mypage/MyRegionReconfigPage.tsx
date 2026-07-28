@@ -111,7 +111,10 @@ export default function MyRegionReconfigPage() {
 
   if (view === 'map') {
     return (
+      // TODO: 온보딩(RegionPage)처럼 위치 권한 → GET /regions/present 로 교체하고
+      // center에 실제 좌표를 넘겨야 지도가 표시된다. 지금은 목업 주소만 노출된다.
       <RegionMapPicker
+        center={null}
         address={MOCK_CURRENT_LOCATION.fullAddress}
         onBack={() => setView('search')}
         onConfirm={handleConfirmCurrentLocation}

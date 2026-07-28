@@ -26,10 +26,8 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
-import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
-import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
-import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
 import MyPage from './pages/mypage/MyPage';
+import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
 import WithdrawPage from './pages/mypage/WithdrawPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
 import NoticeList from './components/mypage/NoticeList';
@@ -62,6 +60,7 @@ function RegionPageRoute() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 온보딩 2/3 → 3/3(닉네임 입력, A104). 앞 단계에서 받은 값에 지역 ID를 얹어 넘긴다.
   const goNext = (regionIds: number[]) => {
     navigate('/onboarding/nickname', {
       state: { ...location.state, regionIds },
@@ -70,12 +69,11 @@ function RegionPageRoute() {
 
   return (
     <RegionPage
-      onBack={() => navigate('/onboarding/design', { state: location.state })}
       onNext={(regions) =>
         goNext(
           regions
             .map((r) => r.regionId)
-            .filter((id): id is number => id != null),
+            .filter((id): id is number => id != null)
         )
       }
       onSkip={() => goNext([])}
@@ -108,6 +106,7 @@ function App() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<KakaoLoginPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
           <Route path="/onboarding/nickname" element={<NicknamePage />} />
@@ -120,9 +119,6 @@ function App() {
           <Route path="/mypage/reservations" element={<MyReservationListPage />} />
           <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
           <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
-          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
-          <Route path="/mypage/edit/region" element={<MyRegionReconfigPage />} />
-          <Route path="/mypage/edit/mood" element={<MyMoodReconfigPage />} />
           <Route path="/SplashPage" element={<SplashPage />} />
           <Route path="/mypage/withdraw" element={<WithdrawPage />} />
           <Route path="/mypage/terms" element={<TermsDetailView />} />

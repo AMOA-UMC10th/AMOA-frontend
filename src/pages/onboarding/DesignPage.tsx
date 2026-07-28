@@ -2,56 +2,81 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
+import { getMoodImage } from "../../assets/moods";
 import { ChevronLeftIcon } from "../../assets/icons";
-import { getDesignMoods, type DesignTag } from "../../data/userProfile";
 
-const MAX_DESIGN_TAGS = 3;
+interface DesignTag {
+  designtagId: number;
+  name: string;
+}
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+// 무드 목록은 서버가 내려주는 designtagId를 그대로 온보딩 저장에 써야 해서 API로 받아온다.
+async function fetchDesignMoods(): Promise<DesignTag[]> {
+  const token = localStorage.getItem("accessToken");
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`, {
+    headers: token
+      ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+      : {},
+  });
+  if (!res.ok) {
+    throw new Error(`디자인 무드 목록 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<{ designtags: DesignTag[] }> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result.designtags;
+}
 
 export default function DesignPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [moods, setMoods] = useState<DesignTag[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    getDesignMoods()
+    fetchDesignMoods()
       .then(setMoods)
-      .catch((err) => {
-        console.error(err);
-        setMoods([]);
-      });
+      .catch((err) => console.error(err));
   }, []);
 
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 2000);
-    return () => clearTimeout(timer);
-  }, [toast]);
+  function toggleMood(designtagId: number) {
+    setSelected((prev) =>
+      prev.includes(designtagId)
+        ? prev.filter((id) => id !== designtagId)
+        : [...prev, designtagId]
+    );
+  }
 
-  function toggleMood(id: number) {
-    setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((m) => m !== id);
-      if (prev.length >= MAX_DESIGN_TAGS) {
-        setToast(`최대 ${MAX_DESIGN_TAGS}개까지 선택할 수 있어요`);
-        return prev;
-      }
-      return [...prev, id];
+  // 뒤로가기는 히스토리(-1) 대신 경로를 고정한다. 새로고침이나 주소 직접 진입처럼
+  // 돌아갈 기록이 없을 때 앱 밖으로 나가버리는 걸 막는다.
+  function handleBack() {
+    navigate("/home", { replace: true });
+  }
+
+  // 선택한 디자인태그 ID를 다음 단계(지역 → 닉네임 → 전화번호)까지 state로 들고 간다.
+  function goNext(designTagIds: number[]) {
+    navigate("/onboarding/region", {
+      state: { ...location.state, designTagIds },
     });
   }
 
   const canProceed = selected.length > 0;
-
-  function goNext(designTagIds: number[]) {
-    navigate("/onboarding/region", { state: { ...location.state, designTagIds } });
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
         <button
           type="button"
-          onClick={() => navigate("/login")}
+          onClick={handleBack}
           aria-label="뒤로가기"
           className="absolute left-4 text-gray-700"
         >
@@ -73,6 +98,7 @@ export default function DesignPage() {
             <MoodCard
               key={mood.designtagId}
               label={mood.name}
+              imageUrl={getMoodImage(mood.name)}
               selected={selected.includes(mood.designtagId)}
               onClick={() => toggleMood(mood.designtagId)}
             />
@@ -92,19 +118,13 @@ export default function DesignPage() {
           type="button"
           disabled={!canProceed}
           onClick={() => goNext(selected)}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
-            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
+            canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
           }`}
         >
           다음
         </button>
       </div>
-
-      {toast && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 rounded-full bg-[#F70071] px-4 py-2 text-sm text-white shadow-lg">
-          {toast}
-        </div>
-      )}
     </div>
   );
 }
