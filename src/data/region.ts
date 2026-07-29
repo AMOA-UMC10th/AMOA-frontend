@@ -54,6 +54,36 @@ export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   return data.result.map(toRegionMatch);
 }
 
+// 좌표를 법정동으로 바꿔준다. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
+export async function getPresentRegion(
+  latitude: number,
+  longitude: number,
+): Promise<Region> {
+  const token = localStorage.getItem("accessToken");
+
+  const res = await fetch(
+    `${BASE_URL}/present?latitude=${latitude}&longitude=${longitude}`,
+    {
+      headers: token
+        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+        : {},
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
+  }
+
+  const data: { isSuccess: boolean; message: string; result: Region } =
+    await res.json();
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data.result;
+}
+
 function toRegionMatch(region: Region): RegionMatch {
   return {
     id: String(region.regionId),

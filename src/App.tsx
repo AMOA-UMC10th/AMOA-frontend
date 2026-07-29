@@ -41,6 +41,9 @@ const NAV_HIDDEN_PATHS = [
   '/mypage/notice',
   '/mypage/terms',
   '/mypage/withdraw',
+  // 재설정 화면은 하단 [저장] 버튼이 화면 끝에 붙어서 탭바와 겹친다.
+  '/mypage/designre',
+  '/mypage/regionre',
 ];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
