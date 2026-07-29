@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import type { NailCard } from '../../data/mockupdata/nailData';
+import type { RecommendedCard } from '../../data/card'; 
 import ArtCard from '../common/ArtCard';
 
 interface RecommendArtListProps {
-  items: NailCard[];
+  items: RecommendedCard[];
 }
 
 export default function RecommendArtList({ items }: RecommendArtListProps) {
@@ -21,15 +21,15 @@ export default function RecommendArtList({ items }: RecommendArtListProps) {
       {items && items.length > 0 ? (
         items.map((item, index) => (
           <ArtCard
-            key={item.card_id || `art-card-${index}`}
-            cardId={item.card_id}
-            instagramUrl={item.instagram_url}
-            shopName={item.shop_name}
-            regionName={item.region_name}
-            minPrice={item.min_price}
-            maxPrice={item.max_price}
-            artType={item.art_type || 'ART'} 
-            isLiked={false}
+            key={item.cardId || `art-card-${index}`}
+            cardId={item.cardId}
+            instagramUrl={item.instagramUrl}
+            shopName={item.shopName}
+            regionName={item.regionName}
+            minPrice={item.minPrice}
+            maxPrice={item.maxPrice}
+            artType={item.artType || 'ART'}
+            isLiked={item.isLiked ?? false}
           />
         ))
       ) : (

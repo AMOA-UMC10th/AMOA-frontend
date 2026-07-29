@@ -5,7 +5,7 @@ import {
   postKakaoLogin,
   type ExistingUserResult,
   type NewUserResult,
-} from '../api/kakaoLogin';
+} from '../data/userdata/kakaoLogin';
 
 const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 

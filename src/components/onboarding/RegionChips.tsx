@@ -2,6 +2,7 @@ import { XIcon } from "../../assets/icons";
 
 export interface SelectedRegion {
   id: string;
+  regionId?: number;
   district?: string;
   keyword?: string;
   label?: string;

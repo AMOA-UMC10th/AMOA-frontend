@@ -44,4 +44,6 @@ export function searchRegions(query: string): RegionMatch[] {
 export const MOCK_CURRENT_LOCATION = {
   fullAddress: '서울 성동구 성수동2가',
   shortDistrict: '성동구',
+  latitude: 37.5446,
+  longitude: 127.0557,
 };
