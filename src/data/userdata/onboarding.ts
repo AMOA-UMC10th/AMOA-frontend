@@ -28,7 +28,8 @@ interface ApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/users/onboarding`;
 
 function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem('accessToken');
+  // 카카오 신규가입자는 온보딩 완료 전까지 accessToken이 없고 tempToken만 발급된다.
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}` } : {}),
