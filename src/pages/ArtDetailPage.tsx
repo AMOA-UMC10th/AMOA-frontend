@@ -6,11 +6,7 @@ import InstagramEmbed from '../components/art_detail/InstagramEmbed';
 import ArtLikeBtn from '../components/common/ArtLikeBtn';
 import RelatedArtList from '../components/art_detail/RelatedArtList';
 import KakaoMoveModal from '../components/art_detail/KakaoMoveModal';
-import {
-  ChevronLeftIcon,
-  AddressPinIcon,
-  ShareIcon,
-} from '../assets/icons';
+import { ChevronLeftIcon, AddressPinIcon, ShareIcon } from '../assets/icons';
 import {
   fetchCardDetail,
   fetchRecommendedCards,
@@ -59,7 +55,7 @@ export default function ArtDetailPage() {
 
   const handleReservationClick = () => {
     if (!card) return;
-    navigate(`/reservation/${card.cardId}`);
+    navigate(`/art/${card.cardId}/reservation`);
   };
 
   const handleShare = () => {
