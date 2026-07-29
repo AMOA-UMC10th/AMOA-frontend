@@ -353,13 +353,13 @@ export default function ReservationPage() {
       <div className="min-h-dvh flex flex-col">
         <div className="relative flex items-center justify-center px-4 py-3 border-b border-[#E9EBEE] shrink-0">
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate(-1)}
             className="absolute left-4 cursor-pointer"
             aria-label="뒤로가기"
           >
-            <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+            <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
           </button>
-          <span className="text-sm font-bold text-[#171B1C]">
+          <span className="text-[13px] font-semibold text-[#000000]">
             {completeResult.shopName}
           </span>
         </div>
