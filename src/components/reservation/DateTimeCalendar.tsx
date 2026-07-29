@@ -5,13 +5,16 @@ import {
   ChevronLeftSmallIcon,
   ChevronRightSmallIcon,
 } from '../../assets/icons';
-import { getTimeSlotsForDate, getTodayKey } from '../../data/mockupdata/reservationData';
+import { getTodayKey } from '../../data/mockupdata/reservationData';
+import type { TimeSlot } from '../../data/mockupdata/reservationData';
 
 interface DateTimeCalendarProps {
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
+  timeSlots: TimeSlot[]; // 추가 — 부모(ReservationPage)가 실제 API로 받아와 내려줌
+  isLoadingTimes?: boolean; // 추가
 }
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -28,10 +31,11 @@ export default function DateTimeCalendar({
   onSelectDate,
   selectedTime,
   onSelectTime,
+  timeSlots,
+  isLoadingTimes = false,
 }: DateTimeCalendarProps) {
   const today = useMemo(() => new Date(), []);
 
-  // 오늘 날짜의 시간을 00:00:00으로 맞춤
   const todayStart = useMemo(
     () => new Date(today.getFullYear(), today.getMonth(), today.getDate()),
     [today],
@@ -40,25 +44,17 @@ export default function DateTimeCalendar({
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
-  // 현재 보고 있는 달의 1일이 무슨 요일인지 확인
   const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
-
-  // 현재 보고 있는 달의 총 일수
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
   const days = useMemo(() => {
     const arr: Array<number | null> = [];
-
-    // 1일 이전의 빈칸 추가
     for (let i = 0; i < firstDayOfMonth; i++) {
       arr.push(null);
     }
-
-    // 날짜 추가
     for (let day = 1; day <= daysInMonth; day++) {
       arr.push(day);
     }
-
     return arr;
   }, [firstDayOfMonth, daysInMonth]);
 
@@ -68,7 +64,6 @@ export default function DateTimeCalendar({
       setViewMonth(11);
       return;
     }
-
     setViewMonth((month) => month - 1);
   };
 
@@ -78,15 +73,11 @@ export default function DateTimeCalendar({
       setViewMonth(0);
       return;
     }
-
     setViewMonth((month) => month + 1);
   };
 
-  const timeSlots = selectedDate ? getTimeSlotsForDate(selectedDate) : [];
-
   return (
     <div className="px-5 pt-6">
-      {/* 연도 및 월 이동 */}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -111,7 +102,6 @@ export default function DateTimeCalendar({
         </button>
       </div>
 
-      {/* 요일 */}
       <div className="mt-8.5 grid grid-cols-7 text-center text-sm text-[#646F7C]">
         {WEEKDAYS.map((weekday, index) => (
           <span key={weekday} className={index === 0 ? 'text-[#F70071]' : ''}>
@@ -120,7 +110,6 @@ export default function DateTimeCalendar({
         ))}
       </div>
 
-      {/* 날짜 */}
       <div className="mt-4 grid grid-cols-7 gap-y-1 text-center">
         {days.map((day, index) => {
           if (day === null) {
@@ -164,28 +153,35 @@ export default function DateTimeCalendar({
         })}
       </div>
 
-      {/* 예약 시간 */}
       {selectedDate && (
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          {timeSlots.map((slot) => {
-            const isSelected = selectedTime === slot.time;
+        <div className="mt-4">
+          {isLoadingTimes ? (
+            <p className="py-6 text-center text-sm text-[#ADB0B5]">
+              시간 불러오는 중...
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-3">
+              {timeSlots.map((slot) => {
+                const isSelected = selectedTime === slot.time;
 
-            return (
-              <button
-                key={slot.time}
-                type="button"
-                disabled={!slot.available}
-                onClick={() => onSelectTime(slot.time)}
-                className={`cursor-pointer rounded-lg border border-[1.5px] py-3.5 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8FA] disabled:text-[#ADB0B5] ${
-                  isSelected
-                    ? 'border-[#F70071] bg-[#F70071] font-medium text-white'
-                    : 'border-[#D4D7DC] text-[#171B1C]'
-                }`}
-              >
-                {slot.time}
-              </button>
-            );
-          })}
+                return (
+                  <button
+                    key={slot.time}
+                    type="button"
+                    disabled={!slot.available}
+                    onClick={() => onSelectTime(slot.time)}
+                    className={`cursor-pointer rounded-lg border border-[1.5px] py-3.5 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8FA] disabled:text-[#ADB0B5] ${
+                      isSelected
+                        ? 'border-[#F70071] bg-[#F70071] font-medium text-white'
+                        : 'border-[#D4D7DC] text-[#171B1C]'
+                    }`}
+                  >
+                    {slot.time.slice(0, 5)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

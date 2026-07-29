@@ -1,87 +1,172 @@
 // [I101] 예약 데모 화면 (손 상태 ➡️ 아트/옵션 ➡️ 날짜/시간 ➡️ 확인/결제 ➡️ 완료)
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '../assets/icons';
-import { mockCardResponse } from '../data/mockupdata/nailData';
 import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
-import PaymentConsentModal from '../components/reservation/PaymentConsentModal';
 import {
-  ART_OPTIONS,
+  HAND_STATUS_OPTIONS,
+  EXTENSION_REMOVAL_UNIT_PRICE,
+  BASE_DURATION_MINUTES,
   RESERVATION_DEPOSIT,
-  calculateTotalPrice,
-  calculateTotalDuration,
   formatDuration,
   formatDateLabel,
   getTodayKey,
   saveReservation,
+  type ArtOption,
+  type AdditionalOption,
+  type TimeSlot,
   type HandStatusId,
   type GelRemovalShop,
 } from '../data/mockupdata/reservationData';
+import {
+  getCardDetail,
+  getShopOptions,
+  splitShopOptions,
+  createReservationDraft,
+  getAvailableTimes,
+  confirmReservationSchedule,
+  getMyProfile,
+  type CardDetail,
+} from '../data/reservationAPI';
 
 type Step = 'hand-status' | 'art-option' | 'datetime' | 'confirm' | 'complete';
 type PaymentMethod = 'KAKAO_PAY' | 'CARD';
 
+const HAND_STATUS_TO_BACKEND: Record<
+  HandStatusId,
+  'BARE_NAIL' | 'GEL_NAIL' | 'EXTENSION_NAIL'
+> = {
+  BARE: 'BARE_NAIL',
+  GEL_REMOVAL: 'GEL_NAIL',
+  EXTENSION_REMOVAL: 'EXTENSION_NAIL',
+};
+
 export default function ReservationPage() {
   const navigate = useNavigate();
   const { cardId } = useParams();
-
-  const card =
-    mockCardResponse.result.cards.find((c) => c.card_id === Number(cardId)) ??
-    mockCardResponse.result.cards[0];
+  const numericCardId = Number(cardId);
 
   const [step, setStep] = useState<Step>('hand-status');
 
+  // 카드/샵/옵션 — 실제 API로 받아옴
+  const [cardDetail, setCardDetail] = useState<CardDetail | null>(null);
+  const [artOptions, setArtOptions] = useState<ArtOption[]>([]);
+  const [additionalOptions, setAdditionalOptions] = useState<
+    AdditionalOption[]
+  >([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const card = await getCardDetail(numericCardId);
+        setCardDetail(card);
+
+        const shopOptions = await getShopOptions(card.shopId);
+        const split = splitShopOptions(shopOptions);
+        setArtOptions(split.artOptions);
+        setAdditionalOptions(split.additionalOptions);
+      } catch (error) {
+        console.error('카드/옵션 조회 실패:', error);
+        setLoadError('예약 정보를 불러오지 못했어요. 다시 시도해주세요.');
+      } finally {
+        setIsLoadingOptions(false);
+      }
+    };
+
+    load();
+  }, [numericCardId]);
+
+  // 손 상태
   const [handStatus, setHandStatus] = useState<HandStatusId[]>([]);
   const [gelRemovalShop, setGelRemovalShop] = useState<GelRemovalShop | null>(
     null,
   );
   const [extensionRemovalCount, setExtensionRemovalCount] = useState(1);
 
-  const [selectedArtId, setSelectedArtId] = useState<string | null>(null);
+  // 아트/추가옵션
+  const [selectedArtId, setSelectedArtId] = useState<number | null>(null);
   const [additionalCounts, setAdditionalCounts] = useState<
-    Record<string, number>
+    Record<number, number>
   >({});
 
+  // 예약 draft — POST /reservations 성공하면 채워짐
+  const [reservationId, setReservationId] = useState<number | null>(null);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+
+  // 날짜/시간
   const [selectedDate, setSelectedDate] = useState<string | null>(
     getTodayKey(),
   );
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [isLoadingTimes, setIsLoadingTimes] = useState(false);
 
+  // reservationId나 selectedDate가 바뀔 때마다 실제 가능 시간 조회
+  useEffect(() => {
+    if (!reservationId || !selectedDate) return;
+
+    const fetchTimes = async () => {
+      setIsLoadingTimes(true);
+      try {
+        const result = await getAvailableTimes(reservationId, selectedDate);
+        setTimeSlots(
+          result.availableTimes.map((slot) => ({
+            time: slot.time,
+            available: slot.isAvailable === 1,
+          })),
+        );
+      } catch (error) {
+        console.error('예약 가능 시간 조회 실패:', error);
+        setTimeSlots([]);
+      } finally {
+        setIsLoadingTimes(false);
+      }
+    };
+
+    fetchTimes();
+  }, [reservationId, selectedDate]);
+
+  // 예약자 정보 — 내 정보 조회로 자동 채움, 수정 불가
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, '').slice(0, 11);
-
-    if (numbers.length < 4) {
-      return numbers;
-    }
-
-    if (numbers.length < 8) {
-      return numbers.replace(/(\d{3})(\d+)/, '$1-$2');
-    }
-
-    return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  };
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [requestNote, setRequestNote] = useState('');
+
+  useEffect(() => {
+    const fetchMyProfile = async () => {
+      try {
+        const profile = await getMyProfile();
+        setCustomerName(profile.name);
+        setCustomerPhone(profile.phoneNumber);
+      } catch (error) {
+        console.error('내 정보 조회 실패:', error);
+      } finally {
+        setIsProfileLoading(false);
+      }
+    };
+
+    fetchMyProfile();
+  }, []);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
   );
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
-  const [showPolicyModal, setShowPolicyModal] = useState(false);
-  const [savedId, setSavedId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selection = {
-    handStatus,
-    extensionRemovalCount,
-    selectedArtId,
-    additionalCounts,
-  };
-  const totalPrice = calculateTotalPrice(selection);
-  const totalDuration = calculateTotalDuration(selection);
+  const [completeResult, setCompleteResult] = useState<{
+    reservationId: number;
+    shopName: string;
+    artName: string;
+    reservationDate: string;
+    reservationStartTime: string;
+    totalPrice: number;
+  } | null>(null);
 
   const handleToggleHandStatus = (id: HandStatusId) => {
     setHandStatus((prev) => {
@@ -96,7 +181,7 @@ export default function ReservationPage() {
     });
   };
 
-  const handleChangeAdditionalCount = (id: string, count: number) => {
+  const handleChangeAdditionalCount = (id: number, count: number) => {
     setAdditionalCounts((prev) => ({ ...prev, [id]: count }));
   };
 
@@ -105,62 +190,90 @@ export default function ReservationPage() {
     setSelectedTime(null);
   };
 
+  // 실시간 미리보기용 가격/시간 (draft 생성 전, hand-status/art-option 스텝 하단바 표시용)
+  const selectedArt = artOptions.find((a) => a.id === selectedArtId);
+
+  const previewPrice = (() => {
+    let total = 0;
+    handStatus.forEach((id) => {
+      const option = HAND_STATUS_OPTIONS.find((o) => o.id === id);
+      if (option) total += option.price;
+    });
+    if (handStatus.includes('EXTENSION_REMOVAL')) {
+      total += extensionRemovalCount * EXTENSION_REMOVAL_UNIT_PRICE;
+    }
+    if (selectedArt) total += selectedArt.price;
+    additionalOptions.forEach((option) => {
+      const count = additionalCounts[option.id] ?? 0;
+      total += count * option.unitPrice;
+    });
+    return total;
+  })();
+
+  const previewDuration = (() => {
+    let total = BASE_DURATION_MINUTES + (selectedArt?.badgeMinutes ?? 0);
+    additionalOptions.forEach((option) => {
+      const count = additionalCounts[option.id] ?? 0;
+      total += count * option.badgeMinutes;
+    });
+    return total;
+  })();
+
   const isHandStatusComplete =
     handStatus.length > 0 &&
     (!handStatus.includes('GEL_REMOVAL') || gelRemovalShop !== null);
 
   const isArtOptionComplete = selectedArtId !== null;
-
   const isDateTimeComplete = selectedDate !== null && selectedTime !== null;
 
   const isConfirmComplete =
+    !isProfileLoading &&
     customerName.trim().length > 0 &&
-    customerPhone.replace(/[^0-9]/g, '').length === 11 &&
+    customerPhone.replace(/[^0-9]/g, '').length >= 10 &&
     paymentMethod !== null &&
     agreedToPolicy;
 
-  const selectedArt = ART_OPTIONS.find((a) => a.id === selectedArtId);
+  // 손상태/아트/옵션 스텝 끝 → 예약 draft 생성 후 날짜 스텝으로
+  const handleGoToDateTime = async () => {
+    if (!isArtOptionComplete || isCreatingDraft) return;
 
-  // TODO: 카카오페이 SDK 연동 후, 여기서 실제 결제창(window.Kakao.Payment.request 등) 호출
-  const handleKakaoPayFlow = () => {
-    console.log('카카오페이 결제 요청 (아직 미연동, 데모라 스킵)');
-  };
+    setIsCreatingDraft(true);
+    try {
+      const draft = await createReservationDraft({
+        cardId: numericCardId,
+        handStates: handStatus.map((id) => HAND_STATUS_TO_BACKEND[id]),
+        gelRemovalType: handStatus.includes('GEL_REMOVAL')
+          ? (gelRemovalShop ?? 'NONE')
+          : 'NONE',
+        extensionRemovalCount: handStatus.includes('EXTENSION_REMOVAL')
+          ? extensionRemovalCount
+          : 0,
+        selectedOptions: [
+          ...(selectedArtId != null
+            ? [{ shopOptionId: selectedArtId, quantity: 1 }]
+            : []),
+          ...Object.entries(additionalCounts)
+            .filter(([, count]) => count > 0)
+            .map(([id, count]) => ({
+              shopOptionId: Number(id),
+              quantity: count,
+            })),
+        ],
+      });
 
-  // TODO: PG사(카드결제) 연동 후, 여기서 실제 카드결제 페이지로 이동
-  const handleCardPaymentFlow = () => {
-    console.log('카드 결제 요청 (아직 미연동, 데모라 스킵)');
-  };
-
-  const handleConfirmNext = () => {
-    if (!isConfirmComplete || !selectedDate || !selectedTime) return;
-
-    if (paymentMethod === 'KAKAO_PAY') handleKakaoPayFlow();
-    else if (paymentMethod === 'CARD') handleCardPaymentFlow();
-
-    const id = crypto.randomUUID();
-    // TODO: 실제 결제 연동 전까지는 결제 없이 바로 저장 + 완료 화면으로 이동
-    saveReservation({
-      id,
-      cardId: card.card_id,
-      shopName: card.shop_name,
-      artLabel: selectedArt?.label ?? '',
-      date: selectedDate,
-      time: selectedTime,
-      totalPrice,
-      depositPrice: RESERVATION_DEPOSIT,
-      customerName,
-      customerPhone,
-      requestNote,
-      isCancelled: false,
-      createdAt: Date.now(),
-    });
-    setSavedId(id);
-    setStep('complete');
+      setReservationId(draft.reservationId);
+      setStep('datetime');
+    } catch (error) {
+      console.error('예약 생성 실패:', error);
+      alert('예약 생성에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsCreatingDraft(false);
+    }
   };
 
   const handleNextStep = () => {
     if (step === 'hand-status' && isHandStatusComplete) setStep('art-option');
-    else if (step === 'art-option' && isArtOptionComplete) setStep('datetime');
+    else if (step === 'art-option' && isArtOptionComplete) handleGoToDateTime();
     else if (step === 'datetime' && isDateTimeComplete) setStep('confirm');
   };
 
@@ -171,7 +284,71 @@ export default function ReservationPage() {
     else navigate(-1);
   };
 
-  if (step === 'complete') {
+  const handleConfirmNext = async () => {
+    if (!isConfirmComplete || !selectedDate || !selectedTime || !reservationId)
+      return;
+
+    setIsSubmitting(true);
+    try {
+      const result = await confirmReservationSchedule(reservationId, {
+        reservationDate: selectedDate,
+        reservationStartTime: selectedTime,
+        requestMessage: requestNote,
+        paymentMethod: paymentMethod as 'KAKAO_PAY' | 'CARD',
+        refundPolicyAgreed: agreedToPolicy,
+      });
+
+      setCompleteResult(result);
+
+      // ⚠️ MyReservationListPage(F102)가 아직 localStorage 기준이라, 실제 API 붙기 전까지 임시로 같이 저장
+      saveReservation({
+        id: String(result.reservationId),
+        cardId: numericCardId,
+        shopName: result.shopName,
+        artLabel: result.artName,
+        date: result.reservationDate,
+        time: result.reservationStartTime,
+        totalPrice: result.totalPrice,
+        depositPrice: RESERVATION_DEPOSIT,
+        customerName,
+        customerPhone,
+        requestNote,
+        isCancelled: false,
+        createdAt: Date.now(),
+      });
+
+      setStep('complete');
+    } catch (error) {
+      console.error('예약 확정 실패:', error);
+      alert('예약 확정에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loadError) {
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center px-6">
+        <p className="text-sm text-[#ADB0B5]">{loadError}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 rounded-lg bg-[#171B1C] text-white px-5 py-2.5 text-sm cursor-pointer"
+        >
+          뒤로가기
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoadingOptions || !cardDetail) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center">
+        <p className="text-sm text-[#ADB0B5]">불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (step === 'complete' && completeResult) {
     return (
       <div className="min-h-dvh flex flex-col">
         <div className="relative flex items-center justify-center px-4 py-3 border-b border-[#E9EBEE] shrink-0">
@@ -183,7 +360,7 @@ export default function ReservationPage() {
             <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
           </button>
           <span className="text-sm font-bold text-[#171B1C]">
-            {card.shop_name}
+            {completeResult.shopName}
           </span>
         </div>
 
@@ -203,27 +380,27 @@ export default function ReservationPage() {
             예약이 완료됐어요
           </h1>
           <p className="mt-1 text-sm text-[#ADB0B5]">
-            예약번호 A-{savedId?.slice(0, 8).toUpperCase()}
+            예약번호 A-{completeResult.reservationId}
           </p>
 
           <div className="mt-8 w-full rounded-xl bg-[#F7F8FA] divide-y divide-[#E9EBEE] px-5">
             <div className="flex justify-between py-4 text-sm">
               <span className="text-[#ADB0B5]">샵명</span>
               <span className="font-medium text-[#171B1C]">
-                {card.shop_name}
+                {completeResult.shopName}
               </span>
             </div>
             <div className="flex justify-between py-4 text-sm">
               <span className="text-[#ADB0B5]">아트</span>
               <span className="font-medium text-[#171B1C]">
-                {selectedArt?.label ?? '-'}
+                {completeResult.artName}
               </span>
             </div>
             <div className="flex justify-between py-4 text-sm">
               <span className="text-[#ADB0B5]">일시</span>
               <span className="font-medium text-[#171B1C]">
-                {selectedDate ? formatDateLabel(selectedDate) : '-'}{' '}
-                {selectedTime}
+                {formatDateLabel(completeResult.reservationDate)}{' '}
+                {completeResult.reservationStartTime.slice(0, 5)}
               </span>
             </div>
             <div className="flex justify-between py-4 text-sm">
@@ -264,7 +441,7 @@ export default function ReservationPage() {
           <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
         </button>
         <span className="text-sm font-bold text-[#171B1C]">
-          {card.shop_name}
+          {cardDetail.shopName}
         </span>
       </div>
 
@@ -282,6 +459,8 @@ export default function ReservationPage() {
 
         {step === 'art-option' && (
           <OptionSelector
+            artOptions={artOptions}
+            additionalOptions={additionalOptions}
             selectedArtId={selectedArtId}
             onSelectArt={setSelectedArtId}
             additionalCounts={additionalCounts}
@@ -295,6 +474,8 @@ export default function ReservationPage() {
             onSelectDate={handleSelectDate}
             selectedTime={selectedTime}
             onSelectTime={setSelectedTime}
+            timeSlots={timeSlots}
+            isLoadingTimes={isLoadingTimes}
           />
         )}
 
@@ -308,7 +489,7 @@ export default function ReservationPage() {
               <div className="flex justify-between py-4 text-sm">
                 <span className="text-[#ADB0B5]">샵명</span>
                 <span className="font-medium text-[#171B1C]">
-                  {card.shop_name}
+                  {cardDetail.shopName}
                 </span>
               </div>
               <div className="flex justify-between py-4 text-sm">
@@ -321,13 +502,13 @@ export default function ReservationPage() {
                 <span className="text-[#ADB0B5]">일시</span>
                 <span className="font-medium text-[#171B1C]">
                   {selectedDate ? formatDateLabel(selectedDate) : '-'}{' '}
-                  {selectedTime}
+                  {selectedTime?.slice(0, 5)}
                 </span>
               </div>
               <div className="flex justify-between py-4 text-sm">
                 <span className="text-[#ADB0B5]">가격</span>
                 <span className="font-bold text-[#171B1C]">
-                  {totalPrice.toLocaleString()} 원
+                  {previewPrice.toLocaleString()} 원
                 </span>
               </div>
             </div>
@@ -339,8 +520,7 @@ export default function ReservationPage() {
                 </label>
                 <input
                   value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="이름을 입력해주세요"
+                  disabled
                   className="mt-1.5 w-full bg-[#F7F8FA] rounded-lg px-3 py-3 outline-none text-sm text-[#171B1C] placeholder:text-[#ADB0B5]"
                 />
               </div>
@@ -350,13 +530,8 @@ export default function ReservationPage() {
                 </label>
                 <input
                   type="tel"
-                  inputMode="numeric"
-                  maxLength={13}
                   value={customerPhone}
-                  onChange={(e) => {
-                    setCustomerPhone(formatPhoneNumber(e.target.value));
-                  }}
-                  placeholder="010-0000-0000"
+                  disabled
                   className="mt-1.5 w-full bg-[#F7F8FA] rounded-lg px-3 py-3 outline-none text-sm text-[#171B1C] placeholder:text-[#ADB0B5]"
                 />
               </div>
@@ -382,7 +557,7 @@ export default function ReservationPage() {
                 <div className="flex justify-between text-sm pb-3 border-b border-[#F7D0E4]">
                   <span className="text-[#646F7C]">총 시술 금액</span>
                   <span className="text-[#171B1C]">
-                    {totalPrice.toLocaleString()}원
+                    {previewPrice.toLocaleString()}원
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-3">
@@ -421,14 +596,12 @@ export default function ReservationPage() {
                             ? '카카오페이'
                             : '신용/체크카드'}
                         </span>
-
                         <span className="text-sm text-[#ADB0B5]">
                           {method === 'KAKAO_PAY'
                             ? '카카오톡 간편결제'
                             : '국내외 모든 카드 사용 가능'}
                         </span>
                       </div>
-
                       <span
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
                           isSelected ? 'border-[#F70071]' : 'border-[#BFC3C8]'
@@ -474,27 +647,27 @@ export default function ReservationPage() {
             <span className="flex items-center gap-1.5">
               결제금액
               <span className="text-[18px] font-bold text-[#171B1C]">
-                {totalPrice.toLocaleString()}원
+                {previewPrice.toLocaleString()}원
               </span>
             </span>
             <span className="text-[#E9EBEE]">·</span>
             <span className="flex items-center gap-1.5">
               소요시간
               <span className="text-[18px] font-bold text-[#171B1C]">
-                {formatDuration(totalDuration)}
+                {formatDuration(previewDuration)}
               </span>
             </span>
           </div>
           <button
             onClick={handleNextStep}
             disabled={
-              step === 'hand-status'
+              (step === 'hand-status'
                 ? !isHandStatusComplete
-                : !isArtOptionComplete
+                : !isArtOptionComplete) || isCreatingDraft
             }
             className="rounded-xl bg-[#F70071] px-9 py-3 text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA] disabled:text-[#ffffff]"
           >
-            다음
+            {isCreatingDraft ? '생성 중...' : '다음'}
           </button>
         </div>
       )}
@@ -515,18 +688,13 @@ export default function ReservationPage() {
         <div className="shrink-0 px-5 py-3">
           <button
             onClick={handleConfirmNext}
-            disabled={!isConfirmComplete}
+            disabled={!isConfirmComplete || isSubmitting}
             className="w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
           >
-            다음
+            {isSubmitting ? '처리 중...' : '다음'}
           </button>
         </div>
       )}
-
-      <PaymentConsentModal
-        isOpen={showPolicyModal}
-        onClose={() => setShowPolicyModal(false)}
-      />
     </div>
   );
 }
