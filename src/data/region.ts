@@ -25,9 +25,7 @@ export interface RegionMatch {
 
 // ===== API 호출 =====
 
-// 이 엔드포인트만 /api/v1이 아니라 /api 하위에 있음 (스웨거 기준)
-const API_ROOT = import.meta.env.VITE_API_BASE_URL.replace(/\/api\/v1$/, '/api');
-const BASE_URL = `${API_ROOT}/regions`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/regions`;
 
 export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   if (!keyword.trim()) return [];
@@ -54,6 +52,36 @@ export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   }
 
   return data.result.map(toRegionMatch);
+}
+
+// 좌표를 법정동으로 바꿔준다. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
+export async function getPresentRegion(
+  latitude: number,
+  longitude: number,
+): Promise<Region> {
+  const token = localStorage.getItem("accessToken");
+
+  const res = await fetch(
+    `${BASE_URL}/present?latitude=${latitude}&longitude=${longitude}`,
+    {
+      headers: token
+        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+        : {},
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
+  }
+
+  const data: { isSuccess: boolean; message: string; result: Region } =
+    await res.json();
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data.result;
 }
 
 function toRegionMatch(region: Region): RegionMatch {

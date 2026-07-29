@@ -28,6 +28,8 @@ import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
 import MyPage from './pages/mypage/MyPage';
 import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
+import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
+import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
 import WithdrawPage from './pages/mypage/WithdrawPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
 import NoticeList from './components/mypage/NoticeList';
@@ -39,6 +41,9 @@ const NAV_HIDDEN_PATHS = [
   '/mypage/notice',
   '/mypage/terms',
   '/mypage/withdraw',
+  // 재설정 화면은 하단 [저장] 버튼이 화면 끝에 붙어서 탭바와 겹친다.
+  '/mypage/designre',
+  '/mypage/regionre',
 ];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -107,6 +112,8 @@ function App() {
           <Route path="/login" element={<KakaoLoginPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/mypage/edit" element={<MyProfileEditPage />} />
+          <Route path="/mypage/designre" element={<MyMoodReconfigPage />} />
+          <Route path="/mypage/regionre" element={<MyRegionReconfigPage />} />
           <Route path="/onboarding/design" element={<DesignPage />} />
           <Route path="/onboarding/region" element={<RegionPageRoute />} />
           <Route path="/onboarding/nickname" element={<NicknamePage />} />

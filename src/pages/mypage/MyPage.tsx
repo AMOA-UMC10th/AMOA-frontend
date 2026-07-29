@@ -10,8 +10,8 @@ interface MenuItem {
 const MENU_GROUPS: MenuItem[][] = [
   [{ label: '예약 내역', path: '/mypage/reservations' }],
   [
-    { label: '선호 디자인 재설정', path: '/onboarding/design' },
-    { label: '관심 지역 재설정', path: '/onboarding/region' },
+    { label: '선호 디자인 재설정', path: '/mypage/designre' },
+    { label: '관심 지역 재설정', path: '/mypage/regionre' },
   ],
   [
     { label: '알림설정', path: '/mypage/settings' },

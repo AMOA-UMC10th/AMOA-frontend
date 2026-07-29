@@ -13,6 +13,8 @@ interface CommonArtCardProps {
   maxPrice: number;
   artType: string;
   isLiked?: boolean;
+  // 찜 상태가 바뀐 뒤 호출된다. 찜 목록처럼 해제 시 항목을 빼야 하는 화면에서 쓴다.
+  onLikeChange?: (liked: boolean) => void;
 }
 
 export default function ArtCard({
@@ -24,6 +26,7 @@ export default function ArtCard({
   maxPrice,
   artType,
   isLiked = false,
+  onLikeChange,
 }: CommonArtCardProps) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(isLiked);
@@ -57,10 +60,15 @@ export default function ArtCard({
             {artMonth}월 {getArtTypeLabel(artType)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
+            {/* cardId를 넘겨야 ArtLikeBtn이 실제 찜 API를 호출한다. */}
             <ArtLikeBtn
               initialLiked={liked}
+              cardId={cardId}
               size={16}
-              onToggle={(nextLiked) => setLiked(nextLiked)}
+              onToggle={(nextLiked) => {
+                setLiked(nextLiked);
+                onLikeChange?.(nextLiked);
+              }}
             />
           </div>
         </div>
