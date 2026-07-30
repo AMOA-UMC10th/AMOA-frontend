@@ -5,7 +5,6 @@ import RecommendBanner from '../components/home/RecommendBanner';
 import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
-import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
 
 import { MOCK_TREND_SLIDES } from '../data/mockupdata/homeData';
 import { fetchHomeCards, type RecommendedCard } from '../data/card';
@@ -71,8 +70,6 @@ export default function HomePage() {
           />
         </>
       )}
-
-      <ShopOwnerBanner />
     </div>
   );
 }
