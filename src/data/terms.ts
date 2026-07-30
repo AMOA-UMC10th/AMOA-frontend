@@ -25,7 +25,8 @@ interface TermApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
 function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("tempToken");
+  // 마이페이지(로그인 완료, accessToken)와 온보딩 중 약관동의(신규가입, tempToken) 둘 다 이 함수를 쓴다.
+  const token = localStorage.getItem("accessToken") ?? localStorage.getItem("tempToken");
   return { Authorization: `Bearer ${token}` };
 }
 
