@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "${VITE_API_BASE_URL}/:path*"
+      "destination": "http://43.200.177.225:8080/api/v1/:path*"
     },
     {
       "source": "/(.*)",
