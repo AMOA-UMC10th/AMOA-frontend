@@ -58,6 +58,10 @@ export default function DateTimeCalendar({
     return arr;
   }, [firstDayOfMonth, daysInMonth]);
 
+  const viewMonthPrefix = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+  const isSelectedDateInView =
+    !!selectedDate && selectedDate.startsWith(viewMonthPrefix);
+
   const handlePrevMonth = () => {
     if (viewMonth === 0) {
       setViewYear((year) => year - 1);
@@ -77,32 +81,32 @@ export default function DateTimeCalendar({
   };
 
   return (
-    <div className="px-5 pt-6">
+    <div className="px-[16px] pt-6">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="cursor-pointer p-2 text-[#646F7C]"
+          className="cursor-pointer h-[24px] w-[24px] px-[8px] py-[4px] text-[#ADB0B5]"
           aria-label="이전 달"
         >
           <ChevronLeftSmallIcon className="h-3 w-2" />
         </button>
 
-        <span className="text-lg font-bold text-[#171B1C]">
+        <span className="text-[15px] font-semibold text-[#171B1C]">
           {viewYear}년 {viewMonth + 1}월
         </span>
 
         <button
           type="button"
           onClick={handleNextMonth}
-          className="cursor-pointer p-2 text-[#646F7C]"
+          className="cursor-pointer h-[24px] w-[24px] px-[8px] py-[4px] text-[#ADB0B5]"
           aria-label="다음 달"
         >
           <ChevronRightSmallIcon className="h-3 w-2" />
         </button>
       </div>
 
-      <div className="mt-8.5 grid grid-cols-7 text-center text-sm text-[#646F7C]">
+      <div className="mt-6 grid grid-cols-7 text-center text-[11px] text-[#646F7C]">
         {WEEKDAYS.map((weekday, index) => (
           <span key={weekday} className={index === 0 ? 'text-[#F70071]' : ''}>
             {weekday}
@@ -110,7 +114,7 @@ export default function DateTimeCalendar({
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-7 gap-y-1 text-center">
+      <div className="mt-[21.5px] grid grid-cols-7 gap-y-[13.5px] text-center">
         {days.map((day, index) => {
           if (day === null) {
             return <span key={`blank-${index}`} />;
@@ -121,30 +125,32 @@ export default function DateTimeCalendar({
           const isSelected = selectedDate === dateKey;
           const isToday = getTodayKey() === dateKey;
           const isPast = currentDate < todayStart;
+          const isSunday = currentDate.getDay() === 0;
 
           return (
-            <div key={dateKey} className="flex flex-col items-center gap-0.2">
+            <div key={dateKey} className="flex flex-col items-center">
               <button
                 type="button"
                 disabled={isPast}
                 onClick={() => onSelectDate(dateKey)}
-                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-md ${
+                className={`mx-auto flex h-[28px] w-[28px] pt-[1px] items-center justify-center rounded-full text-[13px] ${
                   isPast
-                    ? 'cursor-not-allowed text-[#E9EBEE]'
+                    ? 'cursor-not-allowed text-[#D4D7DC]'
                     : 'cursor-pointer'
                 } ${
                   isSelected
                     ? 'bg-[#F70071] font-medium text-white'
                     : isPast
                       ? ''
-                      : 'text-[#171B1C]'
+                      : isSunday
+                        ? 'text-[#F70071]'
+                        : 'text-[#222222]'
                 }`}
               >
                 {day}
               </button>
-
               <span
-                className={`text-[11px] text-[#ADB0B5] ${isToday ? '' : 'invisible'}`}
+                className={`text-[10px] text-[#C5C8CE] ${isToday ? '' : 'invisible'}`}
               >
                 오늘
               </span>
@@ -154,13 +160,17 @@ export default function DateTimeCalendar({
       </div>
 
       {selectedDate && (
-        <div className="mt-4">
+        <div className="mt-6">
           {isLoadingTimes ? (
-            <p className="py-6 text-center text-sm text-[#ADB0B5]">
-              시간 불러오는 중...
-            </p>
+            <div className="flex justify-center py-40">
+              <span
+                className="h-6 w-6 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
+                role="status"
+                aria-label="시간 불러오는 중"
+              />
+            </div>
           ) : (
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 grid-items-center gap-y-[10px] gap-x-[8px]">
               {timeSlots.map((slot) => {
                 const isSelected = selectedTime === slot.time;
 
@@ -170,10 +180,10 @@ export default function DateTimeCalendar({
                     type="button"
                     disabled={!slot.available}
                     onClick={() => onSelectTime(slot.time)}
-                    className={`cursor-pointer rounded-lg border border-[1.5px] py-3.5 text-sm disabled:cursor-not-allowed disabled:border-[#D4D7DC] disabled:bg-[#F7F8FA] disabled:text-[#ADB0B5] ${
+                    className={`cursor-pointer rounded-[8px] border border-[1.5px] py-4 text-[11px] disabled:cursor-not-allowed disabled:border-[#C5C8CE] disabled:bg-[#F7F8F9] disabled:text-[#C5C8CE] ${
                       isSelected
                         ? 'border-[#F70071] bg-[#F70071] font-medium text-white'
-                        : 'border-[#D4D7DC] text-[#171B1C]'
+                        : 'border-[#C5C8CE] text-[#1E2427]'
                     }`}
                   >
                     {slot.time.slice(0, 5)}
