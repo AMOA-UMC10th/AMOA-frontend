@@ -8,7 +8,6 @@ import PickSection from '../components/home/PickSection';
 import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
 
 import { MOCK_TREND_SLIDES } from '../data/mockupdata/homeData';
-import { mockSettingData } from '../data/mockupdata/userData';
 import { fetchHomeCards, type RecommendedCard } from '../data/card';
 
 export default function HomePage() {
@@ -18,12 +17,6 @@ export default function HomePage() {
   const [yearEndPick, setYearEndPick] = useState<RecommendedCard[]>([]);
   const [nickname, setNickname] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const userSetting = mockSettingData.result;
-  const region = userSetting.interestedRegions[0] || '';
-  const mood = userSetting.preferredMoods[0] || '';
-
-  const matchLabel = [mood, region].filter(Boolean).join(' · ');
 
   useEffect(() => {
     async function loadHomeCards() {
@@ -44,7 +37,7 @@ export default function HomePage() {
   }, []);
 
   const handleMoreClick = () => {
-    navigate('/art-search', { state: { region, mood } });
+    navigate('/art-search');
   };
 
   const handlePickMoreClick = () => {
@@ -59,7 +52,6 @@ export default function HomePage() {
 
       <RecommendBanner
         nickname={nickname}
-        matchLabel={matchLabel}
         onMoreClick={handleMoreClick}
       />
       

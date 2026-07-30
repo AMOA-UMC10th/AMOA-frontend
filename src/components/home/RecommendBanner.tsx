@@ -2,13 +2,11 @@
 
 interface RecommendBannerProps {
   nickname: string | null;
-  matchLabel: string; // 예: "화려한 무드 · 용산구 청파동"
   onMoreClick: () => void;
 }
 
 export default function RecommendBanner({
   nickname,
-  matchLabel,
   onMoreClick,
 }: RecommendBannerProps) {
   const highlightWord = nickname ? '추천 이달아' : '인기 있는 이달아';
@@ -25,9 +23,6 @@ export default function RecommendBanner({
           <span className="text-[#FF1B82]">{highlightWord}</span>
           {parts[1]}
         </h2>
-        {matchLabel && (
-          <p className="text-xs text-[#ADB0B5] mt-1">{matchLabel}</p>
-        )}
       </div>
       <button
         onClick={onMoreClick}
