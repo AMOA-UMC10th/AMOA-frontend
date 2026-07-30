@@ -14,7 +14,7 @@ import {
   formatDuration,
   formatDateLabel,
   getTodayKey,
-  saveReservation,
+  GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
   type ArtOption,
   type AdditionalOption,
   type TimeSlot,
@@ -202,6 +202,9 @@ export default function ReservationPage() {
     if (handStatus.includes('EXTENSION_REMOVAL')) {
       total += extensionRemovalCount * EXTENSION_REMOVAL_UNIT_PRICE;
     }
+    if (handStatus.includes('GEL_REMOVAL') && gelRemovalShop === 'OTHER_SHOP') {
+      total += GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
+    }
     if (selectedArt) total += selectedArt.price;
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
@@ -211,7 +214,18 @@ export default function ReservationPage() {
   })();
 
   const previewDuration = (() => {
-    let total = BASE_DURATION_MINUTES + (selectedArt?.badgeMinutes ?? 0);
+    let total = selectedArt?.badgeMinutes ?? 0;
+    handStatus.forEach((id) => {
+      const option = HAND_STATUS_OPTIONS.find((o) => o.id === id);
+      if (!option?.badgeMinutes) return;
+
+      if (id === 'EXTENSION_REMOVAL') {
+        total += extensionRemovalCount * option.badgeMinutes;
+      } else {
+        total += option.badgeMinutes;
+      }
+    });
+
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
       total += count * option.badgeMinutes;
@@ -300,22 +314,7 @@ export default function ReservationPage() {
 
       setCompleteResult(result);
 
-      // ⚠️ MyReservationListPage(F102)가 아직 localStorage 기준이라, 실제 API 붙기 전까지 임시로 같이 저장
-      saveReservation({
-        id: String(result.reservationId),
-        cardId: numericCardId,
-        shopName: result.shopName,
-        artLabel: result.artName,
-        date: result.reservationDate,
-        time: result.reservationStartTime,
-        totalPrice: result.totalPrice,
-        depositPrice: RESERVATION_DEPOSIT,
-        customerName,
-        customerPhone,
-        requestNote,
-        isCancelled: false,
-        createdAt: Date.now(),
-      });
+      // 예약 목록은 서버 API에서 다시 조회하므로 localStorage에 저장하지 않아요.
 
       setStep('complete');
     } catch (error) {
@@ -343,7 +342,11 @@ export default function ReservationPage() {
   if (isLoadingOptions || !cardDetail) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <p className="text-sm text-[#ADB0B5]">불러오는 중...</p>
+        <span
+          className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
+          role="status"
+          aria-label="불러오는 중"
+        />
       </div>
     );
   }
@@ -364,8 +367,8 @@ export default function ReservationPage() {
           </span>
         </div>
 
-        <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-10 pb-6">
-          <span className="w-16 h-16 rounded-full bg-[#FFEEF6] flex items-center justify-center mb-6">
+        <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-[15px] pb-6">
+          <span className="w-16 h-16 rounded-full bg-[#FFEEF6] flex items-center justify-center mb-[21px]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
               <path
                 d="M5 13l4 4L19 7"
@@ -376,51 +379,51 @@ export default function ReservationPage() {
               />
             </svg>
           </span>
-          <h1 className="text-xl font-bold text-[#171B1C]">
+          <h1 className="text-[17px] font-semibold text-[#171B1C]">
             예약이 완료됐어요
           </h1>
-          <p className="mt-1 text-sm text-[#ADB0B5]">
+          <p className="text-[11px] text-[#ADB0B5]">
             예약번호 A-{completeResult.reservationId}
           </p>
 
-          <div className="mt-8 w-full rounded-xl bg-[#F7F8FA] divide-y divide-[#E9EBEE] px-5">
-            <div className="flex justify-between py-4 text-sm">
+          <div className="mt-[44px] w-full rounded-[10px] bg-[#F7F8F9] divide-y divide-[#E9EBEE] px-[12px] py-[4px]">
+            <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">샵명</span>
               <span className="font-medium text-[#171B1C]">
                 {completeResult.shopName}
               </span>
             </div>
-            <div className="flex justify-between py-4 text-sm">
+            <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">아트</span>
               <span className="font-medium text-[#171B1C]">
                 {completeResult.artName}
               </span>
             </div>
-            <div className="flex justify-between py-4 text-sm">
+            <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">일시</span>
               <span className="font-medium text-[#171B1C]">
                 {formatDateLabel(completeResult.reservationDate)}{' '}
                 {completeResult.reservationStartTime.slice(0, 5)}
               </span>
             </div>
-            <div className="flex justify-between py-4 text-sm">
+            <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">가격</span>
-              <span className="font-bold text-[#171B1C]">
+              <span className="font-medium text-[#171B1C]">
                 {RESERVATION_DEPOSIT.toLocaleString()} 원
               </span>
             </div>
           </div>
 
-          <div className="mt-6 w-full flex gap-2">
+          <div className="mt-8 w-full flex gap-[11px]">
             <button
               onClick={() => navigate('/home')}
-              className="flex-1 border border-[2px] border-[#D4D7DC] text-[#171B1C] rounded-lg py-3 cursor-pointer"
+              className="flex-1 border border-[1.5px] border-[#D4D7DC] text-[13px] text-[#171B1C] rounded-[8px] py-3 cursor-pointer"
             >
               홈으로
             </button>
             <button
               onClick={() => navigate('/reservations')}
-              className="flex-1 bg-[#F70071] text-white rounded-lg py-3 cursor-pointer"
+              className="flex-1 bg-[#F70071] text-white text-[13px] rounded-[8px] cursor-pointer"
             >
               예약 내역 보기
             </button>
@@ -480,104 +483,106 @@ export default function ReservationPage() {
         )}
 
         {step === 'confirm' && (
-          <div className="px-5 pt-6">
-            <h2 className="text-lg font-bold text-[#171B1C]">
+          <div className="px-[15px] pt-[15px]">
+            <h2 className="text-[17px] font-semibold text-[#000000]">
               예약 정보를 확인해주세요
             </h2>
 
-            <div className="mt-4 rounded-xl bg-[#F7F8FA] divide-y divide-[#E9EBEE] px-5">
-              <div className="flex justify-between py-4 text-sm">
+            <div className="mt-[10px] rounded-[10px] bg-[#F7F8F9] divide-y divide-[#E9EBEE] px-[12px] py-[4px]">
+              <div className="flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">샵명</span>
                 <span className="font-medium text-[#171B1C]">
                   {cardDetail.shopName}
                 </span>
               </div>
-              <div className="flex justify-between py-4 text-sm">
+              <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">아트</span>
                 <span className="font-medium text-[#171B1C]">
                   {selectedArt?.label ?? '-'}
                 </span>
               </div>
-              <div className="flex justify-between py-4 text-sm">
+              <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">일시</span>
                 <span className="font-medium text-[#171B1C]">
                   {selectedDate ? formatDateLabel(selectedDate) : '-'}{' '}
                   {selectedTime?.slice(0, 5)}
                 </span>
               </div>
-              <div className="flex justify-between py-4 text-sm">
+              <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">가격</span>
-                <span className="font-bold text-[#171B1C]">
+                <span className="font-medium text-[#171B1C]">
                   {previewPrice.toLocaleString()} 원
                 </span>
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-[16px] flex flex-col">
               <div>
-                <label className="text-sm text-[#28323C] font-medium">
+                <label className="text-[14px] text-[#171B1C] font-bold">
                   이름
                 </label>
                 <input
                   value={customerName}
                   disabled
-                  className="mt-1.5 w-full bg-[#F7F8FA] rounded-lg px-3 py-3 outline-none text-sm text-[#171B1C] placeholder:text-[#ADB0B5]"
+                  className="mt-[5px] w-full bg-[#F7F8F9] rounded-[8px] px-[12px] py-3.5 outline-none text-sm text-[#ADB0B5] placeholder:text-[#ADB0B5]"
                 />
               </div>
-              <div>
-                <label className="text-sm text-[#28323C] font-medium">
+              <div className="mt-[11px]">
+                <label className="text-[14px] text-[#171B1C] font-bold">
                   휴대폰 번호
                 </label>
                 <input
                   type="tel"
                   value={customerPhone}
                   disabled
-                  className="mt-1.5 w-full bg-[#F7F8FA] rounded-lg px-3 py-3 outline-none text-sm text-[#171B1C] placeholder:text-[#ADB0B5]"
+                  className="mt-[5px] w-full bg-[#F7F8FA] rounded-[8px] px-[12px] py-3.5 outline-none text-sm text-[#ADB0B5] placeholder:text-[#ADB0B5]"
                 />
               </div>
-              <div>
-                <label className="text-sm text-[#28323C] font-medium">
+              <div className="mt-[16px]">
+                <label className="text-[14px] text-[#171B1C] font-bold">
                   요청사항
                 </label>
                 <textarea
                   value={requestNote}
                   onChange={(e) => setRequestNote(e.target.value)}
-                  placeholder="요청사항을 적어주세요"
+                  placeholder="요청사항을 적어주세요."
                   rows={3}
-                  className="mt-1 w-full border border-[#E9EBEE] rounded-lg px-3 py-2 outline-none text-sm resize-none"
+                  className="mt-[4px] w-full border border-[1.5px] border-[#E9EBEE] rounded-[8px] px-[12px] py-[8px] outline-none text-sm resize-none"
                 />
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="text-base font-bold text-[#171B1C] mb-2">
+            <div className="mt-[17px]">
+              <p className="text-[16px] font-bold text-[#000000] mb-[6px]">
                 예약금 결제
               </p>
-              <div className="rounded-xl bg-[#FFEEF6] p-4">
-                <div className="flex justify-between text-sm pb-3 border-b border-[#F7D0E4]">
-                  <span className="text-[#646F7C]">총 시술 금액</span>
-                  <span className="text-[#171B1C]">
+              <div className="rounded-[15px] bg-[#FFF3F8] py-[16px] pl-[18px] pr-[21px]">
+                <div className="flex justify-between text-[12px] pb-3 border-b border-[#C5C8CE]">
+                  <span className="text-[#888888]">총 시술 금액</span>
+                  <span className="text-[#888888]">
                     {previewPrice.toLocaleString()}원
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-3">
-                  <span className="text-sm font-bold text-[#171B1C]">
+                  <span className="text-[13px] font-bold text-[#111111]">
                     예약금
                   </span>
-                  <span className="text-lg font-bold text-[#F70071]">
+                  <span className="text-[14px] font-bold text-[#F70071]">
                     {RESERVATION_DEPOSIT.toLocaleString()}원
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-[#ADB0B5]">
+                <p className="pt-2 text-[10px] text-[#AAAAAA]">
                   나머지 금액은 방문 후 현장에서 결제해주세요
                 </p>
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="mb-3 text-lg font-bold text-[#171B1C]">결제 수단</p>
+            <div className="mt-[23px]">
+              <p className="mb-[6px] text-[14px] font-bold text-[#000000]">
+                결제 수단
+              </p>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-[13px]">
                 {(['KAKAO_PAY', 'CARD'] as PaymentMethod[]).map((method) => {
                   const isSelected = paymentMethod === method;
 
@@ -586,29 +591,29 @@ export default function ReservationPage() {
                       key={method}
                       type="button"
                       onClick={() => setPaymentMethod(method)}
-                      className={`flex w-full items-center justify-between rounded-2xl border-2 bg-white px-5 py-6 text-left cursor-pointer transition-colors ${
-                        isSelected ? 'border-[#F70071]' : 'border-[#D9DBDF]'
+                      className={`flex w-full items-center justify-between rounded-[15px] border-[1.5px] bg-white px-[18px] py-[18px] text-left cursor-pointer transition-colors ${
+                        isSelected ? 'border-[#F70071]' : 'border-[#D4D7DC]'
                       }`}
                     >
-                      <div className="flex flex-col gap-1">
-                        <span className="text-base font-bold text-[#171B1C]">
+                      <div className="flex flex-col">
+                        <span className="text-[13px]] font-semibold text-[#171B1C]">
                           {method === 'KAKAO_PAY'
                             ? '카카오페이'
                             : '신용/체크카드'}
                         </span>
-                        <span className="text-sm text-[#ADB0B5]">
+                        <span className="text-[11px] text-[#ADB0B5]">
                           {method === 'KAKAO_PAY'
                             ? '카카오톡 간편결제'
                             : '국내외 모든 카드 사용 가능'}
                         </span>
                       </div>
                       <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
-                          isSelected ? 'border-[#F70071]' : 'border-[#BFC3C8]'
+                        className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] ${
+                          isSelected ? 'border-[#F70071]' : 'border-[#ADB0B5]'
                         }`}
                       >
                         {isSelected && (
-                          <span className="h-3 w-3 rounded-full bg-[#F70071]" />
+                          <span className="h-[10px] w-[10px] rounded-full bg-[#F70071]" />
                         )}
                       </span>
                     </button>
@@ -617,15 +622,15 @@ export default function ReservationPage() {
               </div>
             </div>
 
-            <div className="mt-5 flex gap-2 rounded-lg bg-[#F7F8FA] px-3 py-2.5">
-              <span className="mt-0.5 text-[#ADB0B5]">ⓘ</span>
-              <p className="text-xs text-[#646F7C] leading-relaxed">
+            <div className="mt-[13px] flex gap-[8px] rounded-[10px] bg-[#F7F8F9] px-[12px] py-[12px]">
+              <span className="text-[13px] text-[#ADB0B5]">ⓘ</span>
+              <p className="mt-[1px] text-[10px] text-[#ADB0B5] leading-relaxed">
                 예약금은 노쇼 방지를 위해 수령됩니다. 예약 취소 시 환불 정책에
                 따라 예약금이 반환되지 않을 수 있습니다.
               </p>
             </div>
 
-            <label className="mt-3 flex items-center gap-2 text-xs text-[#646F7C]">
+            <label className="mt-[15px] flex items-center gap-[4px] text-[10px] text-[#BBBBBB]">
               <input
                 type="checkbox"
                 checked={agreedToPolicy}
@@ -634,7 +639,7 @@ export default function ReservationPage() {
               />
               <span>
                 취소/환불 규정에 동의합니다{' '}
-                <span className="text-[#F70071] font-medium">(필수)</span>
+                <span className="text-[#CD0000] font-medium">(필수)</span>
               </span>
             </label>
           </div>
@@ -642,18 +647,17 @@ export default function ReservationPage() {
       </div>
 
       {(step === 'hand-status' || step === 'art-option') && (
-        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-5 py-4">
-          <div className="flex items-center gap-2 text-xs text-[#ADB0B5]">
-            <span className="flex items-center gap-1.5">
+        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-[16px] py-[16px] gap-[30px]">
+          <div className="flex items-center gap-[11px] text-[10px] text-[#ADB0B5]">
+            <span className="flex items-center gap-[6px]">
               결제금액
-              <span className="text-[18px] font-bold text-[#171B1C]">
+              <span className="text-[15px] font-semibold text-[#171B1C]">
                 {previewPrice.toLocaleString()}원
               </span>
             </span>
-            <span className="text-[#E9EBEE]">·</span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-[6px]">
               소요시간
-              <span className="text-[18px] font-bold text-[#171B1C]">
+              <span className="text-[15px] font-semibold text-[#171B1C]">
                 {formatDuration(previewDuration)}
               </span>
             </span>
@@ -665,9 +669,9 @@ export default function ReservationPage() {
                 ? !isHandStatusComplete
                 : !isArtOptionComplete) || isCreatingDraft
             }
-            className="rounded-xl bg-[#F70071] px-9 py-3 text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA] disabled:text-[#ffffff]"
+            className="w-[87px] h-[40px] rounded-[10px] bg-[#F70071] px-[20px] py-[10px] text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA] disabled:text-[#ffffff]"
           >
-            {isCreatingDraft ? '생성 중...' : '다음'}
+            {isCreatingDraft ? '확인' : '다음'}
           </button>
         </div>
       )}
@@ -677,7 +681,7 @@ export default function ReservationPage() {
           <button
             onClick={handleNextStep}
             disabled={!isDateTimeComplete}
-            className="w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#ADB0B5] disabled:text-white"
+            className="w-full rounded-[10px] bg-[#F70071] py-5 text-[15px] font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DC] disabled:text-white"
           >
             다음
           </button>
@@ -689,7 +693,7 @@ export default function ReservationPage() {
           <button
             onClick={handleConfirmNext}
             disabled={!isConfirmComplete || isSubmitting}
-            className="w-full rounded-xl bg-[#171B1C] py-5 text-md font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#E9EBEE] disabled:text-[#ADB0B5]"
+            className="w-full rounded-[10px] bg-[#F70071] py-5 text-[15px] font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DC] disabled:text-white"
           >
             {isSubmitting ? '처리 중...' : '다음'}
           </button>

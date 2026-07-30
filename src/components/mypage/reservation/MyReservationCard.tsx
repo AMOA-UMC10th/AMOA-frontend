@@ -1,32 +1,47 @@
 // [F102] 예약 목록 카드
-// 월별 그룹핑, 샵명, 아트명, 상태 뱃지 표시
+// 샵명, 아트명, 상태 뱃지 및 예약 금액 표시
 
 import { useNavigate } from 'react-router-dom';
-import {
-  getDisplayStatus,
-  formatReservationDateLabel,
-  type SavedReservation,
-  type DisplayStatus,
-} from '../../../data/mockupdata/reservationData';
 
-const STATUS_LABEL: Record<DisplayStatus, string> = {
+import {
+  formatReservationDateLabel,
+  getReservationDisplayStatus,
+  type ReservationDisplayStatus,
+  type ReservationListItem,
+} from '../../../data/reservationAPI';
+
+const STATUS_LABEL: Record<ReservationDisplayStatus, string> = {
   UPCOMING: '시술 예정',
   COMPLETED: '시술 완료',
   CANCELLED: '시술 취소',
 };
 
 interface MyReservationCardProps {
-  reservation: SavedReservation;
+  reservation: ReservationListItem;
 }
 
 export default function MyReservationCard({
   reservation,
 }: MyReservationCardProps) {
   const navigate = useNavigate();
-  const status = getDisplayStatus(reservation);
+
+  const status = getReservationDisplayStatus({
+    reservationStatus: reservation.reservationStatus,
+    reservationDate: reservation.reservationDate,
+  });
 
   const isCancelled = status === 'CANCELLED';
+
   const isUpcoming = status === 'UPCOMING';
+
+  const reservationDateLabel = formatReservationDateLabel(
+    reservation.reservationDate,
+    reservation.reservationStartTime,
+  );
+
+  const handleMoveToDetail = () => {
+    navigate(`/reservations/${reservation.reservationId}`);
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[#E9EBEE] bg-white">
@@ -57,7 +72,7 @@ export default function MyReservationCard({
             isCancelled ? 'text-[#C5C8CC]' : 'text-[#8B929C]'
           }`}
         >
-          {reservation.artLabel}
+          {reservation.artName}
         </p>
 
         <p
@@ -65,7 +80,7 @@ export default function MyReservationCard({
             isCancelled ? 'text-[#C5C8CC]' : 'text-[#ADB0B5]'
           }`}
         >
-          {formatReservationDateLabel(reservation.date, reservation.time)}
+          {reservationDateLabel}
         </p>
 
         <p
@@ -80,7 +95,7 @@ export default function MyReservationCard({
       {/* 상세 보기 버튼 */}
       <button
         type="button"
-        onClick={() => navigate(`/reservations/${reservation.id}`)}
+        onClick={handleMoveToDetail}
         className="h-[50px] w-full cursor-pointer border-t border-[#E9EBEE] bg-white text-sm font-bold text-[#171B1C]"
       >
         상세 보기
