@@ -32,6 +32,7 @@ function AllCheckIcon({ checked }: { checked: boolean }) {
     </span>
   );
 }
+
 interface TermsSheetProps {
   nickname: string;
   phoneNumber: string;
@@ -68,7 +69,9 @@ export default function TermsSheet({
             }
             return {
               id: String(item.termId),
-              label: item.required ? `${item.title} (필수)` : `${item.title} (선택)`,
+              label: item.required
+                ? `${item.title} (필수)`
+                : `${item.title} (선택)`,
               required: item.required,
               checked: false,
               detailContent,
@@ -102,10 +105,11 @@ export default function TermsSheet({
     if (!isAllRequiredChecked || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
+
     try {
       await saveOnboarding({
         nickname,
-        phoneNumber,
+        phoneNumber: phoneNumber.replace(/\D/g, ''), // 🔑 하이픈 제거 안전장치
         designTagIds,
         regionIds,
         agreements: terms.map((t) => ({
@@ -113,10 +117,21 @@ export default function TermsSheet({
           agreed: t.checked,
         })),
       });
+
+      // 🔑 온보딩 완료 후 메인/다음 화면 이동
       onComplete();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSubmitError('가입 처리에 실패했어요. 다시 시도해주세요');
+      const msg = err?.message || '';
+
+      // 🔑 이미 온보딩을 완료한 사용자인 경우 바로 넘어가도록 처리
+      if (msg.includes('이미 온보딩을 완료한')) {
+        onComplete();
+        return;
+      }
+
+      // 서버에서 온 에러 메시지를 화면에 출력
+      setSubmitError(msg || '가입 처리에 실패했어요. 다시 시도해주세요');
     } finally {
       setSubmitting(false);
     }
@@ -164,7 +179,9 @@ export default function TermsSheet({
         <div className="flex-1" />
 
         {submitError && (
-          <p className="mb-3 text-center text-xs text-[#F70071]">{submitError}</p>
+          <p className="mb-3 text-center text-xs text-[#F70071]">
+            {submitError}
+          </p>
         )}
 
         <button

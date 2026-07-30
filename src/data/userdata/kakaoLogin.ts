@@ -14,7 +14,7 @@ export interface ExistingUserResult {
   onboarding_completed: true;
   email: string;
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
   nickName: string | null;
 }
 
