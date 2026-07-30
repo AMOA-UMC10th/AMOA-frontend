@@ -9,17 +9,17 @@ import ShopOwnerBanner from '../components/home/ShopOwnerBanner';
 
 import { MOCK_TREND_SLIDES } from '../data/mockupdata/homeData';
 import { mockSettingData } from '../data/mockupdata/userData';
-import { fetchCards, type RecommendedCard } from '../data/card';
+import { fetchHomeCards, type RecommendedCard } from '../data/card';
 
 export default function HomePage() {
   const navigate = useNavigate();
 
-  const [cardsList, setCardsList] = useState<RecommendedCard[]>([]);
+  const [monthlyArt, setMonthlyArt] = useState<RecommendedCard[]>([]);
+  const [yearEndPick, setYearEndPick] = useState<RecommendedCard[]>([]);
+  const [nickname, setNickname] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const userSetting = mockSettingData.result;
-  const nickname = userSetting.nickname;
-  
   const region = userSetting.interestedRegions[0] || '';
   const mood = userSetting.preferredMoods[0] || '';
 
@@ -29,9 +29,10 @@ export default function HomePage() {
     async function loadHomeCards() {
       try {
         setIsLoading(true);
-        // 메인 페이지에 노출할 카드 데이터 조회 (최대 10개)
-        const data = await fetchCards({ size: 10 });
-        setCardsList(data.cards);
+        const data = await fetchHomeCards();
+        setNickname(data.nickname);
+        setMonthlyArt(data.monthlyArt.cards);
+        setYearEndPick(data.yearEndPick.cards);
       } catch (error) {
         console.error('홈 카드 목록 불러오기 실패:', error);
       } finally {
@@ -68,12 +69,12 @@ export default function HomePage() {
         </div>
       ) : (
         <>
-          <RecommendArtList items={cardsList} />
+          <RecommendArtList items={monthlyArt} />
 
           <PickSection
             title="완벽한 연말을 위한 PICK"
             highlightWord="PICK"
-            items={cardsList.slice(0, 4)}
+            items={yearEndPick}
             onMoreClick={handlePickMoreClick}
           />
         </>
