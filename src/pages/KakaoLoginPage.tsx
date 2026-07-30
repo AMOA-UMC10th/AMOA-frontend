@@ -74,9 +74,9 @@ function KakaoLoginPage() {
     };
   }, []);
 
-  const handleNewUser = (result: NewUserResult): void => {
+const handleNewUser = (result: NewUserResult): void => {
+    // 신규 회원은 tempToken 저장
     localStorage.setItem('tempToken', result.tempToken);
-
     localStorage.setItem('memberId', String(result.memberId));
 
     if (result.kakaoEmail) {
@@ -85,10 +85,7 @@ function KakaoLoginPage() {
       localStorage.removeItem('kakaoEmail');
     }
 
-    /*
-     * 신규 회원에게는 일반 accessToken과
-     * refreshToken을 저장하지 않는다.
-     */
+    // 신규 회원은 정식 토큰 삭제
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
 

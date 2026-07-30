@@ -1,20 +1,52 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "../../components/onboarding/SearchBar";
 import RegionResult from "../../components/onboarding/RegionResult";
 import RegionChips from "../../components/onboarding/RegionChips";
 import type { SelectedRegion } from "../../components/onboarding/RegionChips";
 import RegionMapPicker from "../../components/onboarding/RegionMapPicker";
 import { ChevronLeftIcon, CrosshairIcon } from "../../assets/icons";
-import {
-  searchRegions,
-  getPresentRegion,
-  shortenSido,
-  type Region,
-  type RegionMatch,
-} from "../../data/region";
+import { getPresentRegion, type Region, type RegionMatch, searchRegions, shortenSido } from "../../data/region";
 
 const MAX_REGIONS = 3;
+
+interface RegionInfo {
+  regionId: number;
+  firstDepth: string;
+  secondDepth: string;
+  thirdDepth: string;
+}
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+// 좌표를 법정동으로 바꿔주는 API. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
+async function fetchPresentRegion(
+  latitude: number,
+  longitude: number
+): Promise<RegionInfo> {
+  const token = localStorage.getItem("tempToken");
+  const res = await fetch(
+    `${import.meta.env.VITE_API_BASE_URL}/regions/present?latitude=${latitude}&longitude=${longitude}`,
+    {
+      headers: token
+        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+        : {},
+    }
+  );
+  if (!res.ok) {
+    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<RegionInfo> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result;
+}
 
 // 브라우저 위치 권한은 콜백 기반이라 await로 쓰기 위해 감싼다.
 function getCurrentPosition(): Promise<GeolocationPosition> {
@@ -40,8 +72,6 @@ function toLocationErrorMessage(err: unknown): string {
   return "현재 위치를 불러오지 못했어요.";
 }
 
-// 온보딩 저장에는 지역 ID가 필요한데 RegionChips의 SelectedRegion에는 없어서,
-// 이 화면 안에서만 regionId를 덧붙여 들고 다닌다.
 type SelectedRegionWithId = SelectedRegion & { regionId?: number };
 
 interface RegionPageProps {
@@ -52,10 +82,8 @@ interface RegionPageProps {
 
 export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) {
   const navigate = useNavigate();
+  const location = useLocation(); // 🔑 이전 단계(DesignPage)에서 넘어온 state를 받기 위해 사용
 
-  // 온보딩 이전 단계는 항상 디자인 선택이라 경로를 고정한다.
-  // navigate(-1)을 쓰면, 닉네임 화면의 뒤로가기가 이 화면을 새로 push 하는 탓에
-  // 지역 ↔ 닉네임을 오가는 왕복이 생긴다. replace로 넣어 기록이 쌓이지 않게 한다.
   function handleBack() {
     if (onBack) {
       onBack();
@@ -63,6 +91,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     }
     navigate("/onboarding/design", { replace: true });
   }
+
   const [view, setView] = useState<"search" | "map">("search");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<RegionMatch[]>([]);
@@ -90,7 +119,6 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       return;
     }
 
-    // 입력하는 즉시 검색 중으로 두고, 응답이 온 뒤에 결과를 그린다.
     let cancelled = false;
     setIsSearching(true);
 
@@ -109,7 +137,6 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
         });
     }, 300);
 
-    // 검색어가 바뀌면 이전 요청의 응답은 버린다.
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -147,7 +174,6 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     ]);
   }
 
-  // 온보딩 저장에는 regionId가 필요해서 검색 결과의 id를 함께 담아둔다.
   function handleSelectResult(match: RegionMatch) {
     addRegion({
       regionId: Number(match.id),
@@ -161,7 +187,6 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     setSelected((prev) => prev.filter((r) => r.id !== id));
   }
 
-  // 지도 화면으로 넘어가면서 위치 권한 → 좌표 → 지역 조회를 순서대로 진행한다.
   async function loadCurrentLocation() {
     setIsLocating(true);
     setLocationError(null);
@@ -172,7 +197,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       setIsLocating(false);
       return;
     }
-    // 위치 API는 HTTPS(또는 localhost)에서만 동작한다.
+
     if (!window.isSecureContext) {
       setLocationError("보안 연결(HTTPS)에서만 현재 위치를 쓸 수 있어요.");
       setIsLocating(false);
@@ -193,8 +218,6 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     }
   }
 
-  // 지도를 드래그하면 중앙 핀 좌표로 주소를 다시 조회한다.
-  // 드래그가 연달아 일어나면 마지막 요청 결과만 반영한다.
   const centerRequestId = useRef(0);
 
   async function handleCenterChange(latitude: number, longitude: number) {
@@ -223,13 +246,38 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
 
   function handleConfirmCurrentLocation() {
     if (!currentRegion) return;
-    // 검색 결과로 담을 때와 같은 모양으로 넣어야 중복 판정과 칩 표기가 맞는다.
     addRegion({
       regionId: currentRegion.regionId,
       district: `${currentRegion.firstDepth} ${currentRegion.secondDepth}`.trim(),
       keyword: currentRegion.thirdDepth,
     });
     setView("search");
+  }
+
+  // 🔑 다음 단계로 이동하는 공통 함수
+  function goNextStep(regionIds: number[]) {
+    // 1. props로 핸들러가 넘겨졌다면 우선 실행
+    if (onNext) {
+      onNext(selected);
+      return;
+    }
+
+    // 2. 라우터를 사용하는 경우 다음 온보딩 단계(닉네임/프로필 입력 화면 등)로 이동
+    navigate("/onboarding/profile", {
+      state: {
+        ...location.state, // 이전 단계의 designTagIds 보존
+        regionIds,         // 현재 선택한 regionId 배열 (예: [210])
+      },
+    });
+  }
+
+  // 🔑 건너뛰기 처리 함수
+  function handleSkip() {
+    if (onSkip) {
+      onSkip();
+      return;
+    }
+    goNextStep([]); // 빈 배열 전달
   }
 
   if (view === "map") {
@@ -306,7 +354,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       <div className="shrink-0 px-5 pb-8 pt-4">
         <button
           type="button"
-          onClick={onSkip}
+          onClick={handleSkip}
           className="mb-3 w-full text-center text-sm text-gray-400"
         >
           건너뛰기
@@ -315,7 +363,12 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
           type="button"
           disabled={!canProceed}
           onClick={() => {
-            onNext?.(selected);
+            // 선택된 항목들의 regionId 숫자를 모아 배열로 추출 (예: [210])
+            const regionIds = selected
+              .map((r) => r.regionId)
+              .filter((id): id is number => id != null);
+
+            goNextStep(regionIds);
           }}
           className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
             canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"

@@ -17,7 +17,7 @@ interface ApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/users/design-moods`;
 
 export async function getDesignMoods(): Promise<DesignMood[]> {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("tempToken");
 
   const res = await fetch(BASE_URL, {
     headers: token

@@ -4,7 +4,7 @@ export interface NewUserResult {
   memberId: number;
   isNewUser: true;
   onboarding_completed: false;
-  tempToken: string;
+  tempToken: string; // tempToken 복구
   kakaoEmail: string | null;
 }
 
@@ -14,7 +14,7 @@ export interface ExistingUserResult {
   onboarding_completed: true;
   email: string;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   nickName: string | null;
 }
 
@@ -28,7 +28,7 @@ export interface KakaoLoginResponse {
 }
 
 interface KakaoLoginRequest {
-  kakaoAccessToken: string;
+  accessToken: string;
 }
 
 export async function postKakaoLogin(
@@ -39,10 +39,10 @@ export async function postKakaoLogin(
   }
 
   const requestBody: KakaoLoginRequest = {
-    kakaoAccessToken,
+    accessToken: kakaoAccessToken,
   };
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/auth/kakao`, {
+  const response = await fetch(`${API_BASE_URL}/auth/kakao`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -64,6 +64,16 @@ export async function postKakaoLogin(
 
   if (!data.result) {
     throw new Error('로그인 응답에 사용자 정보가 없습니다.');
+  }
+
+  // 🔑 신규 회원일 경우 tempToken 저장
+  if (data.result.isNewUser) {
+    localStorage.setItem('tempToken', data.result.tempToken);
+  } else {
+    localStorage.setItem('accessToken', data.result.accessToken);
+    if (data.result.refreshToken) {
+      localStorage.setItem('refreshToken', data.result.refreshToken);
+    }
   }
 
   return data;

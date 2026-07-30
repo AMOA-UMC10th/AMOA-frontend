@@ -6,6 +6,36 @@ import { ChevronLeftIcon } from "../../assets/icons";
 import { getMoodImage } from "../../assets/moods";
 import { getDesignMoods, type DesignMood } from "../../data/designMood";
 
+interface DesignTag {
+  designtagId: number;
+  name: string;
+}
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+// 무드 목록은 서버가 내려주는 designtagId를 그대로 온보딩 저장에 써야 해서 API로 받아온다.
+async function fetchDesignMoods(): Promise<DesignTag[]> {
+  const token = localStorage.getItem("tempToken");
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`, {
+    headers: token
+      ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
+      : {},
+  });
+  if (!res.ok) {
+    throw new Error(`디자인 무드 목록 조회 실패: ${res.status}`);
+  }
+  const data: ApiResponse<{ designtags: DesignTag[] }> = await res.json();
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+  return data.result.designtags;
+}
+
 export default function DesignPage() {
   const navigate = useNavigate();
   const location = useLocation();

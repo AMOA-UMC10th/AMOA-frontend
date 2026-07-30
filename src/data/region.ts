@@ -30,15 +30,9 @@ const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/regions`;
 export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   if (!keyword.trim()) return [];
 
-  const token = localStorage.getItem("accessToken");
-
+  // 🔑 토큰 없이 요청 보내기
   const res = await fetch(
-    `${BASE_URL}?keyword=${encodeURIComponent(keyword)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    `${BASE_URL}?keyword=${encodeURIComponent(keyword)}`
   );
 
   if (!res.ok) {

@@ -59,7 +59,7 @@ function onlyDigits(value: string): string {
 }
 
 function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
   if (!token) return {};
   return {
     Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
@@ -108,19 +108,18 @@ export interface PhoneVerifyResult {
   verified: boolean;
 }
 
-// 인증번호는 6자리, 3분간 유효. 같은 번호로는 30초 이내 재요청이 막힌다.
-export async function sendPhoneCode(
-  phoneNumber: string,
-): Promise<PhoneSendResult> {
-  const res = await fetch(`${BASE_URL}/users/phone/send`, {
+export async function sendPhoneCode(phone: string) {
+  const token = localStorage.getItem('tempToken'); 
+  
+  const res = await fetch(`${BASE_URL}/sms/send`, {
     method: 'POST',
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber) }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+    body: JSON.stringify({ phone }),
   });
-  return parse<PhoneSendResult>(res, '인증번호 발송');
 }
-
-// 5회 이상 틀리면 인증번호가 폐기되어 재발송이 필요하다.
 export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,
