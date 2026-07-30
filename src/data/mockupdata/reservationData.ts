@@ -14,13 +14,19 @@ export interface HandStatusOption {
 }
 
 export const HAND_STATUS_OPTIONS: HandStatusOption[] = [
-  { id: 'BARE', label: '맨손이에요', price: 40000 },
-  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0 },
-  { id: 'EXTENSION_REMOVAL', label: '연장 제거할게요', price: 0 },
+  { id: 'BARE', label: '맨손이에요', price: 0 },
+  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0, badgeMinutes: 10 },
+  {
+    id: 'EXTENSION_REMOVAL',
+    label: '연장 제거할게요',
+    price: 0,
+    badgeMinutes: 2,
+  },
 ];
 
-export const EXTENSION_REMOVAL_UNIT_PRICE = 5000;
+export const EXTENSION_REMOVAL_UNIT_PRICE = 1000;
 export const EXTENSION_REMOVAL_MAX_COUNT = 10;
+export const GEL_REMOVAL_OTHER_SHOP_SURCHARGE = 5000; // 추가 — 타샵 젤제거 추가비용
 
 export interface ArtOption {
   id: number;
@@ -84,6 +90,7 @@ export function getTimeSlotsForDate(_dateKey: string): TimeSlot[] {
 
 export interface ReservationSelection {
   handStatus: HandStatusId[];
+  gelRemovalShop: GelRemovalShop | null;
   extensionRemovalCount: number;
   selectedArtId: number | null;
   additionalCounts: Record<number, number>;
@@ -99,6 +106,13 @@ export function calculateTotalPrice(selection: ReservationSelection): number {
 
   if (selection.handStatus.includes('EXTENSION_REMOVAL')) {
     total += selection.extensionRemovalCount * EXTENSION_REMOVAL_UNIT_PRICE;
+  }
+
+  if (
+    selection.handStatus.includes('GEL_REMOVAL') &&
+    selection.gelRemovalShop === 'OTHER_SHOP'
+  ) {
+    total += GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
   }
 
   const art = ART_OPTIONS.find((a) => a.id === selection.selectedArtId);
@@ -117,7 +131,18 @@ export function calculateTotalDuration(
   selection: ReservationSelection,
 ): number {
   const art = ART_OPTIONS.find((a) => a.id === selection.selectedArtId);
-  let total = BASE_DURATION_MINUTES + (art?.badgeMinutes ?? 0);
+  let total = art?.badgeMinutes ?? 0;
+
+  selection.handStatus.forEach((id) => {
+    const option = HAND_STATUS_OPTIONS.find((o) => o.id === id);
+    if (!option?.badgeMinutes) return;
+
+    if (id === 'EXTENSION_REMOVAL') {
+      total += selection.extensionRemovalCount * option.badgeMinutes;
+    } else {
+      total += option.badgeMinutes;
+    }
+  });
 
   ADDITIONAL_OPTIONS.forEach((option) => {
     const count = selection.additionalCounts[option.id] ?? 0;
