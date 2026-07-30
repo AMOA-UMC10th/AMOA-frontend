@@ -193,8 +193,8 @@ export default function RegionMapPicker({
           type="button"
           disabled={!canConfirm}
           onClick={onConfirm}
-          className={`mt-4 w-full rounded-2xl py-4 text-sm font-semibold ${
-            canConfirm ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
+          className={`mt-4 w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            canConfirm ? "bg-[#F70071]" : "bg-[#FFC0DC]"
           }`}
         >
           이 위치로 추가

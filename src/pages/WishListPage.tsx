@@ -1,12 +1,18 @@
 // [E102, E104] 찜 목록 화면 (아트 탭 / 샵 탭 분기 및 리스트 노출)
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeftIcon } from '../assets/icons';
+import { ChevronLeftIcon, HeartIcon } from '../assets/icons';
 import { FiChevronDown } from 'react-icons/fi';
 import WishArtCard from '../components/wish_list/WishArtCard';
 import WishShopCard from '../components/wish_list/WishShopCard';
-import { mockCardResponse, type NailCard } from '../data/mockupdata/nailData';
+import {
+  getLikedCards,
+  getLikedShops,
+  type LikeSortType,
+  type LikedCard,
+  type LikedShop,
+} from '../data/likeList';
 
 type WishTab = 'ART' | 'SHOP';
 type SortOption = 'RECOMMEND' | 'LATEST';
@@ -16,9 +22,23 @@ const SORT_LABEL: Record<SortOption, string> = {
   LATEST: '최신순',
 };
 
-// TODO: 샵 단위 찜 상태를 위한 실제 API 연동 전까지, 찜한 아트가 속한 샵을 찜한 샵으로 간주
-function getLikedShopNames(cards: NailCard[]): string[] {
-  return Array.from(new Set(cards.filter((c) => c.is_liked).map((c) => c.shop_name)));
+// 화면의 정렬 선택지를 서버 sortType으로 옮긴다.
+// (서버는 POPULAR / PRICE_ASC / PRICE_DESC도 받지만 이 화면에는 노출하지 않는다)
+const SORT_TYPE: Record<SortOption, LikeSortType> = {
+  RECOMMEND: 'RECOMMENDED',
+  LATEST: 'LATEST',
+};
+
+function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-24 text-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FFEEF6]">
+        <HeartIcon className="h-7 w-7 text-[#F70071]" filled />
+      </span>
+      <p className="mt-3 text-sm font-bold text-[#171B1C]">{title}</p>
+      <p className="text-xs text-[#ADB0B5]">{subtitle}</p>
+    </div>
+  );
 }
 
 export default function WishListPage() {
@@ -28,44 +48,78 @@ export default function WishListPage() {
   const [shopSort, setShopSort] = useState<SortOption>('LATEST');
   const [sortOpen, setSortOpen] = useState(false);
 
-  const [likedCards, setLikedCards] = useState<NailCard[]>(() =>
-    mockCardResponse.result.cards.filter((c) => c.is_liked),
-  );
-  const [likedShopNames, setLikedShopNames] = useState<string[]>(() =>
-    getLikedShopNames(mockCardResponse.result.cards),
-  );
+  const [cards, setCards] = useState<LikedCard[]>([]);
+  const [shops, setShops] = useState<LikedShop[]>([]);
+  const [totalCards, setTotalCards] = useState(0);
+  const [totalShops, setTotalShops] = useState(0);
 
-  const handleArtUnlike = (cardId: number) => {
-    setLikedCards((prev) => prev.filter((c) => c.card_id !== cardId));
-  };
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const handleShopUnlike = (shopName: string) => {
-    setLikedShopNames((prev) => prev.filter((name) => name !== shopName));
-  };
+  // 찜을 끄면 카드가 목록에서 바로 사라진다. 토스트를 카드 안(ArtLikeBtn)에서 띄우면
+  // 카드와 함께 사라져 버려서, 이 화면에서는 페이지가 직접 띄운다.
+  const [toast, setToast] = useState<string | null>(null);
+  const [toastFading, setToastFading] = useState(false);
 
-  const sortedCards = useMemo(() => {
-    if (artSort === 'RECOMMEND') return likedCards;
-    return [...likedCards].sort((a, b) => b.card_id - a.card_id);
-  }, [likedCards, artSort]);
+  useEffect(() => {
+    if (!toast) return;
+    const fade = setTimeout(() => setToastFading(true), 1300);
+    const hide = setTimeout(() => setToast(null), 1800);
+    return () => {
+      clearTimeout(fade);
+      clearTimeout(hide);
+    };
+  }, [toast]);
 
-  const shopGroups = useMemo(() => {
-    const allCards = mockCardResponse.result.cards;
-    const groups = likedShopNames.map((shopName) => {
-      const arts = allCards.filter((c) => c.shop_name === shopName);
-      return {
-        shopName,
-        region: arts[0]?.region_name ?? '',
-        arts,
-        latestCardId: Math.max(...arts.map((c) => c.card_id), 0),
-      };
-    });
-
-    if (shopSort === 'RECOMMEND') return groups;
-    return [...groups].sort((a, b) => b.latestCardId - a.latestCardId);
-  }, [likedShopNames, shopSort]);
+  function showRemovedToast() {
+    setToastFading(false);
+    setToast('찜 목록에서 삭제되었어요');
+  }
 
   const sort = tab === 'ART' ? artSort : shopSort;
   const setSort = tab === 'ART' ? setArtSort : setShopSort;
+
+  // 탭이나 정렬이 바뀔 때마다 해당 탭 목록만 다시 받아온다.
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      if (tab === 'ART') {
+        const result = await getLikedCards(SORT_TYPE[artSort]);
+        setCards(result.cards);
+        setTotalCards(result.totalCount);
+      } else {
+        const result = await getLikedShops(SORT_TYPE[shopSort]);
+        setShops(result.likedShops);
+        setTotalShops(result.totalElements);
+      }
+    } catch (err) {
+      console.error(err);
+      setLoadError('찜 목록을 불러오지 못했어요.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [tab, artSort, shopSort]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // 찜 해제 요청은 카드 안의 하트 버튼이 보낸다. 여기서는 목록과 개수만 맞춘다.
+  function handleArtUnlike(cardId: number) {
+    setCards((prev) => prev.filter((c) => c.cardId !== cardId));
+    setTotalCards((prev) => Math.max(0, prev - 1));
+    showRemovedToast();
+  }
+
+  function handleShopUnlike(shopId: number) {
+    setShops((prev) => prev.filter((s) => s.shopId !== shopId));
+    setTotalShops((prev) => Math.max(0, prev - 1));
+    showRemovedToast();
+  }
+
+  const isEmpty = tab === 'ART' ? cards.length === 0 : shops.length === 0;
 
   return (
     <main className="min-h-dvh bg-white pb-24">
@@ -86,7 +140,9 @@ export default function WishListPage() {
           type="button"
           onClick={() => setTab('ART')}
           className={`h-12 flex-1 border-b-2 text-[13px] font-semibold ${
-            tab === 'ART' ? 'border-[#F70071] text-black' : 'border-transparent text-[#ADB0B5]'
+            tab === 'ART'
+              ? 'border-[#F70071] text-black'
+              : 'border-transparent text-[#ADB0B5]'
           }`}
         >
           아트
@@ -95,7 +151,9 @@ export default function WishListPage() {
           type="button"
           onClick={() => setTab('SHOP')}
           className={`h-12 flex-1 border-b-2 text-[13px] font-semibold ${
-            tab === 'SHOP' ? 'border-[#F70071] text-black' : 'border-transparent text-[#ADB0B5]'
+            tab === 'SHOP'
+              ? 'border-[#F70071] text-black'
+              : 'border-transparent text-[#ADB0B5]'
           }`}
         >
           샵
@@ -103,8 +161,10 @@ export default function WishListPage() {
       </div>
 
       <section className="pt-5">
-        <div className="px-4 mb-5 flex items-center justify-between text-xs text-[#646F7C]">
-          <span>{tab === 'ART' ? `아트 ${sortedCards.length}개` : `샵 ${shopGroups.length}개`}</span>
+        <div className="mb-5 flex items-center justify-between px-4 text-xs text-[#646F7C]">
+          <span>
+            {tab === 'ART' ? `아트 ${totalCards}개` : `샵 ${totalShops}개`}
+          </span>
 
           <div className="relative">
             <button
@@ -116,8 +176,11 @@ export default function WishListPage() {
             </button>
             {sortOpen && (
               <>
-                <div className="px-4 fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
-                <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-[#eceef1] bg-white py-1 shadow-lg text-center">
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setSortOpen(false)}
+                />
+                <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-[#eceef1] bg-white py-1 text-center shadow-lg">
                   {(Object.keys(SORT_LABEL) as SortOption[]).map((option) => (
                     <button
                       key={option}
@@ -127,7 +190,9 @@ export default function WishListPage() {
                         setSortOpen(false);
                       }}
                       className={`block w-full py-2.5 text-xs ${
-                        option === sort ? 'font-bold text-[#F70071]' : 'text-gray-600'
+                        option === sort
+                          ? 'font-bold text-[#F70071]'
+                          : 'text-gray-600'
                       }`}
                     >
                       {SORT_LABEL[option]}
@@ -139,32 +204,64 @@ export default function WishListPage() {
           </div>
         </div>
 
-        {tab === 'ART' ? (
-          sortedCards.length > 0 ? (
-            <div className="grid grid-cols-2 gap-0.5 gap-y-5">
-              {sortedCards.map((card) => (
-                <WishArtCard key={card.card_id} card={card} onUnlike={handleArtUnlike} />
-              ))}
-            </div>
-          ) : (
-            <p className="py-20 text-center text-sm text-[#ADB0B5]">찜한 아트가 없어요</p>
-          )
-        ) : shopGroups.length > 0 ? (
+        {isLoading && (
+          <p className="py-20 text-center text-sm text-[#ADB0B5]">
+            불러오는 중...
+          </p>
+        )}
+
+        {!isLoading && loadError && (
+          <p className="py-20 text-center text-sm text-[#ADB0B5]">{loadError}</p>
+        )}
+
+        {!isLoading && !loadError && isEmpty && (
+          <EmptyState
+            title={
+              tab === 'ART' ? '아트 찜 내역이 없어요' : '샵 찜 내역이 없어요'
+            }
+            subtitle={
+              tab === 'ART'
+                ? '마음에 드는 아트를 지금 저장해보세요'
+                : '마음에 드는 샵을 지금 저장해보세요'
+            }
+          />
+        )}
+
+        {!isLoading && !loadError && !isEmpty && tab === 'ART' && (
+          <div className="grid grid-cols-2 gap-0.5 gap-y-5">
+            {cards.map((card) => (
+              <WishArtCard
+                key={card.cardId}
+                card={card}
+                onUnlike={handleArtUnlike}
+              />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && !loadError && !isEmpty && tab === 'SHOP' && (
           <div className="flex flex-col gap-6">
-            {shopGroups.map((group) => (
+            {shops.map((shop) => (
               <WishShopCard
-                key={group.shopName}
-                shopName={group.shopName}
-                region={group.region}
-                arts={group.arts}
+                key={shop.shopId}
+                shop={shop}
                 onUnlike={handleShopUnlike}
               />
             ))}
           </div>
-        ) : (
-          <p className="py-20 text-center text-sm text-[#ADB0B5]">찜한 샵이 없어요</p>
         )}
       </section>
+
+      {/* 하단 탭바에 가리지 않도록 그 위에 띄운다. */}
+      {toast && (
+        <div
+          className={`fixed bottom-24 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#171B1C] px-4 py-2 text-sm text-white shadow-lg transition-opacity duration-500 ease-out ${
+            toastFading ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          {toast}
+        </div>
+      )}
     </main>
   );
 }

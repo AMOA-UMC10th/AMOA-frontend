@@ -13,6 +13,8 @@ interface CommonArtCardProps {
   maxPrice: number;
   artType: string;
   isLiked?: boolean;
+  // 찜 목록처럼 해제 결과를 바깥에서 알아야 하는 화면에서 쓴다.
+  onLikeChange?: (liked: boolean) => void;
 }
 
 export default function ArtCard({
@@ -24,6 +26,7 @@ export default function ArtCard({
   maxPrice,
   artType,
   isLiked = false,
+  onLikeChange,
 }: CommonArtCardProps) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(isLiked);
@@ -57,10 +60,15 @@ export default function ArtCard({
             {artMonth}월 {getArtTypeLabel(artType)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
+            {/* cardId를 넘겨야 하트가 실제 찜 등록/취소 요청까지 보낸다. */}
             <ArtLikeBtn
               initialLiked={liked}
+              cardId={cardId}
               size={16}
-              onToggle={(nextLiked) => setLiked(nextLiked)}
+              onToggle={(nextLiked) => {
+                setLiked(nextLiked);
+                onLikeChange?.(nextLiked);
+              }}
             />
           </div>
         </div>
