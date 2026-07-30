@@ -80,9 +80,8 @@ export async function fetchCards(params: CardSearchParams): Promise<CardSearchRe
   if (params.cursor) query.append('cursor', params.cursor);
   if (params.size !== undefined) query.append('size', String(params.size));
 
-  const res = await fetch(`${BASE_URL}?${query.toString()}`, {
-    headers: authHeaders(),
-  });
+  // 🔑 토큰 없이 요청 보내기
+  const res = await fetch(`${BASE_URL}?${query.toString()}`);
 
   if (!res.ok) {
     throw new Error(`아트 목록 조회 실패: ${res.status}`);

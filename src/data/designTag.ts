@@ -14,17 +14,10 @@ interface ApiResponse<T> {
   result: T;
 }
 
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("accessToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 export async function fetchDesignTags(): Promise<DesignTag[]> {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/shops/designtag`, {
-      headers: authHeaders(),
-    });
-
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`);
+//인증필요없는걸로 교체 필요
     if (!res.ok) {
       console.error(`디자인 태그  실패: ${res.status}`);
       return [];
