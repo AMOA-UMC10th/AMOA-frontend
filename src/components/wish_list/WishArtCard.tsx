@@ -1,22 +1,28 @@
+// [E102] 찜한 아트 카드
+
 import ArtCard from '../common/ArtCard';
-import type { NailCard } from '../../data/mockupdata/nailData';
+import type { LikedCard } from '../../data/likeList';
 
 interface WishArtCardProps {
-  card: NailCard;
+  card: LikedCard;
+  // 하트를 끄면 목록에서 바로 빼기 위해 알려준다. (요청 자체는 ArtCard 안에서 보낸다)
   onUnlike: (cardId: number) => void;
 }
 
-export default function WishArtCard({ card }: WishArtCardProps) {
+export default function WishArtCard({ card, onUnlike }: WishArtCardProps) {
   return (
     <ArtCard
-      cardId={card.card_id}
-      instagramUrl={card.instagram_url}
-      shopName={card.shop_name}
-      regionName={card.region_name}
-      minPrice={card.min_price}
-      maxPrice={card.max_price}
-      artType={card.art_type}
-      isLiked={true}
+      cardId={card.cardId}
+      instagramUrl={card.instagramUrl}
+      shopName={card.shopName}
+      regionName={card.district}
+      minPrice={card.minPrice}
+      maxPrice={card.maxPrice}
+      artType={card.artType}
+      isLiked
+      onLikeChange={(liked) => {
+        if (!liked) onUnlike(card.cardId);
+      }}
     />
   );
 }

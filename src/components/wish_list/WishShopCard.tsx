@@ -1,80 +1,101 @@
-// [E104] 찜한 샵 카드 (프로필, 샵명, 위치, 대표 아트 2열 그리드)
+// [E104] 찜한 샵 블록
+// 설계서: 샵 이름 옆에 찜 하트, 그 아래 지역, 우측에 상세 이동 화살표.
+// 대표 아트는 2열 그리드가 아니라 가로 스크롤로 늘어놓는다.
 
 import { useNavigate } from 'react-router-dom';
 import ShopLikeBtn from '../common/ShopLikeBtn';
+import ArtLikeBtn from '../common/ArtLikeBtn';
 import InstagramSafeImage from '../common/InstagramSafeImage';
-import { ChevronRightSmallIcon } from '../../assets/icons';
-import type { NailCard } from '../../data/mockupdata/nailData';
+import { AddressPinIcon, ChevronRightSmallIcon } from '../../assets/icons';
+import type { LikedShop } from '../../data/likeList';
 
 interface WishShopCardProps {
-  shopName: string;
-  region: string;
-  arts: NailCard[];
-  onUnlike: (shopName: string) => void;
+  shop: LikedShop;
+  // 하트를 끄면 목록에서 바로 뺀다. (요청 자체는 ShopLikeBtn 안에서 보낸다)
+  onUnlike: (shopId: number) => void;
 }
 
-export default function WishShopCard({
-  shopName,
-  region,
-  arts,
-  onUnlike,
-}: WishShopCardProps) {
+export default function WishShopCard({ shop, onUnlike }: WishShopCardProps) {
   const navigate = useNavigate();
-  const representativeArts = arts.slice(0, 5);
 
-  const handleShopClick = () => navigate(`/shop/${shopName}`);
+  const handleShopClick = () => navigate(`/shop/${shop.shopId}`);
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <button
-          onClick={handleShopClick}
-          className="flex min-w-0 items-center gap-2"
-        >
-          <span className="h-[30px] w-[30px] shrink-0 rounded-full bg-[#E9EBEE]" />
-          <span className="truncate text-[13px] font-bold text-[#171B1C]">
-            {shopName}
+      <div className="flex items-start justify-between gap-2 px-4">
+        <div className="flex min-w-0 items-start gap-2">
+          <span className="h-[30px] w-[30px] shrink-0 overflow-hidden rounded-full bg-[#FFEEF6]">
+            {shop.profileImageUrl && (
+              <img
+                src={shop.profileImageUrl}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            )}
           </span>
-          <span className="shrink-0 text-xs text-[#ADB0B5]">{region}</span>
-        </button>
-        <div className="flex shrink-0 items-center gap-2">
-          <ShopLikeBtn
-            initialLiked
-            size={18}
-            onToggle={(liked) => {
-              if (!liked) onUnlike(shopName);
-            }}
-          />
-          <button onClick={handleShopClick} aria-label="네일샵 상세로 이동">
-            <ChevronRightSmallIcon className="h-4 w-4 text-[#ADB0B5]" />
-          </button>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleShopClick}
+                className="truncate text-[13px] font-bold text-[#171B1C]"
+              >
+                {shop.shopName}
+              </button>
+              <ShopLikeBtn
+                initialLiked
+                shopId={shop.shopId}
+                size={16}
+                onToggle={(liked) => {
+                  if (!liked) onUnlike(shop.shopId);
+                }}
+              />
+            </div>
+            <p className="mt-0.5 flex items-center gap-0.5 text-xs text-[#ADB0B5]">
+              <AddressPinIcon className="h-3.5 w-3.5 text-[#ADB0B5]" />
+              {shop.regionName}
+            </p>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={handleShopClick}
+          aria-label="네일샵 상세로 이동"
+          className="shrink-0 pt-1"
+        >
+          <ChevronRightSmallIcon className="h-4 w-4 text-[#ADB0B5]" />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-7">
-        {representativeArts.map((art) => {
-          const badgeLabel = `${
-            art.created_month ? `${parseInt(art.created_month.split('-')[1], 10)}월 ` : ''
-          }${art.art_type === 'EVENT' ? '이벤트' : '이달아'}`;
-
-          return (
+      {/* 대표 아트는 가로로 넘겨서 본다. 마지막 카드가 살짝 잘려 보이도록 오른쪽 여백을 준다. */}
+      <div className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {shop.cards.map((art) => (
+          <div key={art.cardId} className="w-[47%] shrink-0">
             <button
-              key={art.card_id}
-              onClick={() => navigate(`/art/${art.card_id}`)}
+              type="button"
+              onClick={() => navigate(`/art-detail/${art.cardId}`)}
               className="w-full text-left"
             >
-              <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 bg-[#E9EBEE] pointer-events-none">
-                <InstagramSafeImage url={art.instagram_url} />
+              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl border border-gray-100 bg-[#E9EBEE] pointer-events-none">
+                <InstagramSafeImage url={art.instagramUrl} />
               </div>
-              <span className="mt-1.5 inline-block rounded bg-[#FFEEF6] px-1.5 py-0.5 text-[10px] font-bold text-[#F70071]">
-                {badgeLabel}
-              </span>
-              <p className="mt-1 text-sm font-bold text-[#374553]">
-                {art.min_price?.toLocaleString()}~{art.max_price?.toLocaleString()}원
-              </p>
             </button>
-          );
-        })}
+
+            <div className="mt-1.5 flex items-center justify-between">
+              <span className="rounded bg-[#FFEEF6] px-1.5 py-0.5 text-[10px] font-bold text-[#F70071]">
+                {art.artType === 'EVENT' ? '이벤트' : '이달아'}
+              </span>
+              <ArtLikeBtn initialLiked={false} cardId={art.cardId} size={16} />
+            </div>
+
+            <p className="mt-1 truncate text-sm font-bold text-[#28323C]">
+              {shop.shopName}
+            </p>
+            <p className="mt-0.5 text-xs font-semibold text-[#646F7C]">
+              {art.minPrice?.toLocaleString()}~{art.maxPrice?.toLocaleString()}원
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

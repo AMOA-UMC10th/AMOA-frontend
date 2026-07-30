@@ -1,13 +1,20 @@
-import { ART_OPTIONS, ADDITIONAL_OPTIONS } from '../../data/mockupdata/reservationData';
+import type {
+  ArtOption,
+  AdditionalOption,
+} from '../../data/mockupdata/reservationData';
 
 interface OptionSelectorProps {
-  selectedArtId: string | null;
-  onSelectArt: (id: string) => void;
-  additionalCounts: Record<string, number>;
-  onChangeAdditionalCount: (id: string, count: number) => void;
+  artOptions: ArtOption[]; // 추가 — 실제 API로 받아온 아트 옵션
+  additionalOptions: AdditionalOption[]; // 추가 — 실제 API로 받아온 추가 옵션
+  selectedArtId: number | null; // string → number
+  onSelectArt: (id: number) => void; // string → number
+  additionalCounts: Record<number, number>; // Record<string, number> → Record<number, number>
+  onChangeAdditionalCount: (id: number, count: number) => void; // string → number
 }
 
 export default function OptionSelector({
+  artOptions,
+  additionalOptions,
   selectedArtId,
   onSelectArt,
   additionalCounts,
@@ -20,7 +27,7 @@ export default function OptionSelector({
       </h2>
 
       <div className="mt-4 flex flex-col gap-2">
-        {ART_OPTIONS.map((art) => {
+        {artOptions.map((art) => {
           const active = selectedArtId === art.id;
           return (
             <button
@@ -57,7 +64,7 @@ export default function OptionSelector({
       </h2>
 
       <div className="mt-4 flex flex-col gap-2">
-        {ADDITIONAL_OPTIONS.map((option) => {
+        {additionalOptions.map((option) => {
           const count = additionalCounts[option.id] ?? 0;
           const active = count > 0;
 
@@ -69,7 +76,6 @@ export default function OptionSelector({
             event: React.MouseEvent<HTMLButtonElement>,
           ) => {
             event.stopPropagation();
-
             onChangeAdditionalCount(option.id, Math.max(0, count - 1));
           };
 
@@ -77,7 +83,6 @@ export default function OptionSelector({
             event: React.MouseEvent<HTMLButtonElement>,
           ) => {
             event.stopPropagation();
-
             onChangeAdditionalCount(
               option.id,
               Math.min(option.maxCount, count + 1),
@@ -105,12 +110,10 @@ export default function OptionSelector({
                   <span className="text-sm font-bold text-[#171B1C]">
                     {option.label} (1ea)
                   </span>
-
                   <span className="rounded-full bg-[#F7F8FA] px-2 py-0.5 text-[10px] text-[#ADB0B5]">
                     {option.badgeMinutes}M
                   </span>
                 </span>
-
                 <span
                   className={`text-sm font-bold ${
                     active ? 'text-[#F70071]' : 'text-[#ADB0B5]'
@@ -135,11 +138,9 @@ export default function OptionSelector({
                   >
                     −
                   </button>
-
                   <span className="w-4 text-center text-sm font-bold text-[#171B1C]">
                     {count}
                   </span>
-
                   <button
                     type="button"
                     onClick={handleIncrease}

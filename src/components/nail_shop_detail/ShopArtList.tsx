@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import ArtCard from '../common/ArtCard';
-import type { NailCardItem } from '../../data/mockupdata/shopData';
+import type { ShopCardItem } from '../../data/shop';
 
 export type SortOption = 'RECOMMEND' | 'POPULAR' | 'LATEST' | 'PRICE_LOW' | 'PRICE_HIGH';
 
 interface ShopArtListProps {
-  cards: NailCardItem[];
+  cards: ShopCardItem[];
   totalCount: number;
   shopName?: string;
+  onFilterChange?: (artType: string) => void;
+  onSortChange?: (sort: SortOption) => void;
 }
 
-export default function ShopArtList({ cards, totalCount, shopName = '네코르 네일' }: ShopArtListProps) {
+export default function ShopArtList({
+  cards,
+  totalCount,
+  shopName = '',
+  onFilterChange,
+  onSortChange,
+}: ShopArtListProps) {
   const [activeFilter, setActiveFilter] = useState('전체');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState<SortOption>('LATEST');
@@ -25,7 +33,18 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
     { label: '가격 높은 순', value: 'PRICE_HIGH' },
   ];
 
-  const currentSortLabel = SORT_ITEMS.find(item => item.value === selectedSort)?.label || '최신순';
+  const handleFilterClick = (filter: string) => {
+    setActiveFilter(filter);
+    onFilterChange?.(filter);
+  };
+
+  const handleSortClick = (sort: SortOption) => {
+    setSelectedSort(sort);
+    setIsSortOpen(false);
+    onSortChange?.(sort);
+  };
+
+  const currentSortLabel = SORT_ITEMS.find((item) => item.value === selectedSort)?.label || '최신순';
 
   return (
     <div className="w-full bg-white pt-4 pb-20">
@@ -33,7 +52,7 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
         {filters.map((filter) => (
           <button
             key={filter}
-            onClick={() => setActiveFilter(filter)}
+            onClick={() => handleFilterClick(filter)}
             className={`px-4.5 py-2 rounded-full text-xs transition-colors border whitespace-nowrap ${
               activeFilter === filter
                 ? 'bg-[#FF007A] text-white border-[#FF007A]'
@@ -74,10 +93,7 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
                       <li key={item.value} className="w-full">
                         <button
                           type="button"
-                          onClick={() => {
-                            setSelectedSort(item.value);
-                            setIsSortOpen(false);
-                          }}
+                          onClick={() => handleSortClick(item.value)}
                           className={`w-full px-4 py-2.5 text-left text-xs transition-colors ${
                             isSelected
                               ? 'bg-[#FFF0F6] text-[#FF007A]'
@@ -99,15 +115,15 @@ export default function ShopArtList({ cards, totalCount, shopName = '네코르 �
       <div className="grid grid-cols-2 gap-x-0.5 gap-y-6">
         {cards.map((card) => (
           <ArtCard
-            key={card.card_id}
-            cardId={card.card_id}
-            instagramUrl={card.instagram_url}
+            key={card.cardId}
+            cardId={card.cardId}
+            instagramUrl={card.instagramUrl || ''}
             shopName={shopName}
-            regionName={card.region_name}
-            minPrice={card.min_price}
-            maxPrice={card.max_price}
-            artType={card.art_type}
-            isLiked={card.is_liked}
+            regionName={card.regionName}
+            minPrice={card.minPrice}
+            maxPrice={card.maxPrice}
+            artType={card.artType}
+            isLiked={card.isLiked}
           />
         ))}
       </div>

@@ -23,19 +23,19 @@ export const EXTENSION_REMOVAL_UNIT_PRICE = 5000;
 export const EXTENSION_REMOVAL_MAX_COUNT = 10;
 
 export interface ArtOption {
-  id: string;
+  id: number;
   label: string;
   badgeMinutes: number;
   price: number;
 }
 
 export const ART_OPTIONS: ArtOption[] = [
-  { id: 'art-1', label: '12월 이달의 아트', badgeMinutes: 20, price: 40000 },
-  { id: 'art-2', label: '12월 이달의 아트', badgeMinutes: 20, price: 50000 },
+  { id: 1, label: '12월 이달의 아트', badgeMinutes: 20, price: 40000 },
+  { id: 2, label: '12월 이달의 아트', badgeMinutes: 20, price: 50000 },
 ];
 
 export interface AdditionalOption {
-  id: string;
+  id: number;
   label: string;
   badgeMinutes: number;
   unitPrice: number;
@@ -43,20 +43,8 @@ export interface AdditionalOption {
 }
 
 export const ADDITIONAL_OPTIONS: AdditionalOption[] = [
-  {
-    id: 'extend',
-    label: '연장',
-    badgeMinutes: 20,
-    unitPrice: 5000,
-    maxCount: 10,
-  },
-  {
-    id: 'wrapping',
-    label: '랩핑',
-    badgeMinutes: 20,
-    unitPrice: 5000,
-    maxCount: 10,
-  },
+  { id: 1, label: '연장', badgeMinutes: 20, unitPrice: 5000, maxCount: 10 },
+  { id: 2, label: '랩핑', badgeMinutes: 20, unitPrice: 5000, maxCount: 10 },
 ];
 
 export const BASE_DURATION_MINUTES = 60; // 기본 시술 1시간
@@ -97,8 +85,8 @@ export function getTimeSlotsForDate(_dateKey: string): TimeSlot[] {
 export interface ReservationSelection {
   handStatus: HandStatusId[];
   extensionRemovalCount: number;
-  selectedArtId: string | null;
-  additionalCounts: Record<string, number>;
+  selectedArtId: number | null;
+  additionalCounts: Record<number, number>;
 }
 
 export function calculateTotalPrice(selection: ReservationSelection): number {

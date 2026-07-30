@@ -26,16 +26,16 @@ export default function HandStatusSelect({
   const isSelected = (id: HandStatusId) => selected.includes(id);
 
   return (
-    <div className="px-5 pt-8">
-      <h2 className="text-lg font-bold text-[#171B1C]">현재 손 상태</h2>
+    <div className="px-[15px] pt-8">
+      <h2 className="text-[17px] font-semibold text-[#000000]">현재 손 상태</h2>
 
-      <div className="mt-4 flex flex-col gap-2 pt-3">
+      <div className="mt-[20px] flex flex-col gap-[20px]">
         {HAND_STATUS_OPTIONS.map((option) => {
           const active = isSelected(option.id);
           return (
             <div
               key={option.id}
-              className={`rounded-xl border border-[2px] bg-white px-4 pt-3.5 transition ${
+              className={`rounded-[12px] border border-[1px] bg-white px-4 pt-3.5 transition ${
                 option.id === 'BARE' ? 'pb-9' : 'pb-8'
               } ${active ? 'border-[#F70071]' : 'border-[#D4D7DC]'}`}
             >
@@ -44,7 +44,7 @@ export default function HandStatusSelect({
                 onClick={() => onToggle(option.id)}
                 className="w-full flex items-center justify-between text-left cursor-pointer"
               >
-                <span className="pt-5 pl-1 text-md font-bold text-[#171B1C]">
+                <span className="pt-5 pl-1 text-[13px] font-semibold text-[#171B1C]">
                   {option.label}
                   {option.id === 'EXTENSION_REMOVAL' ? ' (1ea)' : ''}
                 </span>

@@ -36,13 +36,14 @@ export default function RegionResult({
     <ul className="divide-y divide-gray-100">
       {results.map((match) => (
         <li key={match.id}>
+          {/* 설계서는 "서울시 용산구 청파동"처럼 한 줄로 적고, 검색에 걸린 동 이름을 강조한다. */}
           <button
             type="button"
             onClick={() => onSelect(match)}
-            className="flex w-full items-center justify-between py-3.5 text-left"
+            className="flex w-full items-center py-3.5 text-left text-sm text-[#171B1C] active:bg-[#FFEFF6]"
           >
-            <span className="text-sm text-gray-900">{match.district}</span>
-            <span className="text-xs text-gray-400">{match.keyword}</span>
+            <span>{match.district}</span>
+            <span className="ml-1 font-semibold">{match.keyword}</span>
           </button>
         </li>
       ))}

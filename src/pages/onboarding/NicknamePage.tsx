@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NicknameInput from '../../components/onboarding/NicknameInput';
+
+interface LocationState {
+  designTagIds?: number[];
+  regionIds?: number[];
+}
 
 export default function NicknamePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as LocationState | null;
 
   const [nickname, setNickname] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -23,6 +30,7 @@ export default function NicknamePage() {
 
     navigate('/onboarding/phone', {
       state: {
+        ...state,
         nickname,
       },
     });
