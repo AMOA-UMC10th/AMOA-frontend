@@ -9,8 +9,7 @@ interface LocationState {
 
 export default function NicknamePage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const state = location.state as LocationState | null;
+  const location = useLocation(); // 🔑 이전 단계(designTagIds, regionIds) state 유지를 위해 추가
 
   const [nickname, setNickname] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -30,7 +29,7 @@ export default function NicknamePage() {
 
     navigate('/onboarding/phone', {
       state: {
-        ...state,
+        ...location.state, // 🔑 이전 단계들의 데이터를 보존
         nickname,
       },
     });

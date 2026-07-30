@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
 import { ChevronLeftIcon } from "../../assets/icons";
 import { getMoodImage } from "../../assets/moods";
+import { getDesignMoods, type DesignMood } from "../../data/designMood";
 
 interface DesignTag {
   designtagId: number;
@@ -19,7 +20,7 @@ interface ApiResponse<T> {
 
 // 무드 목록은 서버가 내려주는 designtagId를 그대로 온보딩 저장에 써야 해서 API로 받아온다.
 async function fetchDesignMoods(): Promise<DesignTag[]> {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("tempToken");
   const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`, {
     headers: token
       ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
@@ -39,11 +40,11 @@ export default function DesignPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [moods, setMoods] = useState<DesignTag[]>([]);
+  const [moods, setMoods] = useState<DesignMood[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
 
   useEffect(() => {
-    fetchDesignMoods()
+    getDesignMoods()
       .then(setMoods)
       .catch((err) => console.error(err));
   }, []);
@@ -93,7 +94,7 @@ export default function DesignPage() {
         </h2>
         <p className="mt-2 text-sm text-gray-400">여러 개 선택할 수 있어요</p>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5">
           {moods.map((mood) => (
             <MoodCard
               key={mood.designtagId}
@@ -118,8 +119,8 @@ export default function DesignPage() {
           type="button"
           disabled={!canProceed}
           onClick={() => goNext(selected)}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            canProceed ? "bg-[#F70071] text-white" : "bg-gray-100 text-gray-300"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
           }`}
         >
           다음

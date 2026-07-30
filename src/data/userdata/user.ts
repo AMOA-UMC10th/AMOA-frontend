@@ -11,9 +11,9 @@ interface ApiResponse<T> {
 
 export interface InterestedRegion {
   regionId: number;
-  firstDepth: string;
-  secondDepth: string;
-  thirdDepth: string;
+  region1DepthName: string;
+  region2DepthName: string;
+  region3DepthName: string;
 }
 
 export interface NotificationSetting {
@@ -35,8 +35,6 @@ export interface UserProfile {
   notificationSettings: NotificationSetting[];
 }
 
-// PATCH는 부분 수정이라 보낸 필드만 반영된다.
-// 단, 디자인태그와 관심지역은 서버가 필수로 요구하고 빈 배열을 보내면 전체 삭제된다.
 export interface UpdateProfileRequest {
   profileImageUrl?: string;
   nickname?: string;
@@ -51,13 +49,20 @@ export interface NicknameCheckResult {
   available: boolean;
 }
 
-// 서버는 하이픈 없는 형식(01012345678)만 받는다.
+export interface PhoneSendResult {
+  expiresInSeconds: number;
+}
+
+export interface PhoneVerifyResult {
+  verified: boolean;
+}
+
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, '');
 }
 
 function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
   if (!token) return {};
   return {
     Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
@@ -65,8 +70,6 @@ function authHeaders(): Record<string, string> {
 }
 
 async function parse<T>(res: Response, label: string): Promise<T> {
-  // 실패 응답에도 서버가 안내 문구를 담아준다(예: 429 "잠시 후 다시 시도해주세요.").
-  // 화면에 그대로 보여주기 위해 상태 코드보다 이 메시지를 우선한다.
   let data: ApiResponse<T> | null = null;
   try {
     data = (await res.json()) as ApiResponse<T>;
@@ -98,27 +101,20 @@ export async function updateMyProfile(
   return parse<UserProfile>(res, '내 정보 수정');
 }
 
-export interface PhoneSendResult {
-  expiresInSeconds: number;
-}
-
-export interface PhoneVerifyResult {
-  verified: boolean;
-}
-
-// 인증번호는 6자리, 3분간 유효. 같은 번호로는 30초 이내 재요청이 막힌다.
-export async function sendPhoneCode(
-  phoneNumber: string,
-): Promise<PhoneSendResult> {
+// 🔑 SMS 발송 API 수정 (Bearer 추가, cleanPhone 처리, parse 적용)
+export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
   const res = await fetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber) }),
+    headers: {
+      ...authHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ phoneNumber: onlyDigits(phone) }),
   });
   return parse<PhoneSendResult>(res, '인증번호 발송');
 }
 
-// 5회 이상 틀리면 인증번호가 폐기되어 재발송이 필요하다.
+// 🔑 SMS 인증번호 검증 API 수정
 export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,

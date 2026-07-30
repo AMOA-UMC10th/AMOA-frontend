@@ -108,7 +108,7 @@ export default function NicknameInput({
     setIsDuplicate(false);
 
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('tempToken');
 
       const response = await fetch(
         `${API_BASE_URL}/users/nickname/check?nickname=${encodeURIComponent(

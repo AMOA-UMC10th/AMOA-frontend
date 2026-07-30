@@ -50,3 +50,32 @@ export async function unlikeCard(cardId: number): Promise<void> {
     throw new LikeApiError(data.message ?? `아트카드 찜 취소 실패: ${res.status}`, res.status);
   }
 }
+
+// 샵 찜은 아트카드와 별개다. (POST/DELETE /shops/{shopId}/like)
+const SHOP_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/shops`;
+
+export async function likeShop(shopId: number): Promise<void> {
+  const res = await fetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+
+  const data: LikeApiResponse<unknown> = await res.json();
+
+  if (!res.ok || !data.isSuccess) {
+    throw new LikeApiError(data.message ?? `샵 찜 등록 실패: ${res.status}`, res.status);
+  }
+}
+
+export async function unlikeShop(shopId: number): Promise<void> {
+  const res = await fetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+
+  const data: LikeApiResponse<unknown> = await res.json();
+
+  if (!res.ok || !data.isSuccess) {
+    throw new LikeApiError(data.message ?? `샵 찜 취소 실패: ${res.status}`, res.status);
+  }
+}

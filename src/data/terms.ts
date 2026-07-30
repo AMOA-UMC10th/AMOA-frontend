@@ -25,7 +25,7 @@ interface TermApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
 function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("tempToken");
   return { Authorization: `Bearer ${token}` };
 }
 

@@ -26,7 +26,7 @@ export async function fetchDesignTags(): Promise<DesignTag[]> {
     });
 
     if (!res.ok) {
-      console.error(`디자인 태그 조회 실패: ${res.status}`);
+      console.error(`디자인 태그  실패: ${res.status}`);
       return [];
     }
 
