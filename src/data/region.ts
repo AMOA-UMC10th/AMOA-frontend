@@ -54,10 +54,53 @@ export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   return data.result.map(toRegionMatch);
 }
 
+// 설계서(A103)는 주소를 "시+구+동" 단위로 짧게 적는다. (예: 서울시 성동구 성수동)
+// API는 firstDepth를 "서울특별시"로 내려주므로 노출용으로만 줄인다.
+export function shortenSido(name: string): string {
+  return name
+    .replace(/(특별자치시|특별시|광역시)$/, "시")
+    .replace(/특별자치도$/, "도");
+}
+
+// 좌표를 법정동으로 바꿔주는 API. 지역 검색과 달리 결과가 한 건이다.
+// 온보딩(A103)과 마이페이지 재설정(F104)이 같이 쓴다.
+export async function getPresentRegion(
+  latitude: number,
+  longitude: number,
+): Promise<Region> {
+  const token = localStorage.getItem("accessToken");
+
+  const res = await fetch(
+    `${BASE_URL}/present?latitude=${latitude}&longitude=${longitude}`,
+    {
+      headers: token
+        ? {
+            Authorization: token.startsWith("Bearer ")
+              ? token
+              : `Bearer ${token}`,
+          }
+        : {},
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
+  }
+
+  const data: { isSuccess: boolean; message: string; result: Region } =
+    await res.json();
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data.result;
+}
+
 function toRegionMatch(region: Region): RegionMatch {
   return {
     id: String(region.regionId),
-    district: `${region.firstDepth} ${region.secondDepth}`.trim(),
+    district: `${shortenSido(region.firstDepth)} ${region.secondDepth}`.trim(),
     keyword: region.thirdDepth,
   };
 }

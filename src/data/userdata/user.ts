@@ -9,11 +9,13 @@ interface ApiResponse<T> {
   result: T;
 }
 
+// 주의: 이 엔드포인트만 지역 이름을 regionNDepthName으로 내려준다.
+// 지역 검색(GET /regions)은 같은 값을 firstDepth/secondDepth/thirdDepth로 준다.
 export interface InterestedRegion {
   regionId: number;
-  firstDepth: string;
-  secondDepth: string;
-  thirdDepth: string;
+  region1DepthName: string;
+  region2DepthName: string;
+  region3DepthName: string;
 }
 
 export interface NotificationSetting {

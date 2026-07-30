@@ -6,47 +6,15 @@ import RegionChips from "../../components/onboarding/RegionChips";
 import type { SelectedRegion } from "../../components/onboarding/RegionChips";
 import RegionMapPicker from "../../components/onboarding/RegionMapPicker";
 import { ChevronLeftIcon, CrosshairIcon } from "../../assets/icons";
-import { searchRegions, type RegionMatch } from "../../data/region";
+import {
+  searchRegions,
+  getPresentRegion,
+  shortenSido,
+  type Region,
+  type RegionMatch,
+} from "../../data/region";
 
 const MAX_REGIONS = 3;
-
-interface RegionInfo {
-  regionId: number;
-  firstDepth: string;
-  secondDepth: string;
-  thirdDepth: string;
-}
-
-interface ApiResponse<T> {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: T;
-}
-
-// 좌표를 법정동으로 바꿔주는 API. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
-async function fetchPresentRegion(
-  latitude: number,
-  longitude: number
-): Promise<RegionInfo> {
-  const token = localStorage.getItem("accessToken");
-  const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/regions/present?latitude=${latitude}&longitude=${longitude}`,
-    {
-      headers: token
-        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
-        : {},
-    }
-  );
-  if (!res.ok) {
-    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
-  }
-  const data: ApiResponse<RegionInfo> = await res.json();
-  if (!data.isSuccess) {
-    throw new Error(data.message);
-  }
-  return data.result;
-}
 
 // 브라우저 위치 권한은 콜백 기반이라 await로 쓰기 위해 감싼다.
 function getCurrentPosition(): Promise<GeolocationPosition> {
@@ -101,7 +69,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
   const [isSearching, setIsSearching] = useState(false);
   const [selected, setSelected] = useState<SelectedRegionWithId[]>([]);
   const [toast, setToast] = useState<string | null>(null);
-  const [currentRegion, setCurrentRegion] = useState<RegionInfo | null>(null);
+  const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
   const [mapCenter, setMapCenter] = useState<{
     latitude: number;
     longitude: number;
@@ -215,7 +183,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       const position = await getCurrentPosition();
       const { latitude, longitude } = position.coords;
       setMapCenter({ latitude, longitude });
-      const region = await fetchPresentRegion(latitude, longitude);
+      const region = await getPresentRegion(latitude, longitude);
       setCurrentRegion(region);
     } catch (err) {
       console.error(err);
@@ -235,7 +203,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     setLocationError(null);
 
     try {
-      const region = await fetchPresentRegion(latitude, longitude);
+      const region = await getPresentRegion(latitude, longitude);
       if (requestId !== centerRequestId.current) return;
       setCurrentRegion(region);
     } catch (err) {
@@ -265,8 +233,9 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
   }
 
   if (view === "map") {
+    // 하단 시트도 설계서 표기대로 "시+구+동"으로 줄여 보여준다.
     const address = currentRegion
-      ? `${currentRegion.firstDepth} ${currentRegion.secondDepth} ${currentRegion.thirdDepth}`.trim()
+      ? `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth} ${currentRegion.thirdDepth}`.trim()
       : "";
 
     return (
@@ -348,10 +317,8 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
           onClick={() => {
             onNext?.(selected);
           }}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold ${
-            canProceed
-              ? "bg-[#F70071] text-white"
-              : "bg-gray-100 text-gray-300"
+          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
+            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
           }`}
         >
           다음
