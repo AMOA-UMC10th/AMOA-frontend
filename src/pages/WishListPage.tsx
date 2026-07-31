@@ -1,5 +1,3 @@
-// [E102, E104] 찜 목록 화면 (아트 탭 / 샵 탭 분기 및 리스트 노출)
-
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon, HeartIcon } from '../assets/icons';
@@ -22,8 +20,6 @@ const SORT_LABEL: Record<SortOption, string> = {
   LATEST: '최신순',
 };
 
-// 화면의 정렬 선택지를 서버 sortType으로 옮긴다.
-// (서버는 POPULAR / PRICE_ASC / PRICE_DESC도 받지만 이 화면에는 노출하지 않는다)
 const SORT_TYPE: Record<SortOption, LikeSortType> = {
   RECOMMEND: 'RECOMMENDED',
   LATEST: 'LATEST',
@@ -43,6 +39,20 @@ function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
 
 export default function WishListPage() {
   const navigate = useNavigate();
+
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
+    Boolean(localStorage.getItem('accessToken'))
+  );
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem('accessToken')));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const [tab, setTab] = useState<WishTab>('ART');
   const [artSort, setArtSort] = useState<SortOption>('RECOMMEND');
   const [shopSort, setShopSort] = useState<SortOption>('LATEST');
@@ -56,8 +66,6 @@ export default function WishListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // 찜을 끄면 카드가 목록에서 바로 사라진다. 토스트를 카드 안(ArtLikeBtn)에서 띄우면
-  // 카드와 함께 사라져 버려서, 이 화면에서는 페이지가 직접 띄운다.
   const [toast, setToast] = useState<string | null>(null);
   const [toastFading, setToastFading] = useState(false);
 
@@ -79,8 +87,12 @@ export default function WishListPage() {
   const sort = tab === 'ART' ? artSort : shopSort;
   const setSort = tab === 'ART' ? setArtSort : setShopSort;
 
-  // 탭이나 정렬이 바뀔 때마다 해당 탭 목록만 다시 받아온다.
   const load = useCallback(async () => {
+    if (!isLoggedIn) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setLoadError(null);
 
@@ -100,13 +112,12 @@ export default function WishListPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [tab, artSort, shopSort]);
+  }, [tab, artSort, shopSort, isLoggedIn]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  // 찜 해제 요청은 카드 안의 하트 버튼이 보낸다. 여기서는 목록과 개수만 맞춘다.
   function handleArtUnlike(cardId: number) {
     setCards((prev) => prev.filter((c) => c.cardId !== cardId));
     setTotalCards((prev) => Math.max(0, prev - 1));
@@ -210,11 +221,18 @@ export default function WishListPage() {
           </p>
         )}
 
-        {!isLoading && loadError && (
+        {!isLoading && !isLoggedIn && (
+          <EmptyState
+            title="로그인을 해주세요"
+            subtitle="로그인 후 이용 가능한 서비스입니다."
+          />
+        )}
+
+        {!isLoading && isLoggedIn && loadError && (
           <p className="py-20 text-center text-sm text-[#ADB0B5]">{loadError}</p>
         )}
 
-        {!isLoading && !loadError && isEmpty && (
+        {!isLoading && isLoggedIn && !loadError && isEmpty && (
           <EmptyState
             title={
               tab === 'ART' ? '아트 찜 내역이 없어요' : '샵 찜 내역이 없어요'
@@ -227,7 +245,7 @@ export default function WishListPage() {
           />
         )}
 
-        {!isLoading && !loadError && !isEmpty && tab === 'ART' && (
+        {!isLoading && isLoggedIn && !loadError && !isEmpty && tab === 'ART' && (
           <div className="grid grid-cols-2 gap-0.5 gap-y-5">
             {cards.map((card) => (
               <WishArtCard
@@ -239,7 +257,7 @@ export default function WishListPage() {
           </div>
         )}
 
-        {!isLoading && !loadError && !isEmpty && tab === 'SHOP' && (
+        {!isLoading && isLoggedIn && !loadError && !isEmpty && tab === 'SHOP' && (
           <div className="flex flex-col gap-6">
             {shops.map((shop) => (
               <WishShopCard
@@ -252,7 +270,6 @@ export default function WishListPage() {
         )}
       </section>
 
-      {/* 하단 탭바에 가리지 않도록 그 위에 띄운다. */}
       {toast && (
         <div
           className={`fixed bottom-24 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#171B1C] px-4 py-2 text-sm text-white shadow-lg transition-opacity duration-500 ease-out ${
