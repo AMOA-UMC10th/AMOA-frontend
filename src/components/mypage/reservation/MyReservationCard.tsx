@@ -18,10 +18,12 @@ const STATUS_LABEL: Record<ReservationDisplayStatus, string> = {
 
 interface MyReservationCardProps {
   reservation: ReservationListItem;
+  isThisMonth?: boolean;
 }
 
 export default function MyReservationCard({
   reservation,
+  isThisMonth = false,
 }: MyReservationCardProps) {
   const navigate = useNavigate();
 
@@ -31,7 +33,6 @@ export default function MyReservationCard({
   });
 
   const isCancelled = status === 'CANCELLED';
-
   const isUpcoming = status === 'UPCOMING';
 
   const reservationDateLabel = formatReservationDateLabel(
@@ -44,62 +45,66 @@ export default function MyReservationCard({
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E9EBEE] bg-white">
-      {/* 카드 내용 */}
-      <div className="px-4 pb-4 pt-4">
-        <div className="mb-2 flex items-center gap-2">
-          <span
-            className={`text-sm font-bold ${
-              isCancelled ? 'text-[#ADB0B5]' : 'text-[#171B1C]'
-            }`}
-          >
-            {reservation.shopName}
-          </span>
+    <div
+      className={`rounded-[15px] pt-[12px] pb-[14px] pl-[17px] pr-[11px] py-[26px] ${
+        isThisMonth ? 'bg-[#FFF3F8]' : 'bg-[#F7F8F9]'
+      }`}
+    >
+      <div className="flex items-start justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-[10px]">
+            <span className={`text-[13px] font-semibold`}>
+              {reservation.shopName}
+            </span>
 
-          <span
-            className={`rounded-md px-2 py-1 text-[11px] ${
-              isUpcoming
-                ? 'bg-[#171B1C] text-white'
-                : 'border border-[#D9DCE1] bg-white text-[#ADB0B5]'
-            }`}
-          >
-            {STATUS_LABEL[status]}
-          </span>
+            <span
+              className={`rounded-[3px] px-[6px] py-[1px] text-[12px] ${
+                isUpcoming
+                  ? 'bg-[#171B1C] text-white'
+                  : 'bg-[#ADB0B5] text-white'
+              }`}
+            >
+              {STATUS_LABEL[status]}
+            </span>
+          </div>
+
+          <p className={`mt-[10px] text-[11px] text-[#ADB0B5]`}>
+            {reservation.artName}
+          </p>
+
+          <p className={`mt-[4px] text-[11px] text-[#ADB0B5]`}>
+            {reservationDateLabel}
+          </p>
+
+          <p className={`mt-[4px] text-[13px] font-semibold`}>
+            {reservation.totalPrice.toLocaleString()}원
+          </p>
         </div>
 
-        <p
-          className={`text-sm ${
-            isCancelled ? 'text-[#C5C8CC]' : 'text-[#8B929C]'
-          }`}
+        <button
+          type="button"
+          onClick={handleMoveToDetail}
+          className="flex shrink-0 h-[18px] cursor-pointer items-center text-[10px] font-medium text-[#646F7C]"
         >
-          {reservation.artName}
-        </p>
+          <span>상세보기</span>
 
-        <p
-          className={`mt-1 text-xs ${
-            isCancelled ? 'text-[#C5C8CC]' : 'text-[#ADB0B5]'
-          }`}
-        >
-          {reservationDateLabel}
-        </p>
-
-        <p
-          className={`mt-3 text-base font-bold ${
-            isCancelled ? 'text-[#C5C8CC] line-through' : 'text-[#171B1C]'
-          }`}
-        >
-          {reservation.totalPrice.toLocaleString()}원
-        </p>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6.75 5.06L11.25 9L6.75 12.94"
+              stroke="currentColor"
+              strokeWidth="1.13"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
-
-      {/* 상세 보기 버튼 */}
-      <button
-        type="button"
-        onClick={handleMoveToDetail}
-        className="h-[50px] w-full cursor-pointer border-t border-[#E9EBEE] bg-white text-sm font-bold text-[#171B1C]"
-      >
-        상세 보기
-      </button>
     </div>
   );
 }

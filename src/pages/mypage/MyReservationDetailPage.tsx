@@ -106,12 +106,6 @@ export default function MyReservationDetailPage() {
 
       setShowCancelModal(false);
       setJustCancelled(true);
-
-      window.setTimeout(() => {
-        navigate('/reservations', {
-          replace: true,
-        });
-      }, 1200);
     } catch (error) {
       console.error('예약 취소 실패:', error);
 
@@ -121,22 +115,46 @@ export default function MyReservationDetailPage() {
     }
   };
 
-  const handleOpenKakao = () => {
-    if (!reservation) return;
-
-    if (reservation.kakaoChannelUrl) {
-      window.open(reservation.kakaoChannelUrl, '_blank', 'noopener,noreferrer');
-
-      return;
-    }
-
-    setShowKakaoModal(true);
-  };
-
   if (isLoading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-white">
-        <p className="text-sm text-[#ADB0B5]">예약 정보를 불러오는 중이에요</p>
+      <div className="flex min-h-dvh flex-col bg-white">
+        <header className="relative flex h-[50px] shrink-0 items-center justify-center border-b border-[#E9EBEE] bg-white">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="absolute left-[9px] flex h-6 w-6 cursor-pointer items-center justify-center"
+            aria-label="뒤로가기"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 6.75L9 12L15 17.25"
+                stroke="#646F7C"
+                strokeWidth="1.13"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          <h1 className="text-[13px] font-semibold text-[#000000]">
+            예약 내역
+          </h1>
+        </header>
+
+        {/* 헤더를 제외한 영역의 정중앙 */}
+        <div className="flex h-[calc(100dvh-50px)] items-center justify-center">
+          <span
+            className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
+            role="status"
+            aria-label="예약 상세 정보 불러오는 중"
+          />
+        </div>
       </div>
     );
   }
@@ -165,32 +183,50 @@ export default function MyReservationDetailPage() {
 
   if (justCancelled) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center bg-white">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F70071]">
-          <svg
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M5 13L10 18L19 9"
-              stroke="white"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+      <div className="flex min-h-dvh flex-col bg-white">
+        <div className="flex flex-1 items-center justify-center px-[24px]">
+          <div className="flex flex-col items-center">
+            <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[#F70071]">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 13L10 18L19 9"
+                  stroke="white"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            <h1 className="mt-[9px] text-[23px] font-semibold leading-[35px] text-[#171B1C]">
+              취소완료
+            </h1>
+
+            <p className="mt-[9px] text-[15px] font-medium leading-[23px] text-[#818B98]">
+              취소가 완료되었어요
+            </p>
+          </div>
         </div>
 
-        <h1 className="mt-6 text-[20px] font-semibold text-[#171B1C]">
-          취소완료
-        </h1>
-
-        <p className="mt-2 text-[16px] font-medium text-[#ADB0B5]">
-          취소가 완료되었어요
-        </p>
+        <footer className="bg-white px-[15px] pb-[28px]">
+          <button
+            type="button"
+            onClick={() =>
+              navigate('/mypage/reservations', {
+                replace: true,
+              })
+            }
+            className="flex h-[52px] w-full items-center justify-center rounded-[10px] bg-[#F70071] text-[15px] font-semibold text-white"
+          >
+            예약내역으로
+          </button>
+        </footer>
       </div>
     );
   }
@@ -202,84 +238,83 @@ export default function MyReservationDetailPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-white">
-      {/* 헤더 */}
-      <header className="relative flex h-[64px] shrink-0 items-center border-b border-[#E9EBEE] px-5">
+      <header className="relative flex h-[50px] shrink-0 items-center justify-center border-b border-[#E9EBEE] bg-white">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex size-8 cursor-pointer items-center justify-center"
+          className="absolute left-[9px] flex h-6 w-6 cursor-pointer items-center justify-center"
           aria-label="뒤로가기"
         >
-          <ChevronLeftIcon className="size-5 text-[#171B1C]" />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 6.75L9 12L15 17.25"
+              stroke="#646F7C"
+              strokeWidth="1.13"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
 
-        <h1 className="ml-1 text-base font-bold text-[#171B1C]">예약 내역</h1>
+        <h1 className="text-[13px] font-semibold text-[#000000]">예약 내역</h1>
       </header>
 
       {/* 상세 내용 */}
-      <main className="flex-1 px-5 pb-8 pt-5">
-        <div>
-          <span
-            className={`inline-flex items-center rounded-md px-2.5 py-1 text-[11px] ${
-              status === 'UPCOMING'
-                ? 'bg-[#171B1C] text-white'
-                : 'border border-[#CCCCCC] bg-white text-[#A9A9A9]'
-            }`}
-          >
-            {STATUS_LABEL[status]}
-          </span>
+      <main className="flex-1 px-[15px] pt-[22px]">
+        <h2 className="text-[17px] font-semibold text-[#000000]">예약 정보</h2>
+
+        {/* ① 예약자 정보 */}
+        <div className="mt-[25px]">
+          <BookerInfoSection reservation={reservation} />
         </div>
 
-        <div className="mt-6">
+        {/* ② 예약 상세 정보 */}
+        <div className="mt-[25px]">
           <ReservationDetailCard reservation={reservation} />
         </div>
-
-        <BookerInfoSection reservation={reservation} />
       </main>
 
       {/* 하단 버튼 */}
-      <footer className="shrink-0 bg-white px-5 pb-7 pt-3">
-        {status === 'UPCOMING' && (
-          <div className="flex gap-3">
+      {status !== 'CANCELLED' && (
+        <footer className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white px-[24px] pb-[28px]">
+          {status === 'UPCOMING' && (
             <button
               type="button"
               onClick={() => setShowCancelModal(true)}
               disabled={isCancelling}
-              className="h-[60px] flex-1 cursor-pointer rounded-xl border-[1.5px] border-[#888888] bg-white text-base font-bold text-[#888888] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#F70071] bg-white text-[15px] font-medium text-[#F70071] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isCancelling ? '취소 중' : '예약 취소'}
+              {isCancelling ? (
+                <span
+                  className="h-5 w-5 animate-spin rounded-full border-2 border-[#F7B4D2] border-t-[#F70071]"
+                  role="status"
+                  aria-label="예약 취소 중"
+                />
+              ) : (
+                '예약 취소'
+              )}
             </button>
+          )}
 
+          {status === 'COMPLETED' && (
             <button
               type="button"
-              onClick={handleOpenKakao}
-              className="h-[60px] flex-1 cursor-pointer rounded-xl bg-black text-base font-bold text-white"
+              onClick={() =>
+                navigate(`/reviews/write/${reservation.reservationId}`)
+              }
+              className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#F70071] bg-white text-[15px] font-medium text-[#F70071]"
             >
-              카카오톡 문의
+              리뷰 쓰기
             </button>
-          </div>
-        )}
-
-        {status === 'COMPLETED' && (
-          <button
-            type="button"
-            onClick={() => navigate('/art-search')}
-            className="h-[60px] w-full cursor-pointer rounded-xl bg-black text-base font-bold text-white"
-          >
-            다른 시술 예약하러 가기
-          </button>
-        )}
-
-        {status === 'CANCELLED' && (
-          <button
-            type="button"
-            onClick={() => navigate('/art-search')}
-            className="h-[60px] w-full cursor-pointer rounded-xl bg-black text-base font-bold text-white"
-          >
-            다시 예약하기
-          </button>
-        )}
-      </footer>
+          )}
+        </footer>
+      )}
 
       <CancelConfirmModal
         isOpen={showCancelModal}
@@ -289,12 +324,6 @@ export default function MyReservationDetailPage() {
           }
         }}
         onConfirm={handleConfirmCancel}
-      />
-
-      <KakaoMoveModal
-        isOpen={showKakaoModal}
-        onClose={() => setShowKakaoModal(false)}
-        shopName={reservation.shopName}
       />
     </div>
   );

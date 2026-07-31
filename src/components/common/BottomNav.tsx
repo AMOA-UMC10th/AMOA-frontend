@@ -1,5 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { HomeIcon, NavSearchIcon, HeartIcon, UserIcon } from '../../assets/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  HomeIcon,
+  NavSearchIcon,
+  HeartIcon,
+  UserIcon,
+} from '../../assets/icons';
 
 interface NavItem {
   label: string;
@@ -16,7 +21,14 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function BottomNav() {
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // BottomNav를 숨길 페이지
+  const hideBottomNav = location.pathname.startsWith('/mypage/reservations');
+
+  if (hideBottomNav) {
+    return null;
+  }
   return (
     <nav className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 h-16 bg-white border-t border-[#E9EBEE] flex items-center px-6">
       {NAV_ITEMS.map((item) => (

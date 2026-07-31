@@ -17,37 +17,44 @@ export default function CancelConfirmModal({
     <Modal
       isOpen={isOpen}
       onClose={isLoading ? () => undefined : onClose}
-      contentClassName="w-[320px] rounded-2xl bg-white px-6 pt-8 pb-6"
+      contentClassName="w-[270px] rounded-[16px] bg-white px-[24px] pb-[24px] pt-[28px]"
     >
-      <div className="flex h-full w-full flex-col gap-[14px]">
-        <div className="flex flex-col items-center gap-3">
-          <h2 className="text-center text-base font-medium leading-6 text-[#171B1C]">
-            예약을 취소하시겠어요?
-          </h2>
-          <p className="text-center text-xs leading-5 text-[#ADB0B5]">
-            환불 정책에 따라 예약금이
-            <br />
-            반환되지 않을 수 있어요
-          </p>
-        </div>
+      <div className="flex w-full flex-col items-center">
+        <h2 className="text-center text-[15px] font-semibold leading-[23px] text-[#171B1C]">
+          예약을 취소하시겠어요?
+        </h2>
 
-        <div className="mt-1 flex gap-3">
+        <p className="mt-[11px] text-center text-[11px] font-medium leading-[17px] text-[#ADB0B5]">
+          환불 정책에 따라 예약금이
+          <br />
+          반환되지 않을 수 있어요
+        </p>
+
+        <div className="mt-[14px] flex h-[42px] w-full gap-[9px]">
           <button
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="h-12 flex-1 rounded-xl bg-[#F5F5F5] text-sm font-medium text-[#555555] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[42px] flex-1 cursor-pointer items-center justify-center rounded-[10px] bg-[#F2F2F2] text-[13px] font-semibold text-[#555555] disabled:cursor-not-allowed"
           >
-            돌아가기
+            닫기
           </button>
 
           <button
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="h-12 flex-1 rounded-xl bg-[#F70071] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[42px] flex-1 cursor-pointer items-center justify-center rounded-[10px] bg-[#F70071] text-[13px] font-semibold text-white disabled:cursor-not-allowed"
           >
-            {isLoading ? '취소 중...' : '취소하기'}
+            {isLoading ? (
+              <span
+                className="h-5 w-5 animate-spin rounded-full border-2 border-white/50 border-t-white"
+                role="status"
+                aria-label="예약 취소 중"
+              />
+            ) : (
+              '취소하기'
+            )}
           </button>
         </div>
       </div>
