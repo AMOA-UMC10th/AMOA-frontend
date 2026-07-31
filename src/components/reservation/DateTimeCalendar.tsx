@@ -6,7 +6,7 @@ import {
   ChevronRightSmallIcon,
 } from '../../assets/icons';
 import { getTodayKey } from '../../data/mockupdata/reservationData';
-import type { TimeSlot } from '../../data/mockupdata/reservationData';
+import type { TimeSlot } from '../../data/reservationAPI';
 
 interface DateTimeCalendarProps {
   selectedDate: string | null;

@@ -7,22 +7,13 @@ import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
 import {
-  HAND_STATUS_OPTIONS,
-  EXTENSION_REMOVAL_UNIT_PRICE,
-  BASE_DURATION_MINUTES,
-  RESERVATION_DEPOSIT,
+  MOCK_HAND_STATUS_OPTIONS,
+  MOCK_EXTENSION_REMOVAL_UNIT_PRICE,
+  MOCK_RESERVATION_DEPOSIT,
+  MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
   formatDuration,
   formatDateLabel,
   getTodayKey,
-  saveReservation,
-  GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
-  type ArtOption,
-  type AdditionalOption,
-  type TimeSlot,
-  type HandStatusId,
-  type GelRemovalShop,
-} from '../data/mockupdata/reservationData';
-import {
   getCardDetail,
   getShopOptions,
   splitShopOptions,
@@ -30,7 +21,13 @@ import {
   getAvailableTimes,
   confirmReservationSchedule,
   getMyProfile,
+  formatPhoneNumber,
   type CardDetail,
+  type ArtOption,
+  type AdditionalOption,
+  type TimeSlot,
+  type HandStatusId,
+  type GelRemovalShop,
 } from '../data/reservationAPI';
 
 type Step = 'hand-status' | 'art-option' | 'datetime' | 'confirm' | 'complete';
@@ -197,14 +194,14 @@ export default function ReservationPage() {
   const previewPrice = (() => {
     let total = 0;
     handStatus.forEach((id) => {
-      const option = HAND_STATUS_OPTIONS.find((o) => o.id === id);
+      const option = MOCK_HAND_STATUS_OPTIONS.find((o) => o.id === id);
       if (option) total += option.price;
     });
     if (handStatus.includes('EXTENSION_REMOVAL')) {
-      total += extensionRemovalCount * EXTENSION_REMOVAL_UNIT_PRICE;
+      total += extensionRemovalCount * MOCK_EXTENSION_REMOVAL_UNIT_PRICE;
     }
     if (handStatus.includes('GEL_REMOVAL') && gelRemovalShop === 'OTHER_SHOP') {
-      total += GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
+      total += MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
     }
     if (selectedArt) total += selectedArt.price;
     additionalOptions.forEach((option) => {
@@ -217,7 +214,7 @@ export default function ReservationPage() {
   const previewDuration = (() => {
     let total = selectedArt?.badgeMinutes ?? 0;
     handStatus.forEach((id) => {
-      const option = HAND_STATUS_OPTIONS.find((o) => o.id === id);
+      const option = MOCK_HAND_STATUS_OPTIONS.find((o) => o.id === id);
       if (!option?.badgeMinutes) return;
 
       if (id === 'EXTENSION_REMOVAL') {
@@ -315,22 +312,7 @@ export default function ReservationPage() {
 
       setCompleteResult(result);
 
-      // ⚠️ MyReservationListPage(F102)가 아직 localStorage 기준이라, 실제 API 붙기 전까지 임시로 같이 저장
-      saveReservation({
-        id: String(result.reservationId),
-        cardId: numericCardId,
-        shopName: result.shopName,
-        artLabel: result.artName,
-        date: result.reservationDate,
-        time: result.reservationStartTime,
-        totalPrice: result.totalPrice,
-        depositPrice: RESERVATION_DEPOSIT,
-        customerName,
-        customerPhone,
-        requestNote,
-        isCancelled: false,
-        createdAt: Date.now(),
-      });
+      // 예약 목록은 서버 API에서 다시 조회하므로 localStorage에 저장하지 않아요.
 
       setStep('complete');
     } catch (error) {
@@ -425,7 +407,7 @@ export default function ReservationPage() {
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">가격</span>
               <span className="font-medium text-[#171B1C]">
-                {RESERVATION_DEPOSIT.toLocaleString()} 원
+                {MOCK_RESERVATION_DEPOSIT.toLocaleString()} 원
               </span>
             </div>
           </div>
@@ -549,7 +531,7 @@ export default function ReservationPage() {
                 </label>
                 <input
                   type="tel"
-                  value={customerPhone}
+                  value={formatPhoneNumber(customerPhone)}
                   disabled
                   className="mt-[5px] w-full bg-[#F7F8FA] rounded-[8px] px-[12px] py-3.5 outline-none text-sm text-[#ADB0B5] placeholder:text-[#ADB0B5]"
                 />
@@ -584,7 +566,7 @@ export default function ReservationPage() {
                     예약금
                   </span>
                   <span className="text-[14px] font-bold text-[#F70071]">
-                    {RESERVATION_DEPOSIT.toLocaleString()}원
+                    {MOCK_RESERVATION_DEPOSIT.toLocaleString()}원
                   </span>
                 </div>
                 <p className="pt-2 text-[10px] text-[#AAAAAA]">
@@ -685,9 +667,17 @@ export default function ReservationPage() {
                 ? !isHandStatusComplete
                 : !isArtOptionComplete) || isCreatingDraft
             }
-            className="w-[87px] h-[40px] rounded-[10px] bg-[#F70071] px-[20px] py-[10px] text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA] disabled:text-[#ffffff]"
+            className="w-[87px] h-[40px] rounded-[10px] bg-[#F70071] flex items-center justify-center text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA]"
           >
-            {isCreatingDraft ? '확인' : '다음'}
+            {isCreatingDraft ? (
+              <span
+                className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+                role="status"
+                aria-label="로딩 중"
+              />
+            ) : (
+              '다음'
+            )}
           </button>
         </div>
       )}

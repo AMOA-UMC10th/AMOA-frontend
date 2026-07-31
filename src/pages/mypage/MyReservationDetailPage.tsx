@@ -1,8 +1,10 @@
-// [F103] 예약 상세 내역 및 취소/재예약 화면
-// 상태별 버튼 및 취소일 표시
+// [F103] 예약 상세 내역 및 취소 화면
+// 상태별 버튼 및 실제 예약 API 연동
 
 import { useEffect, useState } from 'react';
+
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { ChevronLeftIcon } from '../../assets/icons';
 
 import ReservationDetailCard from '../../components/mypage/reservation/ReservationDetailCard';
@@ -11,15 +13,14 @@ import CancelConfirmModal from '../../components/mypage/reservation/CancelConfir
 import KakaoMoveModal from '../../components/art_detail/KakaoMoveModal';
 
 import {
-  getReservationById,
-  cancelReservation,
-  getDisplayStatus,
-  formatCancelledDateLabel,
-  type SavedReservation,
-  type DisplayStatus,
-} from '../../data/mockupdata/reservationData';
+  cancelMyReservation,
+  getMyReservationDetail,
+  getReservationDisplayStatus,
+  type ReservationDetail,
+  type ReservationDisplayStatus,
+} from '../../data/reservationAPI';
 
-const STATUS_LABEL: Record<DisplayStatus, string> = {
+const STATUS_LABEL: Record<ReservationDisplayStatus, string> = {
   UPCOMING: '시술 예정',
   COMPLETED: '시술 완료',
   CANCELLED: '시술 취소',
@@ -29,45 +30,132 @@ export default function MyReservationDetailPage() {
   const navigate = useNavigate();
   const { reservationId } = useParams();
 
-  const [reservation, setReservation] = useState<
-    SavedReservation | null | undefined
-  >(undefined);
+  const [reservation, setReservation] = useState<ReservationDetail | null>(
+    null,
+  );
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
+
   const [showKakaoModal, setShowKakaoModal] = useState(false);
+
   const [justCancelled, setJustCancelled] = useState(false);
 
-  useEffect(() => {
-    const foundReservation = getReservationById(reservationId ?? '');
+  const [isCancelling, setIsCancelling] = useState(false);
 
-    setReservation(foundReservation ?? null);
+  useEffect(() => {
+    const numericReservationId = Number(reservationId);
+
+    if (!reservationId || Number.isNaN(numericReservationId)) {
+      setErrorMessage('올바르지 않은 예약 정보예요.');
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchReservationDetail = async () => {
+      try {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const result = await getMyReservationDetail(numericReservationId);
+
+        console.log('예약 상세 API 응답:', result);
+
+        if (!isMounted) return;
+
+        setReservation(result);
+      } catch (error) {
+        console.error('예약 상세 조회 실패:', error);
+
+        if (!isMounted) return;
+
+        setReservation(null);
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : '예약 정보를 불러오지 못했어요.',
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchReservationDetail();
+
+    return () => {
+      isMounted = false;
+    };
   }, [reservationId]);
 
-  const handleConfirmCancel = () => {
-    if (!reservation) return;
+  const handleConfirmCancel = async () => {
+    if (!reservation || isCancelling) {
+      return;
+    }
 
-    cancelReservation(reservation.id);
-    setShowCancelModal(false);
-    setJustCancelled(true);
+    try {
+      setIsCancelling(true);
 
-    window.setTimeout(() => {
-      navigate('/reservations');
-    }, 1200);
+      await cancelMyReservation(reservation.reservationId);
+
+      setShowCancelModal(false);
+      setJustCancelled(true);
+
+      window.setTimeout(() => {
+        navigate('/reservations', {
+          replace: true,
+        });
+      }, 1200);
+    } catch (error) {
+      console.error('예약 취소 실패:', error);
+
+      alert(error instanceof Error ? error.message : '예약 취소에 실패했어요.');
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
-  if (reservation === undefined) {
-    return null;
+  const handleOpenKakao = () => {
+    if (!reservation) return;
+
+    if (reservation.kakaoChannelUrl) {
+      window.open(reservation.kakaoChannelUrl, '_blank', 'noopener,noreferrer');
+
+      return;
+    }
+
+    setShowKakaoModal(true);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-white">
+        <p className="text-sm text-[#ADB0B5]">예약 정보를 불러오는 중이에요</p>
+      </div>
+    );
   }
 
-  if (reservation === null) {
+  if (errorMessage || !reservation) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center px-6">
-        <p className="text-sm text-[#ADB0B5]">예약 정보를 찾을 수 없어요</p>
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-white px-6">
+        <p className="text-center text-sm text-[#ADB0B5]">
+          {errorMessage || '예약 정보를 찾을 수 없어요.'}
+        </p>
 
         <button
           type="button"
-          onClick={() => navigate('/reservations')}
-          className="mt-4 cursor-pointer rounded-lg bg-[#171B1C] px-5 py-2.5 text-sm text-white"
+          onClick={() =>
+            navigate('/reservations', {
+              replace: true,
+            })
+          }
+          className="mt-4 cursor-pointer rounded-lg bg-[#171B1C] px-5 py-2.5 text-sm font-medium text-white"
         >
           예약 내역으로
         </button>
@@ -78,9 +166,14 @@ export default function MyReservationDetailPage() {
   if (justCancelled) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center bg-white">
-        {/* 체크 아이콘 */}
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F70071]">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M5 13L10 18L19 9"
               stroke="white"
@@ -91,12 +184,10 @@ export default function MyReservationDetailPage() {
           </svg>
         </div>
 
-        {/* 제목 */}
         <h1 className="mt-6 text-[20px] font-semibold text-[#171B1C]">
           취소완료
         </h1>
 
-        {/* 설명 */}
         <p className="mt-2 text-[16px] font-medium text-[#ADB0B5]">
           취소가 완료되었어요
         </p>
@@ -104,7 +195,10 @@ export default function MyReservationDetailPage() {
     );
   }
 
-  const status = getDisplayStatus(reservation);
+  const status = getReservationDisplayStatus({
+    reservationStatus: reservation.reservationStatus,
+    reservationDate: reservation.reservationDate,
+  });
 
   return (
     <div className="flex min-h-dvh flex-col bg-white">
@@ -134,12 +228,6 @@ export default function MyReservationDetailPage() {
           >
             {STATUS_LABEL[status]}
           </span>
-          {/* 
-          {status === 'CANCELLED' && reservation.cancelledAt && (
-            <p className="mt-2 text-xs text-[#ADB0B5]">
-              {formatCancelledDateLabel(reservation.cancelledAt)}에 취소됨
-            </p>
-          )}*/}
         </div>
 
         <div className="mt-6">
@@ -156,14 +244,15 @@ export default function MyReservationDetailPage() {
             <button
               type="button"
               onClick={() => setShowCancelModal(true)}
-              className="h-[60px] flex-1 cursor-pointer rounded-xl border border-[#888888] border-[1.5px] bg-white text-base font-bold text-[#888888]"
+              disabled={isCancelling}
+              className="h-[60px] flex-1 cursor-pointer rounded-xl border-[1.5px] border-[#888888] bg-white text-base font-bold text-[#888888] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              예약 취소
+              {isCancelling ? '취소 중' : '예약 취소'}
             </button>
 
             <button
               type="button"
-              onClick={() => setShowKakaoModal(true)}
+              onClick={handleOpenKakao}
               className="h-[60px] flex-1 cursor-pointer rounded-xl bg-black text-base font-bold text-white"
             >
               카카오톡 문의
@@ -184,7 +273,7 @@ export default function MyReservationDetailPage() {
         {status === 'CANCELLED' && (
           <button
             type="button"
-            onClick={() => navigate(`/art/${reservation.cardId}/reservation`)}
+            onClick={() => navigate('/art-search')}
             className="h-[60px] w-full cursor-pointer rounded-xl bg-black text-base font-bold text-white"
           >
             다시 예약하기
@@ -194,7 +283,11 @@ export default function MyReservationDetailPage() {
 
       <CancelConfirmModal
         isOpen={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
+        onClose={() => {
+          if (!isCancelling) {
+            setShowCancelModal(false);
+          }
+        }}
         onConfirm={handleConfirmCancel}
       />
 
