@@ -7,7 +7,7 @@ import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
 
 import { MOCK_TREND_SLIDES } from '../data/mockupdata/homeData';
-import { fetchHomeCards, type RecommendedCard } from '../data/card';
+import { fetchHomeCards, type RecommendedCard } from '../data/home';
 
 export default function HomePage() {
   const navigate = useNavigate();
