@@ -59,8 +59,13 @@ export default function ArtSearchPage() {
 
         const result = await fetchCards(params);
 
-        setDisplayCards((prev) => (nextCursor ? [...prev, ...result.cards] : result.cards));
-        setTotalCount(result.totalCount);
+        setDisplayCards((prev) => {
+          const updatedCards = nextCursor ? [...prev, ...result.cards] : result.cards;
+          // 필터링 적용 후 실제 화면에 보여지는 카드 개수 업데이트
+          setTotalCount(updatedCards.length);
+          return updatedCards;
+        });
+
         setCursor(result.nextCursor);
         setHasNext(result.hasNext);
       } catch (err) {
