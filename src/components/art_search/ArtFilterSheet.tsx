@@ -50,9 +50,12 @@ export default function ArtFilterSheet({
               ? undefined
               : tempFilters.artType,
           designTagIds: tempFilters.designs,
-          size: 1,
+          // 필터링된 전체 카드 수를 측정하기 위해 충분한 사이즈로 요청
+          size: 100,
         });
-        setTotalCount(result.totalCount);
+
+        // 6~12 제외 후 실제 필터링된 개수를 하단 버튼에 표시
+        setTotalCount(result.cards.length);
       } catch (error) {
         console.error(error);
         setTotalCount(0);

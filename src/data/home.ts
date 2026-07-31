@@ -1,3 +1,7 @@
+////////나중에 /home으로 요청하는걸로 수정 필요함!!!!!!!!!!!!/////////
+
+
+
 import type { RecommendedCard } from './card';
 export type { RecommendedCard };
 
@@ -7,7 +11,7 @@ export interface TrendSlide {
   id: string;
   title: string;
   imageUrl?: string;
-  trendBannerImg?: string; 
+  trendBannerImg?: string;
 }
 
 export interface HomeUser {
@@ -47,20 +51,32 @@ function authHeaders(): HeadersInit {
 }
 
 /**
- * 홈 화면 카드 섹션 조회 API (/cards/home)
+ * 카드 목록 조회 및 cardId 6~12 제외 API
  */
 export async function fetchHomeCards(): Promise<HomeCardsResult> {
-  const res = await fetch(`${BASE_URL}/home`, { headers: authHeaders() });
+  const res = await fetch(`${BASE_URL}`, { headers: authHeaders() });
 
   if (!res.ok) {
-    throw new Error(`홈 화면 카드 조회 실패: ${res.status}`);
+    throw new Error(`카드 목록 조회 실패: ${res.status}`);
   }
 
-  const data: CardApiResponse<HomeCardsResult> = await res.json();
+  const data = await res.json();
 
   if (!data.isSuccess) {
     throw new Error(data.message);
   }
 
-  return data.result;
+  const rawCards: RecommendedCard[] = Array.isArray(data.result)
+    ? data.result
+    : data.result?.cards || [];
+
+  const filteredCards = rawCards.filter(
+    (card) => card.cardId < 6 || card.cardId > 13
+  );
+
+  return {
+    nickname: data.result?.nickname || null,
+    monthlyArt: { cards: filteredCards },
+    yearEndPick: { cards: filteredCards },
+  };
 }
