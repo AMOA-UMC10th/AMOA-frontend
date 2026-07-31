@@ -91,7 +91,7 @@ export default function ArtDetailPage() {
         <span className="text-sm font-bold">아트 상세</span>
       </div>
 
-      <div className="px-1">
+      <div className="w-full aspect-[18/24.5] overflow-hidden">
         <InstagramEmbed postUrl={card.instagramUrl} />
       </div>
 
@@ -99,7 +99,7 @@ export default function ArtDetailPage() {
         onClick={handleShopClick}
         className="flex items-center gap-2 px-4 py-4 w-full"
       >
-        <span className="w-9 h-9 rounded-full bg-[#E9EBEE] shrink-0" />
+        <span className="w-9 h-9 rounded-full bg-[#FFC0DC] shrink-0" />
         <div className="text-left">
           <p className="text-sm font-bold text-[#171B1C]">{card.shopName}</p>
           <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5">
@@ -151,7 +151,7 @@ export default function ArtDetailPage() {
         </button>
         <button
           onClick={handleReservationClick}
-          className="w-[70%] bg-[#171B1C] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
+          className="w-[70%] bg-[#F70071] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
         >
           예약하기
         </button>

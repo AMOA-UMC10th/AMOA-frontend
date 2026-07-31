@@ -1,6 +1,4 @@
 // 인스타그램 공식 임베드 렌더링 (index.html에 embed.js 전역 로드됨)
-// thumbnail variant만 pointer-events-none 적용 (클릭이 부모 카드 버튼으로 전달되게 함)
-// full variant는 클릭 가능하게 유지 (인스타그램 자체 클릭 시 원본 게시물로 이동)
 
 import { useEffect } from 'react';
 
@@ -20,14 +18,13 @@ interface InstagramEmbedProps {
   cropHeight?: number;
 }
 
-const DEFAULT_FULL_CROP_HEIGHT = 480;
 const THUMBNAIL_SCALE = 0.55;
 const THUMBNAIL_VISIBLE_HEIGHT = 200;
 
 export default function InstagramEmbed({
   postUrl,
   variant = 'full',
-  cropHeight = DEFAULT_FULL_CROP_HEIGHT,
+  cropHeight,
 }: InstagramEmbedProps) {
   useEffect(() => {
     window.instgrm?.Embeds.process();
@@ -35,7 +32,7 @@ export default function InstagramEmbed({
 
   if (!postUrl) {
     return (
-      <div className="w-full aspect-square flex items-center justify-center bg-[#E9EBEE] text-xs text-[#ADB0B5] rounded-xl">
+      <div className="w-full h-full flex items-center justify-center bg-[#E9EBEE] text-xs text-[#ADB0B5]">
         인스타그램 게시물 준비중
       </div>
     );
@@ -44,7 +41,7 @@ export default function InstagramEmbed({
   if (variant === 'thumbnail') {
     return (
       <div
-        className="w-full overflow-hidden rounded-xl bg-[#E9EBEE] pointer-events-none"
+        className="w-full overflow-hidden bg-[#E9EBEE] pointer-events-none"
         style={{ height: THUMBNAIL_VISIBLE_HEIGHT }}
       >
         <div
@@ -67,14 +64,20 @@ export default function InstagramEmbed({
 
   return (
     <div
-      className="w-full overflow-hidden rounded-xl bg-[#E9EBEE]"
-      style={{ height: cropHeight }}
+      className="w-full h-full bg-[#E9EBEE] flex justify-center items-start overflow-hidden"
+      style={cropHeight ? { height: cropHeight } : undefined}
     >
       <blockquote
         className="instagram-media"
         data-instgrm-permalink={postUrl}
         data-instgrm-version="14"
-        style={{ margin: 0, width: '100%' }}
+        style={{
+          margin: 0,
+          padding: 0,
+          width: '100%',
+          minWidth: '100%',
+          border: 'none',
+        }}
       />
     </div>
   );
