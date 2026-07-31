@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
-import ProfileForm from '../../components/mypage/ProfileForm';
+import ProfileForm from '../../components/mypage/ProfileEdit';
 import { getMyProfile, updateMyProfile, type UserProfile } from '../../data/userdata/user';
 
 
