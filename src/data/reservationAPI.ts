@@ -1,7 +1,5 @@
 // 실제 백엔드 API 연동 함수 모음 (예약 관련)
 
-import type { ArtOption, AdditionalOption } from './mockupdata/reservationData';
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function authHeaders() {
@@ -36,6 +34,63 @@ async function parseApiResponse<T>(
   }
 
   return data.result;
+}
+
+// ─────────────────────────────────────────
+// 예약 페이지 목업 전용 데이터
+// ─────────────────────────────────────────
+// ⚠️ 아래 값은 백엔드 API 응답이 아니라 목업 화면 구현을 위한 임시 데이터입니다.
+// TODO: 백엔드에서 손 상태별 가격·소요시간·예약금 정보를 제공하면 API 응답으로 교체해주세요.
+
+export type HandStatusId = 'BARE' | 'GEL_REMOVAL' | 'EXTENSION_REMOVAL';
+export type GelRemovalShop = 'OWN_SHOP' | 'OTHER_SHOP';
+
+export interface HandStatusOption {
+  id: HandStatusId;
+  label: string;
+  price: number;
+  badgeMinutes?: number;
+}
+
+export const MOCK_HAND_STATUS_OPTIONS: HandStatusOption[] = [
+  { id: 'BARE', label: '맨손이에요', price: 0 },
+  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0, badgeMinutes: 10 },
+  {
+    id: 'EXTENSION_REMOVAL',
+    label: '연장 제거할게요',
+    price: 0,
+    badgeMinutes: 2,
+  },
+];
+
+export const MOCK_EXTENSION_REMOVAL_UNIT_PRICE = 1000;
+export const MOCK_EXTENSION_REMOVAL_MAX_COUNT = 10;
+export const MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE = 5000;
+export const MOCK_BASE_DURATION_MINUTES = 60;
+export const MOCK_RESERVATION_DEPOSIT = 20000;
+
+export function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours === 0) return `${remainingMinutes}m`;
+  if (remainingMinutes === 0) return `${hours}h`;
+
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+export function getTodayKey(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+export function formatDateLabel(dateKey: string): string {
+  const [, month, day] = dateKey.split('-').map(Number);
+  return `${month}월 ${day}일`;
 }
 
 // ─────────────────────────────────────────
@@ -83,6 +138,24 @@ export interface ShopOption {
   optionPrice: number;
   durationMinutes: number;
   maxQuantity: number;
+}
+
+// splitShopOptions가 만들어내는 실제 옵션 형태
+// (OptionSelector, ReservationPage의 가격/시간 계산이 이 필드명을 기준으로 짜여있음)
+
+export interface ArtOption {
+  id: number;
+  label: string;
+  badgeMinutes: number;
+  price: number;
+}
+
+export interface AdditionalOption {
+  id: number;
+  label: string;
+  badgeMinutes: number;
+  unitPrice: number;
+  maxCount: number;
 }
 
 export async function getShopOptions(shopId: number): Promise<ShopOption[]> {
@@ -282,6 +355,12 @@ export interface AvailableTimeSlot {
   isAvailable: number;
 }
 
+// ReservationPage가 AvailableTimeSlot[]를 이 형태로 변환해서 DateTimeCalendar에 내려줌
+export interface TimeSlot {
+  time: string;
+  available: boolean;
+}
+
 export interface AvailableTimesResult {
   reservationId: number;
   reservationDate: string;
@@ -464,3 +543,17 @@ export async function cancelMyReservation(
 export { fetchMyProfile as getMyProfile } from './profile';
 
 export type { MyProfile } from './profile';
+
+export function formatPhoneNumber(phoneNumber: string): string {
+  const numbers = phoneNumber.replace(/\D/g, '');
+
+  if (numbers.length === 11) {
+    return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+
+  if (numbers.length === 10) {
+    return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+
+  return phoneNumber;
+}

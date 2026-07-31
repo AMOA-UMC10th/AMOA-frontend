@@ -1,7 +1,4 @@
-import type {
-  ArtOption,
-  AdditionalOption,
-} from '../../data/mockupdata/reservationData';
+import type { ArtOption, AdditionalOption } from '../../data/reservationAPI';
 
 interface OptionSelectorProps {
   artOptions: ArtOption[]; // 추가 — 실제 API로 받아온 아트 옵션
