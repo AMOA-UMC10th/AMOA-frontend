@@ -14,17 +14,9 @@ interface ApiResponse<T> {
   result: T;
 }
 
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("accessToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 export async function fetchDesignTags(): Promise<DesignTag[]> {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/shops/designtag`, {
-      headers: authHeaders(),
-    });
-
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/shops/design-tags`);
     if (!res.ok) {
       console.error(`디자인 태그  실패: ${res.status}`);
       return [];

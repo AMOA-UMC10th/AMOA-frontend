@@ -58,6 +58,14 @@ export interface CardSearchResult {
   hasNext: boolean;
 }
 
+// ===== 홈 화면 카드 API =====
+
+export interface HomeCardsResult {
+  nickname: string | null;
+  monthlyArt: { cards: RecommendedCard[] };
+  yearEndPick: { cards: RecommendedCard[] };
+}
+
 // ===== API 호출 =====
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
@@ -65,6 +73,22 @@ const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("accessToken");
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function fetchHomeCards(): Promise<HomeCardsResult> {
+  const res = await fetch(`${BASE_URL}/home`, { headers: authHeaders() });
+
+  if (!res.ok) {
+    throw new Error(`홈 화면 카드 조회 실패: ${res.status}`);
+  }
+
+  const data: CardApiResponse<HomeCardsResult> = await res.json();
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data.result;
 }
 
 export async function fetchCards(params: CardSearchParams): Promise<CardSearchResult> {
@@ -80,9 +104,8 @@ export async function fetchCards(params: CardSearchParams): Promise<CardSearchRe
   if (params.cursor) query.append('cursor', params.cursor);
   if (params.size !== undefined) query.append('size', String(params.size));
 
-  const res = await fetch(`${BASE_URL}?${query.toString()}`, {
-    headers: authHeaders(),
-  });
+  // 🔑 토큰 없이 요청 보내기
+  const res = await fetch(`${BASE_URL}?${query.toString()}`);
 
   if (!res.ok) {
     throw new Error(`아트 목록 조회 실패: ${res.status}`);

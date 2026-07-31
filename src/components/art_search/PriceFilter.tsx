@@ -77,8 +77,8 @@ export default function PriceFilter({
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #ffffff !important;
-          border: 2px solid #FF007A !important;
+          background: #FF007A !important;
+          border: none !important;
           box-shadow: 0 1px 4px rgba(0,0,0,0.2);
           cursor: pointer;
           pointer-events: auto;
@@ -88,8 +88,8 @@ export default function PriceFilter({
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #ffffff !important;
-          border: 2px solid #FF007A !important;
+          background: #FF007A !important;
+          border: none !important;
           box-shadow: 0 1px 4px rgba(0,0,0,0.2);
           cursor: pointer;
           pointer-events: auto;

@@ -1,18 +1,18 @@
 // G101 맞춤 추천 안내 배너
 
 interface RecommendBannerProps {
-  nickname: string;
-  matchLabel: string; // 예: "화려한 무드 · 용산구 청파동"
+  nickname: string | null;
   onMoreClick: () => void;
 }
 
 export default function RecommendBanner({
   nickname,
-  matchLabel,
   onMoreClick,
 }: RecommendBannerProps) {
-  const title = `${nickname}님을 위한 추천 이달아`;
-  const highlightWord = '추천 이달아';
+  const highlightWord = nickname ? '추천 이달아' : '인기 있는 이달아';
+  const title = nickname
+    ? `${nickname}님을 위한 ${highlightWord}`
+    : `지금 가장 ${highlightWord}`;
   const parts = title.split(highlightWord);
 
   return (
@@ -23,9 +23,6 @@ export default function RecommendBanner({
           <span className="text-[#FF1B82]">{highlightWord}</span>
           {parts[1]}
         </h2>
-        {matchLabel && (
-          <p className="text-xs text-[#ADB0B5] mt-1">{matchLabel}</p>
-        )}
       </div>
       <button
         onClick={onMoreClick}
