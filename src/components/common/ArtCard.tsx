@@ -50,7 +50,7 @@ export default function ArtCard({
 
   return (
     <div className="w-full group">
-      <div className="relative w-full aspect-[4/5] overflow-hidden">
+      <div className="relative w-full aspect-[18/25] overflow-hidden">
         <InstagramSafeImage url={instagramUrl} />
       </div>
 

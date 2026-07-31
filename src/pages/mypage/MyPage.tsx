@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyProfile, type UserProfile } from '../../data/userdata/user';
+import defaultProfileImage from '../../assets/defaultProfile.png';
 
 interface MenuItem {
   label: string;
@@ -61,7 +62,7 @@ function MyPage() {
   const profileImageUrl =
     isLoggedIn && userProfile?.profileImageUrl
       ? userProfile.profileImageUrl
-      : 'https://via.placeholder.com/50';
+      : defaultProfileImage;
 
   const nickname = isLoggedIn
     ? userProfile?.nickname || '회원'

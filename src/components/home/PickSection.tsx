@@ -16,6 +16,7 @@ export default function PickSection({
 }: PickSectionProps) {
   const parts = title.split(highlightWord);
 
+console.log('원본 items:', items);
   return (
     <div className="pt-6">
       <div className="flex items-center justify-between px-4 mb-3">

@@ -42,7 +42,7 @@ export default function InstagramSafeImage({ url }: { url: string }) {
         className="absolute origin-top-left"
         style={{
           width: '328px',
-          height: '437px',
+          height: '470px',
           transform: `scale(${scale})`,
           top: '-1px',
           left: '-1px',
