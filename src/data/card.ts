@@ -89,16 +89,10 @@ export async function fetchCards(params: CardSearchParams): Promise<CardSearchRe
   if (!data.isSuccess) {
     throw new Error(data.message);
   }
-
-  // cardId가 6 이상 12 이하인 카드 제외 (필터링)
-  const filteredCards = (data.result.cards || []).filter(
-    (card) => card.cardId < 6 || card.cardId > 13
-  );
-
-  return {
-    ...data.result,
-    cards: filteredCards,
-  };
+    return {
+        ...data.result,
+        cards: data.result.cards || [],
+      };
 }
 
 export async function fetchCardDetail(cardId: number): Promise<CardDetail> {
