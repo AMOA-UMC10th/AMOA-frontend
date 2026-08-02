@@ -158,14 +158,14 @@ const handleNewUser = (result: NewUserResult): void => {
             if (!result) {
               throw new Error('로그인 결과가 없습니다.');
             }
-          const isCompleted = 
-          (result as any).onboarding_completed ?? 
-          (result as any).onboardingCompleted;
-              if (isCompleted) {
-              if (!('accessToken' in result)) {
-                throw new Error('서비스 로그인 토큰이 없습니다.');
-              }
+            const isExistingUser = Boolean(
+              (result as any).accessToken || 
+              (result as any).email || 
+              (result as any).onboarding_completed || 
+              (result as any).onboardingCompleted
+            );
 
+            if (isExistingUser) {
               handleExistingUser(result as ExistingUserResult);
               return;
             }
