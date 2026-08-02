@@ -310,7 +310,7 @@ export default function ProfileForm({
             </div>
           ) : (
             <div className="flex items-end gap-2.5">
-              <p className="flex-1 pt-1.5 text-[15px] -translate-y-[4px] text-[#1E2427]">{nicknameValue}</p>
+              <p className="flex-1 pt-1.5 text-[15px] -translate-y-[3px] text-[#1E2427]">{nicknameValue}</p>
               <ChangeButton label="변경하기" onClick={startNicknameEdit} />
             </div>
           )}
