@@ -82,6 +82,9 @@ export default function ArtDetailPage() {
     return <div className="w-full pb-24" />;
   }
 
+console.log("Card 컴포넌트에 넘기기 직전의 데이터:", relatedCards);
+
+
   return (
     <div className="w-full pb-24">
       <div className="relative flex items-center justify-center px-4 py-3">

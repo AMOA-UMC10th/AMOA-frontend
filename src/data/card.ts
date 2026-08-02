@@ -126,10 +126,5 @@ export async function fetchRecommendedCards(cardId: number): Promise<Recommended
     throw new Error(data.message);
   }
 
-  // 연관 추천 카드 목록에서도 필요하다면 동일하게 필터링 적용 가능
-  const filteredCards = (data.result.cards || []).filter(
-    (card) => card.cardId < 6 || card.cardId > 13
-  );
-
-  return filteredCards;
+  return data.result.cards || [];;
 }
