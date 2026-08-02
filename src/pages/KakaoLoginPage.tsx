@@ -143,62 +143,50 @@ const handleNewUser = (result: NewUserResult): void => {
     setIsLoading(true);
 
     window.Kakao.Auth.login({
-      /*
-       * 모바일에 카카오톡이 설치되어 있으면
-       * 카카오톡 간편 로그인을 우선 시도한다.
-       */
       throughTalk: true,
+        success: async (authResponse) => {
+          try {
+            const kakaoAccessToken = authResponse.access_token;
 
-      success: async (authResponse) => {
-        try {
-          const kakaoAccessToken = authResponse.access_token;
+            if (!kakaoAccessToken) {
+              throw new Error('카카오 Access Token을 받지 못했습니다.');
+            }
 
-          if (!kakaoAccessToken) {
-            throw new Error('카카오 Access Token을 받지 못했습니다.');
-          }
+            const data = await postKakaoLogin(kakaoAccessToken);
+            const result = data.result;
 
-          const data = await postKakaoLogin(kakaoAccessToken);
+            if (!result) {
+              throw new Error('로그인 결과가 없습니다.');
+            }
+          const isCompleted = 
+          (result as any).onboarding_completed ?? 
+          (result as any).onboardingCompleted;
+              if (isCompleted) {
+              if (!('accessToken' in result)) {
+                throw new Error('서비스 로그인 토큰이 없습니다.');
+              }
 
-          const result = data.result;
-
-          if (!result) {
-            throw new Error('로그인 결과가 없습니다.');
-          }
-
-          /*
-           * 신규 회원 또는 온보딩 미완료 회원
-           */
-          if (result.isNewUser || !result.onboarding_completed) {
+              handleExistingUser(result as ExistingUserResult);
+              return;
+            }
             if (!('tempToken' in result)) {
               throw new Error('온보딩용 임시 토큰이 없습니다.');
             }
 
             handleNewUser(result as NewUserResult);
 
-            return;
+          } catch (error) {
+            const message =
+              error instanceof Error
+                ? error.message
+                : '카카오 로그인 중 오류가 발생했습니다.';
+
+            console.error('카카오 로그인 API 호출 실패:', error);
+
+            setErrorMessage(message);
+            setIsLoading(false);
           }
-
-          /*
-           * 기존 회원
-           */
-          if (!('accessToken' in result) || !('refreshToken' in result)) {
-            throw new Error('서비스 로그인 토큰이 없습니다.');
-          }
-
-          handleExistingUser(result as ExistingUserResult);
-        } catch (error) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : '카카오 로그인 중 오류가 발생했습니다.';
-
-          console.error('카카오 로그인 API 호출 실패:', error);
-
-          setErrorMessage(message);
-          setIsLoading(false);
-        }
-      },
-
+        },
       fail: (error) => {
         console.error('카카오 로그인 실패:', error);
 
@@ -211,10 +199,6 @@ const handleNewUser = (result: NewUserResult): void => {
       },
 
       always: () => {
-        /*
-         * 성공하면 페이지가 이동하므로 큰 영향은 없고,
-         * 실패하거나 페이지 이동이 없을 때 버튼을 다시 활성화한다.
-         */
         window.setTimeout(() => {
           setIsLoading(false);
         }, 300);
