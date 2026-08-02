@@ -4,7 +4,7 @@ export interface NewUserResult {
   memberId: number;
   isNewUser: true;
   onboarding_completed: false;
-  tempToken: string; // tempToken 복구
+  tempToken: string; 
   kakaoEmail: string | null;
 }
 

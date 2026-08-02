@@ -1,5 +1,3 @@
-// 인스타그램 공식 임베드 렌더링 (index.html에 embed.js 전역 로드됨)
-
 import { useEffect } from 'react';
 
 declare global {
