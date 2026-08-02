@@ -6,6 +6,7 @@ import defaultProfileImage from '../../assets/defaultProfile.png';
 interface MenuItem {
   label: string;
   path?: string;
+  action?: 'logout';
   danger?: boolean;
 }
 
@@ -19,12 +20,13 @@ const MENU_GROUPS: MenuItem[][] = [
     { label: '알림설정', path: '/mypage/settings' },
     { label: '공지사항', path: '/mypage/notice' },
     { label: '이용약관', path: '/mypage/terms' },
+    { label: '로그아웃', action: 'logout' },
     { label: '회원 탈퇴', path: '/mypage/withdraw', danger: true },
   ],
 ];
 
-// 카카오 로그인 페이지 라우트 경로
 const LOGIN_PATH = '/login';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function MyPage() {
   const navigate = useNavigate();
@@ -43,14 +45,12 @@ function MyPage() {
 
     setIsLoggedIn(true);
 
-    // 내 정보 조회 API 호출
     getMyProfile()
       .then((data) => {
         setUserProfile(data);
       })
       .catch((err) => {
         console.error('내 정보 조회 실패:', err);
-        // 토큰 만료 등의 이유로 실패 시 비로그인 상태로 변경
         setIsLoggedIn(false);
       })
       .finally(() => {
@@ -58,7 +58,33 @@ function MyPage() {
       });
   }, []);
 
-  // 표시 데이터 정의
+  const handleLogout = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    try {
+      if (token) {
+        await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('로그아웃 API 호출 중 오류 발생:', error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tempToken');
+
+      setIsLoggedIn(false);
+      setUserProfile(null);
+      alert('로그아웃되었습니다.');
+      navigate('/mypage');
+    }
+  };
+
   const profileImageUrl =
     isLoggedIn && userProfile?.profileImageUrl
       ? userProfile.profileImageUrl
@@ -72,14 +98,21 @@ function MyPage() {
     ? userProfile?.email || ''
     : '로그인 후 이용 가능한 서비스입니다.';
 
-  // 클릭 이벤트 핸들러
-  const handleAction = (path?: string) => {
+  const handleAction = (item: MenuItem) => {
     if (!isLoggedIn) {
       navigate(LOGIN_PATH);
       return;
     }
-    if (path) {
-      navigate(path);
+
+    if (item.action === 'logout') {
+      if (window.confirm('로그아웃 하시겠습니까?')) {
+        handleLogout();
+      }
+      return;
+    }
+
+    if (item.path) {
+      navigate(item.path);
     }
   };
 
@@ -113,7 +146,9 @@ function MyPage() {
           </div>
         </div>
         <button
-          onClick={() => handleAction('/mypage/edit')}
+          onClick={() =>
+            isLoggedIn ? navigate('/mypage/edit') : navigate(LOGIN_PATH)
+          }
           className="w-[65px] h-[25px] flex items-center justify-center rounded-full border border-[#171B1C] text-sm font-medium whitespace-nowrap"
         >
           {isLoggedIn ? '정보관리' : '로그인'}
@@ -123,15 +158,25 @@ function MyPage() {
 
       {MENU_GROUPS.map((group, groupIdx) => (
         <div key={groupIdx}>
-          {group.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleAction(item.path)}
-              className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left"
-            >
-              <span className="text-[15px] text-[#171B1C]">{item.label}</span>
-            </button>
-          ))}
+          {group.map((item) => {
+            if (!isLoggedIn && item.action === 'logout') return null;
+
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleAction(item)}
+                className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left"
+              >
+                <span
+                  className={`text-[15px] ${
+                    item.danger ? 'text-red-500' : 'text-[#171B1C]'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
           <div className="h-[11px] bg-gray-50" />
         </div>
       ))}

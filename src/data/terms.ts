@@ -28,9 +28,6 @@ function authHeaders(): HeadersInit {
     (t) => t && t !== "null" && t !== "undefined"
   );
 
-  // 💡 지금 실제로 무슨 토큰이 들어가는지 콘솔에 바로 출력!
-  console.log("🔑 [terms.ts] Authorization에 실리는 토큰:", validToken);
-
   if (!validToken) {
     return { "Content-Type": "application/json" };
   }
