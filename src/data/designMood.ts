@@ -17,7 +17,10 @@ interface ApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/users/design-moods`;
 
 export async function getDesignMoods(): Promise<DesignMood[]> {
-  const token = localStorage.getItem("tempToken");
+  // 온보딩(A102)은 tempToken, 마이페이지 재설정(F104)은 accessToken을 쓴다.
+  // tempToken은 온보딩이 끝나면 지워지므로 accessToken을 먼저 본다.
+  const token =
+    localStorage.getItem("accessToken") ?? localStorage.getItem("tempToken");
 
   const res = await fetch(BASE_URL, {
     headers: token

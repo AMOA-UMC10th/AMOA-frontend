@@ -85,7 +85,7 @@ export function MapPinIcon({ className }: { className?: string }) {
     <svg
       className={className}
       viewBox="0 0 24 24"
-      fill="#ADB0B5"
+      fill="currentColor"
       stroke="none"
     >
       <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.72 11.11 7.01 11.36a1.5 1.5 0 0 0 1.98 0C13.28 21.11 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
