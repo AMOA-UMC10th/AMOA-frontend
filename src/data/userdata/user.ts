@@ -136,3 +136,12 @@ export async function checkNickname(
   );
   return parse<NicknameCheckResult>(res, '닉네임 중복 확인');
 }
+
+// 🔑 프로필 이미지 URL 업데이트 함수
+export async function updateProfileImage(imageUrl: string): Promise<UserProfile> {
+  return updateMyProfile({
+    profileImageUrl: imageUrl,
+    selectedDesignTagIds: [],
+    interestedRegionIds: [],
+  });
+}
