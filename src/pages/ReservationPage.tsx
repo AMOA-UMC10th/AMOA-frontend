@@ -352,14 +352,16 @@ export default function ReservationPage() {
   if (step === 'complete' && completeResult) {
     return (
       <div className="min-h-dvh flex flex-col">
-        <div className="relative flex items-center justify-center px-4 py-3 border-b border-[#E9EBEE] shrink-0">
+        <div className="relative flex h-[50px] items-center justify-center border-b border-[#E9EBEE]">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="absolute left-4 cursor-pointer"
+            className="absolute left-[12px] flex h-6 w-6 cursor-pointer items-center justify-center"
             aria-label="뒤로가기"
           >
-            <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
+            <ChevronLeftIcon className="h-6 w-6 text-[#646F7C]" />
           </button>
+
           <span className="text-[13px] font-semibold text-[#000000]">
             {completeResult.shopName}
           </span>
@@ -420,7 +422,7 @@ export default function ReservationPage() {
               홈으로
             </button>
             <button
-              onClick={() => navigate('/reservations')}
+              onClick={() => navigate('/mypage/reservations')}
               className="flex-1 bg-[#F70071] text-white text-[13px] rounded-[8px] cursor-pointer"
             >
               예약 내역 보기
@@ -433,15 +435,17 @@ export default function ReservationPage() {
 
   return (
     <div className="min-h-dvh flex flex-col">
-      <div className="relative flex items-center justify-center px-4 py-3 border-b border-[#E9EBEE] shrink-0">
+      <div className="relative flex h-[50px] items-center justify-center border-b border-[#E9EBEE]">
         <button
-          onClick={handleBack}
-          className="absolute left-4 cursor-pointer"
+          type="button"
+          onClick={() => navigate(-1)}
+          className="absolute left-[12px] flex h-6 w-6 cursor-pointer items-center justify-center"
           aria-label="뒤로가기"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
+          <ChevronLeftIcon className="h-6 w-6 text-[#646F7C]" />
         </button>
-        <span className="text-sm font-bold text-[#171B1C]">
+
+        <span className="text-[13px] font-semibold text-[#000000]">
           {cardDetail.shopName}
         </span>
       </div>
@@ -699,9 +703,17 @@ export default function ReservationPage() {
           <button
             onClick={handleConfirmNext}
             disabled={!isConfirmComplete || isSubmitting}
-            className="w-full rounded-[10px] bg-[#F70071] py-5 text-[15px] font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DC] disabled:text-white"
+            className="w-full h-[60px] rounded-[10px] bg-[#F70071] flex items-center justify-center text-[15px] font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DC] disabled:text-white"
           >
-            {isSubmitting ? '처리 중...' : '다음'}
+            {isSubmitting ? (
+              <span
+                className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+                role="status"
+                aria-label="예약 처리 중"
+              />
+            ) : (
+              '다음'
+            )}
           </button>
         </div>
       )}

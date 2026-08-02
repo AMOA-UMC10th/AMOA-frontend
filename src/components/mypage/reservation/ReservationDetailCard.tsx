@@ -1,15 +1,30 @@
 import {
   formatReservationDateLabel,
+  getReservationDisplayStatus,
   type ReservationDetail,
+  type ReservationDisplayStatus,
 } from '../../../data/reservationAPI';
 
 interface ReservationDetailCardProps {
   reservation: ReservationDetail;
 }
 
+const STATUS_LABEL: Record<ReservationDisplayStatus, string> = {
+  UPCOMING: '시술 예정',
+  COMPLETED: '시술 완료',
+  CANCELLED: '시술 취소',
+};
+
 export default function ReservationDetailCard({
   reservation,
 }: ReservationDetailCardProps) {
+  const status = getReservationDisplayStatus({
+    reservationStatus: reservation.reservationStatus,
+    reservationDate: reservation.reservationDate,
+  });
+  const backgroundColor =
+    status === 'UPCOMING' ? 'bg-[#FFF3F8]' : 'bg-[#F7F8F9]';
+
   const totalPrice =
     typeof reservation.totalPrice === 'number' ? reservation.totalPrice : 0;
 
@@ -20,7 +35,11 @@ export default function ReservationDetailCard({
 
   const rows = [
     {
-      label: '샵',
+      label: '예약 상태',
+      value: STATUS_LABEL[status],
+    },
+    {
+      label: '샵명',
       value: reservation.shopName || '-',
     },
     {
@@ -36,30 +55,38 @@ export default function ReservationDetailCard({
     },
     {
       label: '총 금액',
-      value: `${totalPrice.toLocaleString()}원`,
-    },
-    {
-      label: '결제 금액',
-      value: `${paymentAmount.toLocaleString()}원`,
+      value: `${totalPrice.toLocaleString()} 원`,
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-[#E9EBEE] bg-white px-4 py-5">
-      <div className="flex flex-col gap-4">
+    <section>
+      <div className={`rounded-[10px] px-[12px] py-[4px] ${backgroundColor}`}>
         {rows.map((row) => (
           <div
             key={row.label}
-            className="flex items-start justify-between gap-5"
+            className="flex min-h-[38px] items-center justify-between border-b border-[#E9EBEE] mb-[3px]"
           >
-            <span className="shrink-0 text-sm text-[#ADB0B5]">{row.label}</span>
+            <span className="shrink-0 text-[11px] font-medium text-[#ADB0B5]">
+              {row.label}
+            </span>
 
-            <span className="text-right text-sm font-medium text-[#171B1C]">
+            <span className="text-right text-[11px] font-medium text-[#171B1C]">
               {row.value}
             </span>
           </div>
         ))}
+
+        <div className="flex min-h-[40px] items-center justify-between">
+          <span className="shrink-0 text-[11px] font-medium text-[#ADB0B5]">
+            결제 금액
+          </span>
+
+          <span className="text-right text-[13px] font-semibold text-[#F70071]">
+            {paymentAmount.toLocaleString()} 원
+          </span>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
