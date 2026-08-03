@@ -59,10 +59,6 @@ export interface PhoneVerifyResult {
   verified: boolean;
 }
 
-export interface ProfileImageResult {
-  profileImageUrl: string;
-}
-
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, '');
 }
@@ -144,15 +140,12 @@ export async function updateProfileImage(file: File): Promise<{ profileImageUrl:
   const formData = new FormData();
   formData.append('image', file);
 
-  // localStorage에서 토큰 가져오기
   const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
   const accessToken = token?.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
-  // authFetch를 쓰지 않고 브라우저 기본 fetch를 사용합니다.
   const res = await fetch(`${BASE_URL}/users/me/profile-image`, {
     method: 'PATCH',
     headers: {
-      // 🔑 Content-Type은 절대 넣지 않습니다! (브라우저가 boundary 자동 생성)
       ...(accessToken ? { Authorization: accessToken } : {}),
     },
     body: formData,
