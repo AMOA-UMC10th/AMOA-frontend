@@ -1,3 +1,4 @@
+import { authFetch } from '../api/authFetch';
 import type { RecommendedCard } from './card';
 export type { RecommendedCard };
 
@@ -47,7 +48,7 @@ function authHeaders(): HeadersInit {
 }
 
 export async function fetchHomeCards(): Promise<HomeCardsResult> {
-  const res = await fetch(`${BASE_URL}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE_URL}`);
 
   if (!res.ok) {
     throw new Error(`카드 목록 조회 실패: ${res.status}`);

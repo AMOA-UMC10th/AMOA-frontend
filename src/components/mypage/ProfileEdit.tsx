@@ -101,40 +101,18 @@ export default function ProfileForm({
   const [codeError, setCodeError] = useState<string | null>(null);
   const [codeDuration, setCodeDuration] = useState(180);
 
-  // 미리보기용 blob URL은 화면에서 내려간 뒤에 정리한다.
-  useEffect(() => {
-    return () => {
-      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    };
-  }, []);
+  const handleImageClick = () => fileInputRef.current?.click();
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-  const handleImageClick = () => {
-    if (imageSaving) return;
-    fileInputRef.current?.click();
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    // 같은 파일을 다시 골라도 onChange가 걸리도록 비워둔다.
-    e.target.value = '';
-    if (!file) return;
-
-    // 업로드가 끝날 때까지는 방금 고른 파일을 임시로 보여준다.
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    const previewUrl = URL.createObjectURL(file);
-    previewUrlRef.current = previewUrl;
-    setImageUrl(previewUrl);
-
-    setImageSaving(true);
-    try {
-      const savedUrl = await onSaveImage(file);
-      // 실패하면 원래 사진으로 되돌린다.
-      setImageUrl(savedUrl ?? profileImageUrl);
-    } finally {
-      setImageSaving(false);
-    }
-  };
-
+  try {
+    const result = await updateProfileImage(file);
+    setImageUrl(result.profileImageUrl); // 서버에서 내려준 새 URL로 업데이트
+  } catch (error) {
+    console.error('프로필 이미지 변경 실패:', error);
+  }
+};
   const startNicknameEdit = () => {
     setNicknameDraft(nicknameValue);
     setNicknameChecked(false);

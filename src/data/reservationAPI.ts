@@ -1,5 +1,7 @@
 // 실제 백엔드 API 연동 함수 모음 (예약 관련)
 
+import { authFetch } from '../api/authFetch';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function authHeaders() {
@@ -115,8 +117,7 @@ export interface CardDetail {
 }
 
 export async function getCardDetail(cardId: number): Promise<CardDetail> {
-  const response = await fetch(`${API_BASE_URL}/cards/${cardId}`, {
-    headers: authHeaders(),
+  const response = await authFetch(`${API_BASE_URL}/cards/${cardId}`, {
   });
 
   const result = await parseApiResponse<{
@@ -159,12 +160,8 @@ export interface AdditionalOption {
 }
 
 export async function getShopOptions(shopId: number): Promise<ShopOption[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/admin/shops/${shopId}/options`,
-    {
-      headers: authHeaders(),
-    },
-  );
+  const response = await authFetch(
+    `${API_BASE_URL}/admin/shops/${shopId}/options`,);
 
   const result = await parseApiResponse<{
     options: ShopOption[];
@@ -330,10 +327,9 @@ export interface ReservationDraftResult {
 export async function createReservationDraft(
   payload: CreateReservationDraftRequest,
 ): Promise<ReservationDraftResult> {
-  const response = await fetch(`${API_BASE_URL}/reservations`, {
+  const response = await authFetch(`${API_BASE_URL}/reservations`, {
     method: 'POST',
     headers: {
-      ...authHeaders(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
@@ -379,12 +375,8 @@ export async function getAvailableTimes(
     date,
   });
 
-  const response = await fetch(
-    `${API_BASE_URL}/reservations/${reservationId}/available-times?${searchParams.toString()}`,
-    {
-      headers: authHeaders(),
-    },
-  );
+  const response = await authFetch(
+    `${API_BASE_URL}/reservations/${reservationId}/available-times?${searchParams.toString()}`,);
 
   return parseApiResponse<AvailableTimesResult>(
     response,
@@ -420,12 +412,11 @@ export async function confirmReservationSchedule(
   reservationId: number,
   payload: ConfirmReservationScheduleRequest,
 ): Promise<ConfirmReservationScheduleResult> {
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/reservations/${reservationId}/schedule`,
     {
       method: 'PATCH',
       headers: {
-        ...authHeaders(),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -464,12 +455,8 @@ export async function getMyReservations(
     size: String(size),
   });
 
-  const response = await fetch(
-    `${API_BASE_URL}/reservations?${searchParams.toString()}`,
-    {
-      headers: authHeaders(),
-    },
-  );
+  const response = await authFetch(
+    `${API_BASE_URL}/reservations?${searchParams.toString()}`);
 
   const result = await parseApiResponse<ReservationListResult>(
     response,
@@ -502,12 +489,8 @@ export interface ReservationDetail {
 export async function getMyReservationDetail(
   reservationId: number,
 ): Promise<ReservationDetail> {
-  const response = await fetch(
-    `${API_BASE_URL}/reservations/${reservationId}`,
-    {
-      headers: authHeaders(),
-    },
-  );
+  const response = await authFetch(
+    `${API_BASE_URL}/reservations/${reservationId}`);
 
   return parseApiResponse<ReservationDetail>(
     response,
@@ -524,11 +507,10 @@ export async function getMyReservationDetail(
 export async function cancelMyReservation(
   reservationId: number,
 ): Promise<string> {
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/reservations/${reservationId}/cancel`,
     {
       method: 'PATCH',
-      headers: authHeaders(),
     },
   );
 

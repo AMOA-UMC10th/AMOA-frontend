@@ -1,5 +1,7 @@
 // 마이페이지 - 내 정보 조회/수정, 닉네임 중복확인 API
 
+import { authFetch } from "../../api/authFetch";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ApiResponse<T> {
@@ -88,8 +90,7 @@ async function parse<T>(res: Response, label: string): Promise<T> {
 }
 
 export async function getMyProfile(): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
-    headers: authHeaders(),
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
   });
   return parse<UserProfile>(res, '내 정보 조회');
 }
@@ -97,7 +98,7 @@ export async function getMyProfile(): Promise<UserProfile> {
 export async function updateMyProfile(
   payload: UpdateProfileRequest,
 ): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
     method: 'PATCH',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -107,10 +108,9 @@ export async function updateMyProfile(
 
 // 🔑 SMS 발송 API 수정 (Bearer 추가, cleanPhone 처리, parse 적용)
 export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
-  const res = await fetch(`${BASE_URL}/users/phone/send`, {
+  const res = await authFetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
     headers: {
-      ...authHeaders(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ phoneNumber: onlyDigits(phone) }),
@@ -123,7 +123,7 @@ export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,
 ): Promise<PhoneVerifyResult> {
-  const res = await fetch(`${BASE_URL}/users/phone/verify`, {
+  const res = await authFetch(`${BASE_URL}/users/phone/verify`, {
     method: 'POST',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber), code }),
@@ -134,25 +134,29 @@ export async function verifyPhoneCode(
 export async function checkNickname(
   nickname: string,
 ): Promise<NicknameCheckResult> {
-  const res = await fetch(
+  const res = await authFetch(
     `${BASE_URL}/users/nickname/check?nickname=${encodeURIComponent(nickname)}`,
-    { headers: authHeaders() },
   );
   return parse<NicknameCheckResult>(res, '닉네임 중복 확인');
 }
 
-// 프로필 이미지는 통합 수정(PATCH /users/me/profile)이 아니라 전용 업로드 API를 쓴다.
-// 통합 수정의 profileImageUrl은 업로드가 끝난 URL 문자열만 받기 때문에
-// 파일 자체를 서버로 보내려면 이 쪽을 호출해야 한다.
-// multipart는 boundary를 브라우저가 붙여야 하므로 Content-Type을 직접 지정하지 않는다.
-export async function updateProfileImage(file: File): Promise<ProfileImageResult> {
+export async function updateProfileImage(file: File): Promise<{ profileImageUrl: string }> {
   const formData = new FormData();
   formData.append('image', file);
 
+  // localStorage에서 토큰 가져오기
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
+  const accessToken = token?.startsWith('Bearer ') ? token : `Bearer ${token}`;
+
+  // authFetch를 쓰지 않고 브라우저 기본 fetch를 사용합니다.
   const res = await fetch(`${BASE_URL}/users/me/profile-image`, {
     method: 'PATCH',
-    headers: authHeaders(),
+    headers: {
+      // 🔑 Content-Type은 절대 넣지 않습니다! (브라우저가 boundary 자동 생성)
+      ...(accessToken ? { Authorization: accessToken } : {}),
+    },
     body: formData,
   });
-  return parse<ProfileImageResult>(res, '프로필 이미지 변경');
+
+  return parse<{ profileImageUrl: string }>(res, '프로필 이미지 수정');
 }

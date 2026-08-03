@@ -1,3 +1,5 @@
+import { authFetch } from "../api/authFetch";
+
 export interface TermListItem {
   termId: number;
   title: string;
@@ -21,7 +23,7 @@ interface TermApiResponse<T> {
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
 export async function fetchTermList(): Promise<TermListItem[]> {
-  const res = await fetch(BASE_URL, {
+  const res = await authFetch(BASE_URL, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -44,10 +46,7 @@ export async function fetchTermList(): Promise<TermListItem[]> {
 // 약관 상세는 가입 전(토큰 없는 상태)에도 열람할 수 있어야 한다.
 // 목록 조회와 마찬가지로 인증 헤더 없이 호출한다.
 export async function fetchTermDetail(termId: number): Promise<TermDetail> {
-  const res = await fetch(`${BASE_URL}/${termId}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const res = await authFetch(`${BASE_URL}/${termId}`, { headers: authHeaders() });
 
   if (!res.ok) {
     throw new Error(`이용약관 상세 조회 실패: ${res.status}`);

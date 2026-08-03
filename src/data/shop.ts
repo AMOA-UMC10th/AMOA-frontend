@@ -1,3 +1,4 @@
+import { authFetch } from '../api/authFetch';
 import { fetchCardDetail } from './card';
 
 // ===== 기존 샵 상세 타입 =====
@@ -54,8 +55,7 @@ function authHeaders(): HeadersInit {
 
 
 export async function fetchShopDetail(shopId: number): Promise<ShopDetail> {
-  const res = await fetch(`${BASE_URL}/${shopId}`, {
-    headers: authHeaders(),
+  const res = await authFetch(`${BASE_URL}/${shopId}`, {
   });
 
   if (!res.ok) throw new Error(`샵 상세 조회 실패: ${res.status}`);
@@ -75,8 +75,7 @@ export async function fetchShopCards(
   if (params?.cursor) query.append('cursor', params.cursor);
   if (params?.size) query.append('size', String(params.size));
 
-  const res = await fetch(`${BASE_URL}/${shopId}/cards?${query.toString()}`, {
-    headers: authHeaders(),
+  const res = await authFetch(`${BASE_URL}/${shopId}/cards?${query.toString()}`, {
   });
 
   if (!res.ok) throw new Error(`샵 카드 목록 조회 실패: ${res.status}`);

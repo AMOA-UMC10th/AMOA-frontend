@@ -1,5 +1,7 @@
 // ===== 타입 =====
 
+import { authFetch } from "../api/authFetch";
+
 interface LikeApiResponse<T> {
   isSuccess: boolean;
   code: string;
@@ -39,9 +41,8 @@ export async function likeCard(cardId: number): Promise<void> {
 }
 
 export async function unlikeCard(cardId: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/${cardId}/like`, {
+  const res = await authFetch(`${BASE_URL}/${cardId}/like`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 
   const data: LikeApiResponse<unknown> = await res.json();
@@ -55,9 +56,8 @@ export async function unlikeCard(cardId: number): Promise<void> {
 const SHOP_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/shops`;
 
 export async function likeShop(shopId: number): Promise<void> {
-  const res = await fetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/like`, {
     method: "POST",
-    headers: authHeaders(),
   });
 
   const data: LikeApiResponse<unknown> = await res.json();
@@ -68,9 +68,8 @@ export async function likeShop(shopId: number): Promise<void> {
 }
 
 export async function unlikeShop(shopId: number): Promise<void> {
-  const res = await fetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/like`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 
   const data: LikeApiResponse<unknown> = await res.json();
