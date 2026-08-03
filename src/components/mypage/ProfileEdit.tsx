@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiCamera } from 'react-icons/fi';
 import AuthTimer from '../onboarding/AuthTimer';
-import { checkNickname, sendPhoneCode, verifyPhoneCode, updateProfileImage } from '../../data/userdata/user';
+import { checkNickname, sendPhoneCode, verifyPhoneCode } from '../../data/userdata/user';
 
 const CODE_LENGTH = 6;
 
@@ -13,6 +13,8 @@ interface ProfileFormProps {
   phoneNumber: string;
   onSaveNickname: (nickname: string) => Promise<boolean>;
   onSavePhone: (phoneNumber: string) => Promise<boolean>;
+  // 저장에 성공하면 서버가 돌려준 이미지 URL을, 실패하면 null을 반환한다.
+  onSaveImage: (file: File) => Promise<string | null>;
 }
 
 function formatPhoneNumber(raw: string): string {
@@ -71,9 +73,12 @@ export default function ProfileForm({
   phoneNumber,
   onSaveNickname,
   onSavePhone,
+  onSaveImage,
 }: ProfileFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState(profileImageUrl);
+  const [imageSaving, setImageSaving] = useState(false);
+  const previewUrlRef = useRef<string | null>(null);
 
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameEditing, setNicknameEditing] = useState(false);
@@ -96,20 +101,37 @@ export default function ProfileForm({
   const [codeError, setCodeError] = useState<string | null>(null);
   const [codeDuration, setCodeDuration] = useState(180);
 
-  const handleImageClick = () => fileInputRef.current?.click();
+  // 미리보기용 blob URL은 화면에서 내려간 뒤에 정리한다.
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    };
+  }, []);
+
+  const handleImageClick = () => {
+    if (imageSaving) return;
+    fileInputRef.current?.click();
+  };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // 같은 파일을 다시 골라도 onChange가 걸리도록 비워둔다.
+    e.target.value = '';
     if (!file) return;
 
-    const tempUrl = URL.createObjectURL(file);
-    setImageUrl(tempUrl);
+    // 업로드가 끝날 때까지는 방금 고른 파일을 임시로 보여준다.
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    const previewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = previewUrl;
+    setImageUrl(previewUrl);
 
+    setImageSaving(true);
     try {
-      await updateProfileImage(tempUrl);
-    } catch (error) {
-      console.error('프로필 이미지 변경 실패:', error);
-      setImageUrl(profileImageUrl); 
+      const savedUrl = await onSaveImage(file);
+      // 실패하면 원래 사진으로 되돌린다.
+      setImageUrl(savedUrl ?? profileImageUrl);
+    } finally {
+      setImageSaving(false);
     }
   };
 
@@ -231,6 +253,7 @@ export default function ProfileForm({
           <button
             type="button"
             onClick={handleImageClick}
+            disabled={imageSaving}
             aria-label="프로필 사진 변경"
             className="absolute bottom-0 right-0 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-black text-white"
           >
@@ -244,7 +267,12 @@ export default function ProfileForm({
             className="hidden"
           />
         </div>
-        <button type="button" onClick={handleImageClick} className="text-[12px] text-[#999]">
+        <button
+          type="button"
+          onClick={handleImageClick}
+          disabled={imageSaving}
+          className="text-[12px] text-[#999]"
+        >
           프로필 사진 변경
         </button>
       </div>

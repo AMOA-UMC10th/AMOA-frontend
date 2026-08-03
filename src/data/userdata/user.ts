@@ -57,6 +57,10 @@ export interface PhoneVerifyResult {
   verified: boolean;
 }
 
+export interface ProfileImageResult {
+  profileImageUrl: string;
+}
+
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, '');
 }
@@ -137,11 +141,18 @@ export async function checkNickname(
   return parse<NicknameCheckResult>(res, '닉네임 중복 확인');
 }
 
-// 🔑 프로필 이미지 URL 업데이트 함수
-export async function updateProfileImage(imageUrl: string): Promise<UserProfile> {
-  return updateMyProfile({
-    profileImageUrl: imageUrl,
-    selectedDesignTagIds: [],
-    interestedRegionIds: [],
+// 프로필 이미지는 통합 수정(PATCH /users/me/profile)이 아니라 전용 업로드 API를 쓴다.
+// 통합 수정의 profileImageUrl은 업로드가 끝난 URL 문자열만 받기 때문에
+// 파일 자체를 서버로 보내려면 이 쪽을 호출해야 한다.
+// multipart는 boundary를 브라우저가 붙여야 하므로 Content-Type을 직접 지정하지 않는다.
+export async function updateProfileImage(file: File): Promise<ProfileImageResult> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/users/me/profile-image`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: formData,
   });
+  return parse<ProfileImageResult>(res, '프로필 이미지 변경');
 }

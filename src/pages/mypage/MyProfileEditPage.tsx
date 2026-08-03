@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import ProfileForm from '../../components/mypage/ProfileEdit';
-import { getMyProfile, updateMyProfile, type UserProfile } from '../../data/userdata/user';
+import {
+  getMyProfile,
+  updateMyProfile,
+  updateProfileImage,
+  type UserProfile,
+} from '../../data/userdata/user';
 
 
 export default function MyProfileEditPage() {
@@ -81,6 +86,23 @@ export default function MyProfileEditPage() {
   const handleSavePhone = (phoneNumber: string) =>
     saveField({ phoneNumber }, '전화번호가 수정되었어요');
 
+  // 사진만 전용 업로드 API를 쓴다. 통합 수정을 거치지 않으므로
+  // 디자인태그·관심지역을 다시 실어보낼 필요가 없다.
+  async function handleSaveImage(file: File): Promise<string | null> {
+    if (!profile) return null;
+
+    try {
+      const { profileImageUrl } = await updateProfileImage(file);
+      setProfile({ ...profile, profileImageUrl });
+      setToast('프로필 사진이 변경되었어요');
+      return profileImageUrl;
+    } catch (err) {
+      console.error(err);
+      setToast(err instanceof Error ? err.message : '사진 변경에 실패했어요');
+      return null;
+    }
+  }
+
 
   return (
     <main className="min-h-dvh bg-white pb-16">
@@ -118,6 +140,7 @@ export default function MyProfileEditPage() {
             phoneNumber={profile.phoneNumber}
             onSaveNickname={handleSaveNickname}
             onSavePhone={handleSavePhone}
+            onSaveImage={handleSaveImage}
           />
         </div>
       )}
