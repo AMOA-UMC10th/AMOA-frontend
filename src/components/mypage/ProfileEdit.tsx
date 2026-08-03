@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { FiCamera } from 'react-icons/fi';
 import AuthTimer from '../onboarding/AuthTimer';
-import { checkNickname, sendPhoneCode, verifyPhoneCode } from '../../data/userdata/user';
+import { checkNickname, sendPhoneCode, verifyPhoneCode, updateProfileImage } from '../../data/userdata/user';
 
 const CODE_LENGTH = 6;
 
@@ -13,8 +13,6 @@ interface ProfileFormProps {
   phoneNumber: string;
   onSaveNickname: (nickname: string) => Promise<boolean>;
   onSavePhone: (phoneNumber: string) => Promise<boolean>;
-  // 저장에 성공하면 서버가 돌려준 이미지 URL을, 실패하면 null을 반환한다.
-  onSaveImage: (file: File) => Promise<string | null>;
 }
 
 function formatPhoneNumber(raw: string): string {
@@ -73,12 +71,9 @@ export default function ProfileForm({
   phoneNumber,
   onSaveNickname,
   onSavePhone,
-  onSaveImage,
 }: ProfileFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState(profileImageUrl);
-  const [imageSaving, setImageSaving] = useState(false);
-  const previewUrlRef = useRef<string | null>(null);
 
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameEditing, setNicknameEditing] = useState(false);
@@ -231,7 +226,6 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           <button
             type="button"
             onClick={handleImageClick}
-            disabled={imageSaving}
             aria-label="프로필 사진 변경"
             className="absolute bottom-0 right-0 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-black text-white"
           >
@@ -245,12 +239,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             className="hidden"
           />
         </div>
-        <button
-          type="button"
-          onClick={handleImageClick}
-          disabled={imageSaving}
-          className="text-[12px] text-[#999]"
-        >
+        <button type="button" onClick={handleImageClick} className="text-[12px] text-[#999]">
           프로필 사진 변경
         </button>
       </div>
