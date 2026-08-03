@@ -4,7 +4,7 @@ import LocationFilter, { type RegionSelection } from './LocationFilter';
 import PriceFilter from './PriceFilter';
 import ArtTypeFilter from './ArtTypeFilter';
 import DesignFilter from './DesignFilter';
-import { fetchCards } from '../../data/card';
+import { authFetchCards } from '../../data/card';
 
 export interface FilterState {
   regions: RegionSelection[];
@@ -41,7 +41,7 @@ export default function ArtFilterSheet({
 
     const timer = setTimeout(async () => {
       try {
-        const result = await fetchCards({
+        const result = await authFetchCards({
           regionIds: tempFilters.regions.map((r) => r.id),
           minPrice: tempFilters.minPrice,
           maxPrice: tempFilters.maxPrice,

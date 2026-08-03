@@ -1,6 +1,8 @@
 // [E102, E104] 찜 목록 조회 API
 // 아트와 샵은 응답 모양이 서로 달라서 목록도 따로 받아온다.
 
+import { authFetch } from "../api/authFetch";
+
 export type LikeSortType =
   | 'RECOMMENDED'
   | 'POPULAR'
@@ -65,7 +67,7 @@ function authHeaders(): HeadersInit {
 }
 
 async function get<T>(path: string, label: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE_URL}${path}`, { headers: authHeaders() });
 
   if (!res.ok) {
     throw new Error(`${label} 실패: ${res.status}`);

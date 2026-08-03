@@ -1,5 +1,7 @@
 // ===== 타입 =====
 
+import { authFetch } from "../api/authFetch";
+
 export interface NotificationSetting {
   notificationType: string;
   title: string;
@@ -48,7 +50,7 @@ function authHeaders(): HeadersInit {
 }
 
 export async function fetchMyProfile(): Promise<MyProfile> {
-  const res = await fetch(BASE_URL, { headers: authHeaders() });
+  const res = await authFetch(BASE_URL, { headers: authHeaders() });
 
   if (!res.ok) {
     throw new Error(`내 정보 조회 실패: ${res.status}`);
@@ -67,7 +69,7 @@ export async function updateNotificationSettings(
   profile: MyProfile,
   notificationSettings: NotificationSettingUpdate[],
 ): Promise<MyProfile> {
-  const res = await fetch(BASE_URL, {
+  const res = await authFetch(BASE_URL, {
     method: "PATCH",
     headers: {
       ...authHeaders(),
