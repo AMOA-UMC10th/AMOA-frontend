@@ -53,6 +53,7 @@ export async function postKakaoLogin(
   let data: KakaoLoginResponse;
 
   try {
+    
     data = (await response.json()) as KakaoLoginResponse;
   } catch {
     throw new Error('서버 응답을 읽을 수 없습니다.');

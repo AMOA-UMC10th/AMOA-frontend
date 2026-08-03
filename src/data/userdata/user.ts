@@ -1,5 +1,7 @@
 // 마이페이지 - 내 정보 조회/수정, 닉네임 중복확인 API
 
+import { authFetch } from "../../api/authFetch";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ApiResponse<T> {
@@ -84,7 +86,7 @@ async function parse<T>(res: Response, label: string): Promise<T> {
 }
 
 export async function getMyProfile(): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
     headers: authHeaders(),
   });
   return parse<UserProfile>(res, '내 정보 조회');
@@ -93,7 +95,7 @@ export async function getMyProfile(): Promise<UserProfile> {
 export async function updateMyProfile(
   payload: UpdateProfileRequest,
 ): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
     method: 'PATCH',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -103,7 +105,7 @@ export async function updateMyProfile(
 
 // 🔑 SMS 발송 API 수정 (Bearer 추가, cleanPhone 처리, parse 적용)
 export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
-  const res = await fetch(`${BASE_URL}/users/phone/send`, {
+  const res = await authFetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
     headers: {
       ...authHeaders(),
@@ -119,7 +121,7 @@ export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,
 ): Promise<PhoneVerifyResult> {
-  const res = await fetch(`${BASE_URL}/users/phone/verify`, {
+  const res = await authFetch(`${BASE_URL}/users/phone/verify`, {
     method: 'POST',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber), code }),
@@ -130,7 +132,7 @@ export async function verifyPhoneCode(
 export async function checkNickname(
   nickname: string,
 ): Promise<NicknameCheckResult> {
-  const res = await fetch(
+  const res = await authFetch(
     `${BASE_URL}/users/nickname/check?nickname=${encodeURIComponent(nickname)}`,
     { headers: authHeaders() },
   );

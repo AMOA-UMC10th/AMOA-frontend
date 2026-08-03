@@ -4,7 +4,7 @@ import { FiChevronDown, FiChevronLeft, FiSliders } from 'react-icons/fi';
 import ArtCard from '../components/common/ArtCard';
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
 import ArtSort, { type SortOption } from '../components/art_search/ArtSort';
-import { type RecommendedCard, type CardSearchParams, fetchCards } from '../data/card';
+import { type RecommendedCard, type CardSearchParams, authFetchCards } from '../data/card';
 
 const ART_TYPE_LABELS: Record<string, string> = {
   MONTHLY: '이달의 아트',
@@ -57,7 +57,7 @@ export default function ArtSearchPage() {
           size: PAGE_SIZE,
         };
 
-        const result = await fetchCards(params);
+        const result = await authFetchCards(params);
 
         setDisplayCards((prev) => {
           const updatedCards = nextCursor ? [...prev, ...result.cards] : result.cards;
