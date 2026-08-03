@@ -4,9 +4,18 @@ import ShopLikeBtn from "../common/ShopLikeBtn";
 
 interface ShopInfoProps {
   shop: ShopDetail;
+  // 찜 숫자는 화면에서 바로 오르내려야 해서 페이지가 들고 있는 값을 받아 쓴다.
+  shopLikeCount: number;
+  cardLikeCount: number;
+  onShopLikeChange?: (liked: boolean) => void;
 }
 
-export default function ShopInfo({ shop }: ShopInfoProps) {
+export default function ShopInfo({
+  shop,
+  shopLikeCount,
+  cardLikeCount,
+  onShopLikeChange,
+}: ShopInfoProps) {
   const formatLikeCount = (count: number) => {
     if (count >= 10000) {
       return `${Math.floor(count / 10000)}만`;
@@ -63,12 +72,12 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
             </div>
           </div>
 
+          {/* shopId를 넘겨야 하트가 실제 찜 등록/취소 요청까지 보낸다. */}
           <ShopLikeBtn
             initialLiked={shop.isLiked}
+            shopId={shop.shopId}
             size={22}
-            onToggle={(liked) => {
-              // TODO: 샵 좋아요 클릭 이벤트 처리
-            }}
+            onToggle={onShopLikeChange}
           />
         </div>
       </div>
@@ -84,7 +93,7 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
         <div className="flex flex-col items-center justify-center">
           <p className="text-xs font-medium" style={{ color: "#ADB0B5" }}>아트찜</p>
           <p className="text-lg font-semibold mt-1" style={{ color: "#28323C" }}>
-            {formatLikeCount(shop.cardLikeCount)}
+            {formatLikeCount(cardLikeCount)}
           </p>
         </div>
         <div
@@ -93,7 +102,7 @@ export default function ShopInfo({ shop }: ShopInfoProps) {
         >
           <p className="text-xs font-medium" style={{ color: "#ADB0B5" }}>샵찜</p>
           <p className="text-lg font-semibold mt-1" style={{ color: "#28323C" }}>
-            {formatLikeCount(shop.shopLikeCount)}
+            {formatLikeCount(shopLikeCount)}
           </p>
         </div>
       </div>

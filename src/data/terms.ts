@@ -20,28 +20,6 @@ interface TermApiResponse<T> {
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
-function authHeaders(): HeadersInit {
-  const accessToken = localStorage.getItem("accessToken");
-  const tempToken = localStorage.getItem("tempToken");
-
-  const validToken = [accessToken, tempToken].find(
-    (t) => t && t !== "null" && t !== "undefined"
-  );
-
-  if (!validToken) {
-    return { "Content-Type": "application/json" };
-  }
-
-  const formattedToken = validToken.startsWith("Bearer ")
-    ? validToken
-    : `Bearer ${validToken}`;
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: formattedToken,
-  };
-}
-
 export async function fetchTermList(): Promise<TermListItem[]> {
   const res = await fetch(BASE_URL, {
     method: 'GET',
@@ -63,8 +41,13 @@ export async function fetchTermList(): Promise<TermListItem[]> {
   return data.result;
 }
 
+// 약관 상세는 가입 전(토큰 없는 상태)에도 열람할 수 있어야 한다.
+// 목록 조회와 마찬가지로 인증 헤더 없이 호출한다.
 export async function fetchTermDetail(termId: number): Promise<TermDetail> {
-  const res = await fetch(`${BASE_URL}/${termId}`, { headers: authHeaders() });
+  const res = await fetch(`${BASE_URL}/${termId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
 
   if (!res.ok) {
     throw new Error(`이용약관 상세 조회 실패: ${res.status}`);

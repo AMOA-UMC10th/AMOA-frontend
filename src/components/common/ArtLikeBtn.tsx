@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
+import { setCardLiked, useCardLiked } from '../../data/likeStore';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
@@ -17,10 +18,18 @@ export default function ArtLikeBtn({
   size = 22,
   onToggle,
 }: ArtLikeBtnProps) {
-  const [liked, setLiked] = useState(initialLiked);
+  // cardId가 있으면 공용 저장소를 따른다. 그래야 목록에서 누른 찜이 상세에도 반영된다.
+  const [localLiked, setLocalLiked] = useState(initialLiked);
+  const liked = useCardLiked(cardId, localLiked);
+
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
+
+  const setLiked = (value: boolean) => {
+    if (cardId === undefined) setLocalLiked(value);
+    else setCardLiked(cardId, value);
+  };
 
   const handleClick = () => {
     const next = !liked;
