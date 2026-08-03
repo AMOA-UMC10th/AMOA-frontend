@@ -38,7 +38,7 @@ export default function HomePage() {
               setNickname(userProfile.nickname);
             }
           } catch (err) {
-            console.error('내 정보 조회 실패:', err);
+            console.error(err);
           }
         }
 
@@ -50,7 +50,7 @@ export default function HomePage() {
         setYearEndPick(data.yearEndPick?.cards || []);
 
       } catch (error) {
-        console.error('홈 데이터 불러오기 실패:', error);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
