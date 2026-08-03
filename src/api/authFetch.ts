@@ -11,23 +11,36 @@ export async function authFetch(url: string, options: RequestInit = {}) {
   if (response.status === 401) {
     const refreshToken = localStorage.getItem('refreshToken');
     
-    const refreshRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/reissue`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
+    try {
+      const refreshRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/reissue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-    if (refreshRes.ok) {
-      const { accessToken } = await refreshRes.json();
-      localStorage.setItem('accessToken', accessToken);
+      if (refreshRes.ok) {
+        const data = await refreshRes.json();
+        
+        const newAccessToken = data.result?.accessToken;
+        const newRefreshToken = data.result?.refreshToken;
 
-      headers['Authorization'] = `Bearer ${accessToken}`;
-      return await fetch(url, { ...options, headers });
-    } else {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      window.location.href = '/login';
+        if (newAccessToken) {
+          localStorage.setItem('accessToken', newAccessToken);
+          if (newRefreshToken) {
+            localStorage.setItem('refreshToken', newRefreshToken);
+          }
+
+          headers['Authorization'] = `Bearer ${newAccessToken}`;
+          return await fetch(url, { ...options, headers });
+        }
+      }
+    } catch (error) {
+      console.error('토큰 재발급 중 에러 발생:', error);
     }
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/login';
   }
 
   return response;
