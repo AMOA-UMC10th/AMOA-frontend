@@ -87,7 +87,6 @@ async function parse<T>(res: Response, label: string): Promise<T> {
 
 export async function getMyProfile(): Promise<UserProfile> {
   const res = await authFetch(`${BASE_URL}/users/me/profile`, {
-    headers: authHeaders(),
   });
   return parse<UserProfile>(res, '내 정보 조회');
 }
@@ -108,7 +107,6 @@ export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
   const res = await authFetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
     headers: {
-      ...authHeaders(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ phoneNumber: onlyDigits(phone) }),
@@ -134,16 +132,27 @@ export async function checkNickname(
 ): Promise<NicknameCheckResult> {
   const res = await authFetch(
     `${BASE_URL}/users/nickname/check?nickname=${encodeURIComponent(nickname)}`,
-    { headers: authHeaders() },
   );
   return parse<NicknameCheckResult>(res, '닉네임 중복 확인');
 }
 
-// 🔑 프로필 이미지 URL 업데이트 함수
-export async function updateProfileImage(imageUrl: string): Promise<UserProfile> {
-  return updateMyProfile({
-    profileImageUrl: imageUrl,
-    selectedDesignTagIds: [],
-    interestedRegionIds: [],
+export async function updateProfileImage(file: File): Promise<{ profileImageUrl: string }> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  // localStorage에서 토큰 가져오기
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
+  const accessToken = token?.startsWith('Bearer ') ? token : `Bearer ${token}`;
+
+  // authFetch를 쓰지 않고 브라우저 기본 fetch를 사용합니다.
+  const res = await fetch(`${BASE_URL}/users/me/profile-image`, {
+    method: 'PATCH',
+    headers: {
+      // 🔑 Content-Type은 절대 넣지 않습니다! (브라우저가 boundary 자동 생성)
+      ...(accessToken ? { Authorization: accessToken } : {}),
+    },
+    body: formData,
   });
+
+  return parse<{ profileImageUrl: string }>(res, '프로필 이미지 수정');
 }

@@ -97,22 +97,17 @@ export default function ProfileForm({
   const [codeDuration, setCodeDuration] = useState(180);
 
   const handleImageClick = () => fileInputRef.current?.click();
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const tempUrl = URL.createObjectURL(file);
-    setImageUrl(tempUrl);
-
-    try {
-      await updateProfileImage(tempUrl);
-    } catch (error) {
-      console.error('프로필 이미지 변경 실패:', error);
-      setImageUrl(profileImageUrl); 
-    }
-  };
-
+  try {
+    const result = await updateProfileImage(file);
+    setImageUrl(result.profileImageUrl); // 서버에서 내려준 새 URL로 업데이트
+  } catch (error) {
+    console.error('프로필 이미지 변경 실패:', error);
+  }
+};
   const startNicknameEdit = () => {
     setNicknameDraft(nicknameValue);
     setNicknameChecked(false);
