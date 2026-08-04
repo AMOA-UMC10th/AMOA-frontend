@@ -4,7 +4,8 @@ export interface NewUserResult {
   memberId: number;
   isNewUser: true;
   onboarding_completed: false;
-  tempToken: string; // tempToken 복구
+  tempToken: string;
+  refreshToken?: string | null;
   kakaoEmail: string | null;
 }
 
@@ -66,9 +67,12 @@ export async function postKakaoLogin(
     throw new Error('로그인 응답에 사용자 정보가 없습니다.');
   }
 
-  // 🔑 신규 회원일 경우 tempToken 저장
+  // 🔑 신규 회원일 경우 tempToken 저장 (refreshToken이 함께 내려오면 같이 저장)
   if (data.result.isNewUser) {
     localStorage.setItem('tempToken', data.result.tempToken);
+    if (data.result.refreshToken) {
+      localStorage.setItem('refreshToken', data.result.refreshToken);
+    }
   } else {
     localStorage.setItem('accessToken', data.result.accessToken);
     if (data.result.refreshToken) {

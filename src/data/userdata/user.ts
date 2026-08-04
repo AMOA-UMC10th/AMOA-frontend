@@ -1,5 +1,7 @@
 // 마이페이지 - 내 정보 조회/수정, 닉네임 중복확인 API
 
+import { authFetch } from "../../api/authFetch";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ApiResponse<T> {
@@ -84,8 +86,7 @@ async function parse<T>(res: Response, label: string): Promise<T> {
 }
 
 export async function getMyProfile(): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
-    headers: authHeaders(),
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
   });
   return parse<UserProfile>(res, '내 정보 조회');
 }
@@ -93,7 +94,7 @@ export async function getMyProfile(): Promise<UserProfile> {
 export async function updateMyProfile(
   payload: UpdateProfileRequest,
 ): Promise<UserProfile> {
-  const res = await fetch(`${BASE_URL}/users/me/profile`, {
+  const res = await authFetch(`${BASE_URL}/users/me/profile`, {
     method: 'PATCH',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -101,38 +102,64 @@ export async function updateMyProfile(
   return parse<UserProfile>(res, '내 정보 수정');
 }
 
-// 🔑 SMS 발송 API 수정 (Bearer 추가, cleanPhone 처리, parse 적용)
 export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
+  const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
+  const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
+
   const res = await fetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
     headers: {
-      ...authHeaders(),
       'Content-Type': 'application/json',
+      ...(authHeader ? { Authorization: authHeader } : {}),
     },
     body: JSON.stringify({ phoneNumber: onlyDigits(phone) }),
   });
+
   return parse<PhoneSendResult>(res, '인증번호 발송');
 }
 
-// 🔑 SMS 인증번호 검증 API 수정
 export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,
 ): Promise<PhoneVerifyResult> {
+  const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
+  const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
+
   const res = await fetch(`${BASE_URL}/users/phone/verify`, {
     method: 'POST',
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(authHeader ? { Authorization: authHeader } : {}),
+    },
     body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber), code }),
   });
+
   return parse<PhoneVerifyResult>(res, '인증번호 확인');
 }
 
 export async function checkNickname(
   nickname: string,
 ): Promise<NicknameCheckResult> {
-  const res = await fetch(
+  const res = await authFetch(
     `${BASE_URL}/users/nickname/check?nickname=${encodeURIComponent(nickname)}`,
-    { headers: authHeaders() },
   );
   return parse<NicknameCheckResult>(res, '닉네임 중복 확인');
+}
+
+export async function updateProfileImage(file: File): Promise<{ profileImageUrl: string }> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const token = localStorage.getItem('accessToken') ?? localStorage.getItem('tempToken');
+  const accessToken = token?.startsWith('Bearer ') ? token : `Bearer ${token}`;
+
+  const res = await fetch(`${BASE_URL}/users/me/profile-image`, {
+    method: 'PATCH',
+    headers: {
+      ...(accessToken ? { Authorization: accessToken } : {}),
+    },
+    body: formData,
+  });
+
+  return parse<{ profileImageUrl: string }>(res, '프로필 이미지 수정');
 }

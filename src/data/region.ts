@@ -1,5 +1,7 @@
 // ===== 타입 =====
 
+import { authFetch } from "../api/authFetch";
+
 // 백엔드가 보내주는 지역 1개 객체의 타입
 export interface Region {
   regionId: number;
@@ -31,7 +33,7 @@ export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   if (!keyword.trim()) return [];
 
   // 🔑 토큰 없이 요청 보내기
-  const res = await fetch(
+  const res = await authFetch(
     `${BASE_URL}?keyword=${encodeURIComponent(keyword)}`
   );
 
@@ -48,23 +50,19 @@ export async function searchRegions(keyword: string): Promise<RegionMatch[]> {
   return data.result.map(toRegionMatch);
 }
 
-// 설계서(A103)는 주소를 "시+구+동" 단위로 짧게 적는다. (예: 서울시 성동구 성수동)
-// API는 firstDepth를 "서울특별시"로 내려주므로 노출용으로만 줄인다.
 export function shortenSido(name: string): string {
   return name
     .replace(/(특별자치시|특별시|광역시)$/, "시")
     .replace(/특별자치도$/, "도");
 }
 
-// 좌표를 법정동으로 바꿔주는 API. 지역 검색과 달리 결과가 한 건이다.
-// 온보딩(A103)과 마이페이지 재설정(F104)이 같이 쓴다.
 export async function getPresentRegion(
   latitude: number,
   longitude: number,
 ): Promise<Region> {
   const token = localStorage.getItem("accessToken");
 
-  const res = await fetch(
+  const res = await authFetch(
     `${BASE_URL}/present?latitude=${latitude}&longitude=${longitude}`,
     {
       headers: token

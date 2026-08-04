@@ -1,7 +1,4 @@
-////////나중에 /home으로 요청하는걸로 수정 필요함!!!!!!!!!!!!/////////
-
-
-
+import { authFetch } from '../api/authFetch';
 import type { RecommendedCard } from './card';
 export type { RecommendedCard };
 
@@ -43,40 +40,35 @@ interface CardApiResponse<T> {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards/home`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem('accessToken');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-/**
- * 카드 목록 조회 및 cardId 6~12 제외 API
- */
 export async function fetchHomeCards(): Promise<HomeCardsResult> {
-  const res = await fetch(`${BASE_URL}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE_URL}`);
 
   if (!res.ok) {
     throw new Error(`카드 목록 조회 실패: ${res.status}`);
   }
 
-  const data = await res.json();
+  const data: CardApiResponse<any> = await res.json();
 
   if (!data.isSuccess) {
     throw new Error(data.message);
   }
 
-  const rawCards: RecommendedCard[] = Array.isArray(data.result)
-    ? data.result
-    : data.result?.cards || [];
+  const result = data.result;
 
-  const filteredCards = rawCards.filter(
-    (card) => card.cardId < 6 || card.cardId > 13
-  );
+  const monthlyCards: RecommendedCard[] = result?.monthlyArt?.cards || [];
+  const yearEndCards: RecommendedCard[] =
+    result?.yearEndPick?.cards || result?.pick?.cards || [];
 
   return {
-    nickname: data.result?.nickname || null,
-    monthlyArt: { cards: filteredCards },
-    yearEndPick: { cards: filteredCards },
+    nickname: result?.nickname || null,
+    monthlyArt: { cards: monthlyCards },
+    yearEndPick: { cards: yearEndCards },
   };
 }

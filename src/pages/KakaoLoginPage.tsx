@@ -74,8 +74,13 @@ function KakaoLoginPage() {
       localStorage.removeItem('kakaoEmail');
     }
 
+    if (result.refreshToken) {
+      localStorage.setItem('refreshToken', result.refreshToken);
+    } else {
+      localStorage.removeItem('refreshToken');
+    }
+
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
 
     // 카카오 로그인을 시작했으므로 게스트 상태 해제
     localStorage.removeItem('isGuest');
@@ -154,7 +159,6 @@ function KakaoLoginPage() {
 
     window.Kakao.Auth.login({
       throughTalk: true,
-
       success: async (authResponse) => {
         try {
           const kakaoAccessToken = authResponse.access_token;

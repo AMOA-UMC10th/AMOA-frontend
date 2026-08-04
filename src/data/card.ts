@@ -1,3 +1,4 @@
+import { authFetch } from '../api/authFetch';
 // ===== 공통 카드 타입 =====
 
 export interface DesignTagInfo {
@@ -65,7 +66,7 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function fetchCards(params: CardSearchParams): Promise<CardSearchResult> {
+export async function authFetchCards(params: CardSearchParams): Promise<CardSearchResult> {
   const query = new URLSearchParams();
 
   params.regionIds?.forEach((id) => query.append('regionIds', String(id)));
@@ -78,7 +79,7 @@ export async function fetchCards(params: CardSearchParams): Promise<CardSearchRe
   if (params.cursor) query.append('cursor', params.cursor);
   if (params.size !== undefined) query.append('size', String(params.size));
 
-  const res = await fetch(`${BASE_URL}?${query.toString()}`);
+  const res = await authFetch(`${BASE_URL}?${query.toString()}`);
 
   if (!res.ok) {
     throw new Error(`아트 목록 조회 실패: ${res.status}`);
@@ -89,20 +90,14 @@ export async function fetchCards(params: CardSearchParams): Promise<CardSearchRe
   if (!data.isSuccess) {
     throw new Error(data.message);
   }
-
-  // cardId가 6 이상 12 이하인 카드 제외 (필터링)
-  const filteredCards = (data.result.cards || []).filter(
-    (card) => card.cardId < 6 || card.cardId > 13
-  );
-
-  return {
-    ...data.result,
-    cards: filteredCards,
-  };
+    return {
+        ...data.result,
+        cards: data.result.cards || [],
+      };
 }
 
 export async function fetchCardDetail(cardId: number): Promise<CardDetail> {
-  const res = await fetch(`${BASE_URL}/${cardId}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE_URL}/${cardId}`, { headers: authHeaders() });
 
   if (!res.ok) {
     throw new Error(`아트 상세 조회 실패: ${res.status}`);
@@ -118,7 +113,7 @@ export async function fetchCardDetail(cardId: number): Promise<CardDetail> {
 }
 
 export async function fetchRecommendedCards(cardId: number): Promise<RecommendedCard[]> {
-  const res = await fetch(`${BASE_URL}/${cardId}/recommendations`, {
+  const res = await authFetch(`${BASE_URL}/${cardId}/recommendations`, {
     headers: authHeaders(),
   });
 
@@ -132,10 +127,5 @@ export async function fetchRecommendedCards(cardId: number): Promise<Recommended
     throw new Error(data.message);
   }
 
-  // 연관 추천 카드 목록에서도 필요하다면 동일하게 필터링 적용 가능
-  const filteredCards = (data.result.cards || []).filter(
-    (card) => card.cardId < 6 || card.cardId > 13
-  );
-
-  return filteredCards;
+  return data.result.cards || [];;
 }

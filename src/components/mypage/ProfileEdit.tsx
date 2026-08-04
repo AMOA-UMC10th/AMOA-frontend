@@ -1,11 +1,8 @@
-// [F101] 프로필 조회/수정 폼 (이름·이메일·연락처·프로필사진 변경, 수정 불가 이메일 읽기 전용 처리)
-
 import { useRef, useState } from 'react';
 import { FiCamera } from 'react-icons/fi';
 import AuthTimer from '../onboarding/AuthTimer';
-import { checkNickname, sendPhoneCode, verifyPhoneCode } from '../../data/userdata/user';
+import { checkNickname, sendPhoneCode, verifyPhoneCode, updateProfileImage } from '../../data/userdata/user';
 
-// 서버가 6자리 인증번호를 발송한다.
 const CODE_LENGTH = 6;
 
 interface ProfileFormProps {
@@ -14,7 +11,6 @@ interface ProfileFormProps {
   nickname: string;
   email: string;
   phoneNumber: string;
-  // 항목별 [변경하기]가 곧 저장이다. 저장에 성공하면 true를 돌려준다.
   onSaveNickname: (nickname: string) => Promise<boolean>;
   onSavePhone: (phoneNumber: string) => Promise<boolean>;
 }
@@ -101,14 +97,17 @@ export default function ProfileForm({
   const [codeDuration, setCodeDuration] = useState(180);
 
   const handleImageClick = () => fileInputRef.current?.click();
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // TODO: 백엔드에 프로필 이미지 업로드 요청, 응답으로 받은 URL로 교체
-    setImageUrl(URL.createObjectURL(file));
-  };
-
+  try {
+    const result = await updateProfileImage(file);
+    setImageUrl(result.profileImageUrl); // 서버에서 내려준 새 URL로 업데이트
+  } catch (error) {
+    console.error('프로필 이미지 변경 실패:', error);
+  }
+};
   const startNicknameEdit = () => {
     setNicknameDraft(nicknameValue);
     setNicknameChecked(false);
@@ -123,11 +122,9 @@ export default function ProfileForm({
     try {
       const { available } = await checkNickname(nicknameDraft);
       setNicknameDuplicate(!available);
-      // 사용 가능해도 여기서 확정하지 않는다. 버튼이 [변경하기]로 바뀌고 한 번 더 눌러야 확정된다.
       setNicknameChecked(available);
     } catch (err) {
       console.error(err);
-      // 확인에 실패하면 통과시키지 않는다.
       setNicknameDuplicate(true);
       setNicknameChecked(false);
     } finally {
@@ -162,7 +159,6 @@ export default function ProfileForm({
     nicknameDraft.trim().length <= 10 &&
     /^[가-힣a-zA-Z0-9]+$/.test(nicknameDraft.trim());
   const isPhoneDraftValid = phoneDraft.replace(/\D/g, '').length === 11;
-  // 서버가 6자리로 발송한다.
   const isCodeValid = code.length === CODE_LENGTH;
 
   const handleRequestCode = async () => {
@@ -178,7 +174,6 @@ export default function ProfileForm({
       setCodeRequested(true);
     } catch (err) {
       console.error(err);
-      // 30초 이내 재요청 제한에 걸리면 여기로 온다.
       setCodeError(
         err instanceof Error ? err.message : '인증번호를 보내지 못했어요',
       );
@@ -210,7 +205,6 @@ export default function ProfileForm({
 
     setPhoneSaving(true);
     try {
-      // 서버는 하이픈 없는 형식만 받는다.
       const saved = await onSavePhone(phoneDraft.replace(/\D/g, ''));
       if (!saved) return;
       setPhoneValue(phoneDraft);
@@ -275,7 +269,6 @@ export default function ProfileForm({
                   placeholder="닉네임 입력"
                   className="flex-1 border-b border-[#F70071] py-1 text-[15px] text-[#1E2427] focus:outline-none"
                 />
-                {/* 중복확인을 통과하면 버튼이 [변경하기]로 바뀌고, 그걸 눌러야 확정된다. */}
                 {nicknameChecked ? (
                   <ChangeButton
                     label="변경하기"
@@ -311,8 +304,8 @@ export default function ProfileForm({
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2.5">
-              <p className="flex-1 text-[15px] text-[#1E2427]">{nicknameValue}</p>
+            <div className="flex items-end gap-2.5">
+              <p className="flex-1 pt-1.5 text-[15px] -translate-y-[3px] text-[#1E2427]">{nicknameValue}</p>
               <ChangeButton label="변경하기" onClick={startNicknameEdit} />
             </div>
           )}
@@ -336,7 +329,6 @@ export default function ProfileForm({
                   onChange={(e) => setPhoneDraft(formatPhoneNumber(e.target.value))}
                   className="flex-1 border-b border-[#F70071] py-1 text-[15px] text-[#1E2427] disabled:text-[#ADB0B5] focus:outline-none"
                 />
-                {/* 인증이 끝나면 버튼이 [변경하기]로 바뀌고, 그걸 눌러야 확정된다. */}
                 {phoneVerified ? (
                   <ChangeButton
                     label="변경하기"
@@ -412,14 +404,13 @@ export default function ProfileForm({
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2.5">
-              <p className="flex-1 text-[15px] text-[#1E2427]">{phoneValue}</p>
+            <div className="flex items-end gap-2.5">
+              <p className="flex-1 text-[15px] -translate-y-[3px] text-[#1E2427]">{phoneValue}</p>
               <ChangeButton label="변경하기" onClick={startPhoneEdit} />
             </div>
           )}
         </div>
       </div>
-
     </section>
   );
 }

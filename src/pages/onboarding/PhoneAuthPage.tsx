@@ -1,4 +1,4 @@
-//전화번호 입력 페이지 A105
+// 전화번호 입력 페이지 A105
 
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -14,6 +14,7 @@ interface LocationState {
 export default function PhoneAuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [showTerms, setShowTerms] = useState(false);
@@ -74,11 +75,12 @@ export default function PhoneAuthPage() {
             type="text"
             value={nickname}
             disabled
-            className="flex-1 border-b border-[#E9EBEE] px-1 py-2 text-[#ADB0B5]"
+            className="flex-1 border-b border-[#E9EBEE] px-1 py-2 text-[#ADB0B5] bg-transparent"
           />
           <button
             disabled
-            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white"
+            type="button"
+            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white cursor-default"
           >
             확인완료
           </button>
@@ -96,7 +98,7 @@ export default function PhoneAuthPage() {
       <button
         onClick={handleNext}
         disabled={!isPhoneVerified}
-        className="bg-[#F70071] text-white rounded-lg py-3 disabled:bg-[#FFC0DC] disabled:text-white"
+        className="bg-[#F70071] text-white rounded-lg py-3 disabled:bg-[#FFC0DC] disabled:text-white transition-colors"
       >
         다음
       </button>

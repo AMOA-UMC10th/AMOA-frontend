@@ -105,6 +105,8 @@ export default function MyRegionReconfigPage() {
   } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  // 위치를 다시 잡을 때마다 올려서 지도를 그 좌표로 되돌린다.
+  const [recenterToken, setRecenterToken] = useState(0);
 
   useEffect(() => {
     if (!toast) return;
@@ -236,6 +238,7 @@ export default function MyRegionReconfigPage() {
       const position = await getCurrentPosition();
       const { latitude, longitude } = position.coords;
       setMapCenter({ latitude, longitude });
+      setRecenterToken((n) => n + 1);
       const region = await getPresentRegion(latitude, longitude);
       setCurrentRegion(region);
     } catch (err) {
@@ -322,6 +325,7 @@ export default function MyRegionReconfigPage() {
         address={address}
         loading={isLocating}
         error={locationError}
+        recenterToken={recenterToken}
         onCenterChange={handleCenterChange}
         onRetry={loadCurrentLocation}
         onBack={() => setView('search')}

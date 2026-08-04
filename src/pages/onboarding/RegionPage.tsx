@@ -10,44 +10,6 @@ import { getPresentRegion, type Region, type RegionMatch, searchRegions, shorten
 
 const MAX_REGIONS = 3;
 
-interface RegionInfo {
-  regionId: number;
-  firstDepth: string;
-  secondDepth: string;
-  thirdDepth: string;
-}
-
-interface ApiResponse<T> {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: T;
-}
-
-// 좌표를 법정동으로 바꿔주는 API. 지역 검색(searchRegions)과 달리 결과가 한 건이다.
-async function fetchPresentRegion(
-  latitude: number,
-  longitude: number
-): Promise<RegionInfo> {
-  const token = localStorage.getItem("tempToken");
-  const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/regions/present?latitude=${latitude}&longitude=${longitude}`,
-    {
-      headers: token
-        ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
-        : {},
-    }
-  );
-  if (!res.ok) {
-    throw new Error(`현재 위치 지역 조회 실패: ${res.status}`);
-  }
-  const data: ApiResponse<RegionInfo> = await res.json();
-  if (!data.isSuccess) {
-    throw new Error(data.message);
-  }
-  return data.result;
-}
-
 // 브라우저 위치 권한은 콜백 기반이라 await로 쓰기 위해 감싼다.
 function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -105,6 +67,8 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
   } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  // 위치를 다시 잡을 때마다 올려서 지도를 그 좌표로 되돌린다.
+  const [recenterToken, setRecenterToken] = useState(0);
 
   useEffect(() => {
     if (!toast) return;
@@ -208,6 +172,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
       const position = await getCurrentPosition();
       const { latitude, longitude } = position.coords;
       setMapCenter({ latitude, longitude });
+      setRecenterToken((n) => n + 1);
       const region = await getPresentRegion(latitude, longitude);
       setCurrentRegion(region);
     } catch (err) {
@@ -248,7 +213,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     if (!currentRegion) return;
     addRegion({
       regionId: currentRegion.regionId,
-      district: `${currentRegion.firstDepth} ${currentRegion.secondDepth}`.trim(),
+      district: `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth}`.trim(),
       keyword: currentRegion.thirdDepth,
     });
     setView("search");
@@ -292,6 +257,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
         address={address}
         loading={isLocating}
         error={locationError}
+        recenterToken={recenterToken}
         onCenterChange={handleCenterChange}
         onRetry={loadCurrentLocation}
         onBack={() => setView("search")}
