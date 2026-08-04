@@ -33,7 +33,7 @@ export default function ArtCard({
 
   const artMonth = new Date().getMonth() + 1;
 
-  const handleTextClick = () => {
+  const handleCardClick = () => {
     navigate(`/art-detail/${cardId}`);
   };
 
@@ -50,11 +50,14 @@ export default function ArtCard({
 
   return (
     <div className="w-full group">
-      <div className="relative w-full aspect-[18/25] overflow-hidden">
+      <div
+        className="relative w-full aspect-[18/25] overflow-hidden cursor-pointer"
+        onClick={handleCardClick}
+      >
         <InstagramSafeImage url={instagramUrl} />
       </div>
 
-      <div className="mt-2.5 px-2 cursor-pointer" onClick={handleTextClick}>
+      <div className="mt-2.5 px-2 cursor-pointer" onClick={handleCardClick}>
         <div className="flex items-center justify-between">
           <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-1.5 py-0.5 rounded font-bold">
             {artMonth}월 {getArtTypeLabel(artType)}
