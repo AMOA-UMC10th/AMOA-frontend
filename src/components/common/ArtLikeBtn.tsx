@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
-import { useRequireLogin } from '../../hooks/useReqireLogin';
+import { setCardLiked, useCardLiked } from '../../data/likeStore';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
@@ -18,9 +18,10 @@ export default function ArtLikeBtn({
   size = 22,
   onToggle,
 }: ArtLikeBtnProps) {
-  const { requireLogin } = useRequireLogin();
+  // cardId가 있으면 공용 저장소를 따른다. 그래야 목록에서 누른 찜이 상세에도 반영된다.
+  const [localLiked, setLocalLiked] = useState(initialLiked);
+  const liked = useCardLiked(cardId, localLiked);
 
-  const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
@@ -31,22 +32,17 @@ export default function ArtLikeBtn({
   };
 
   const handleClick = () => {
-    if (!requireLogin()) {
-      return;
-    }
-
     const next = !liked;
-
     setLiked(next);
     setIsSaved(next);
     setAnimateOut(false);
     setShowToast(true);
 
-    window.setTimeout(() => {
+    setTimeout(() => {
       setAnimateOut(true);
     }, 1300);
 
-    window.setTimeout(() => {
+    setTimeout(() => {
       setShowToast(false);
     }, 1800);
 
@@ -54,14 +50,10 @@ export default function ArtLikeBtn({
 
     if (cardId !== undefined) {
       const request = next ? likeCard(cardId) : unlikeCard(cardId);
-
       request.catch((err) => {
         console.error(err);
-
-        if (err instanceof LikeApiError && err.status === 409) {
-          return;
-        }
-
+        // 서버 상태가 이미 원하는 상태(중복 찜/이미 취소됨)라면 되돌리지 않고 그대로 둠
+        if (err instanceof LikeApiError && err.status === 409) return;
         setLiked(!next);
         setIsSaved(!next);
         onToggle?.(!next);
@@ -72,7 +64,6 @@ export default function ArtLikeBtn({
   return (
     <div className="relative inline-block">
       <button
-        type="button"
         onClick={handleClick}
         aria-label="찜하기"
         className="transition-transform active:scale-125 flex items-center justify-center"
@@ -81,10 +72,7 @@ export default function ArtLikeBtn({
           style={{ width: size, height: size }}
           className="flex items-center justify-center -mt-1"
         >
-          {HeartIcon({
-            className: 'w-full h-full block',
-            filled: liked,
-          })}
+          {HeartIcon({ className: 'w-full h-full block', filled: liked })}
         </span>
       </button>
 
