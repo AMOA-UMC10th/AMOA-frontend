@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiCamera } from 'react-icons/fi';
 import AuthTimer from '../onboarding/AuthTimer';
-import { checkNickname, sendPhoneCode, verifyPhoneCode, updateProfileImage } from '../../data/userdata/user';
+import { checkNickname, sendPhoneCode, verifyPhoneCode } from '../../data/userdata/user';
 
 const CODE_LENGTH = 6;
 
@@ -13,6 +13,8 @@ interface ProfileFormProps {
   phoneNumber: string;
   onSaveNickname: (nickname: string) => Promise<boolean>;
   onSavePhone: (phoneNumber: string) => Promise<boolean>;
+  // 저장에 성공하면 서버가 돌려준 이미지 URL을, 실패하면 null을 반환한다.
+  onSaveImage: (file: File) => Promise<string | null>;
 }
 
 function formatPhoneNumber(raw: string): string {
@@ -71,9 +73,12 @@ export default function ProfileForm({
   phoneNumber,
   onSaveNickname,
   onSavePhone,
+  onSaveImage,
 }: ProfileFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState(profileImageUrl);
+  const [imageSaving, setImageSaving] = useState(false);
+  const previewUrlRef = useRef<string | null>(null);
 
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameEditing, setNicknameEditing] = useState(false);
@@ -96,18 +101,41 @@ export default function ProfileForm({
   const [codeError, setCodeError] = useState<string | null>(null);
   const [codeDuration, setCodeDuration] = useState(180);
 
-  const handleImageClick = () => fileInputRef.current?.click();
-const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // 미리보기용 blob URL은 화면에서 내려간 뒤에 정리한다.
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    };
+  }, []);
 
-  try {
-    const result = await updateProfileImage(file);
-    setImageUrl(result.profileImageUrl); // 서버에서 내려준 새 URL로 업데이트
-  } catch (error) {
-    console.error('프로필 이미지 변경 실패:', error);
-  }
-};
+  const handleImageClick = () => {
+    if (imageSaving) return;
+    fileInputRef.current?.click();
+  };
+
+  // 저장은 부모가 맡는다. 닉네임·전화번호와 같은 흐름으로 맞춰
+  // 성공하면 토스트가 뜨고 부모의 profile 상태도 함께 갱신되도록 한다.
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // 같은 파일을 다시 골라도 onChange가 걸리도록 비워둔다.
+    e.target.value = '';
+    if (!file) return;
+
+    // 업로드가 끝날 때까지는 방금 고른 파일을 임시로 보여준다.
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    const previewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = previewUrl;
+    setImageUrl(previewUrl);
+
+    setImageSaving(true);
+    try {
+      const savedUrl = await onSaveImage(file);
+      // 실패하면 원래 사진으로 되돌린다.
+      setImageUrl(savedUrl ?? profileImageUrl);
+    } finally {
+      setImageSaving(false);
+    }
+  };
   const startNicknameEdit = () => {
     setNicknameDraft(nicknameValue);
     setNicknameChecked(false);
