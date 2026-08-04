@@ -1,5 +1,3 @@
-import { authFetch } from "../api/authFetch";
-
 export interface TermListItem {
   termId: number;
   title: string;
@@ -22,30 +20,8 @@ interface TermApiResponse<T> {
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/terms`;
 
-function authHeaders(): HeadersInit {
-  const accessToken = localStorage.getItem("accessToken");
-  const tempToken = localStorage.getItem("tempToken");
-
-  const validToken = [accessToken, tempToken].find(
-    (t) => t && t !== "null" && t !== "undefined"
-  );
-
-  if (!validToken) {
-    return { "Content-Type": "application/json" };
-  }
-
-  const formattedToken = validToken.startsWith("Bearer ")
-    ? validToken
-    : `Bearer ${validToken}`;
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: formattedToken,
-  };
-}
-
 export async function fetchTermList(): Promise<TermListItem[]> {
-  const res = await authFetch(BASE_URL, {
+  const res = await fetch(BASE_URL, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -66,7 +42,12 @@ export async function fetchTermList(): Promise<TermListItem[]> {
 }
 
 export async function fetchTermDetail(termId: number): Promise<TermDetail> {
-  const res = await authFetch(`${BASE_URL}/${termId}`, { headers: authHeaders() });
+  const res = await fetch(`${BASE_URL}/${termId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
   if (!res.ok) {
     throw new Error(`이용약관 상세 조회 실패: ${res.status}`);
