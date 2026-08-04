@@ -1,12 +1,9 @@
-
-
 import { useState } from 'react';
 import { likeShop, unlikeShop, LikeApiError } from '../../data/like';
-import { setShopLiked, useShopLiked } from '../../data/likeStore';
+import { useRequireLogin } from '../../hooks/useReqireLogin';
 
 interface ShopLikeBtnProps {
   initialLiked: boolean;
-  // shopId를 넘기면 실제 찜 등록/취소 요청까지 보낸다. (아트 쪽 ArtLikeBtn과 같은 방식)
   shopId?: number;
   size?: number;
   onToggle?: (liked: boolean) => void;
@@ -18,10 +15,9 @@ export default function ShopLikeBtn({
   size = 16,
   onToggle,
 }: ShopLikeBtnProps) {
-  // shopId가 있으면 공용 저장소를 따른다. 목록·상세가 같은 값을 보게 하기 위해서다.
-  const [localLiked, setLocalLiked] = useState(initialLiked);
-  const liked = useShopLiked(shopId, localLiked);
+  const { requireLogin } = useRequireLogin();
 
+  const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
@@ -32,17 +28,22 @@ export default function ShopLikeBtn({
   };
 
   const handleClick = () => {
+    if (!requireLogin()) {
+      return;
+    }
+
     const next = !liked;
+
     setLiked(next);
     setIsSaved(next);
     setAnimateOut(false);
     setShowToast(true);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       setAnimateOut(true);
     }, 1300);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       setShowToast(false);
     }, 1800);
 
@@ -50,10 +51,14 @@ export default function ShopLikeBtn({
 
     if (shopId !== undefined) {
       const request = next ? likeShop(shopId) : unlikeShop(shopId);
+
       request.catch((err) => {
         console.error(err);
-        // 서버가 이미 원하는 상태라면(중복 찜/이미 취소됨) 화면을 되돌리지 않는다.
-        if (err instanceof LikeApiError && err.status === 409) return;
+
+        if (err instanceof LikeApiError && err.status === 409) {
+          return;
+        }
+
         setLiked(!next);
         setIsSaved(!next);
         onToggle?.(!next);
@@ -64,6 +69,7 @@ export default function ShopLikeBtn({
   return (
     <div className="relative inline-block">
       <button
+        type="button"
         onClick={handleClick}
         aria-label="샵 찜하기"
         className="text-gray-400 hover:text-red-500 pointer-events-auto transition-transform active:scale-125"
