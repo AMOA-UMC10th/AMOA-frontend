@@ -111,7 +111,7 @@ export default function PriceFilter({
             className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
             style={{ width: `${minPrice === 0 ? 1 : formatNumber(minPrice).length}ch` }}
           />
-          <span className="text-[#ADB0B5] -ml-1.5">원</span>
+          <span className="text-[#ADB0B5] -ml-1.3">원</span>
         </div>
 
         <span className="text-[#374553]">—</span>
@@ -127,7 +127,7 @@ export default function PriceFilter({
             className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
             style={{ width: `${maxPrice === 0 ? 7 : formatNumber(maxPrice).length}ch` }}
           />
-          <span className="text-[#ADB0B5] -ml-1.5">원</span>
+          <span className="text-[#ADB0B5] -ml-1.3">원</span>
         </div>
       </div>
       
