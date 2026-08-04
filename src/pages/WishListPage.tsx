@@ -11,7 +11,11 @@ import {
   type LikedCard,
   type LikedShop,
 } from '../data/likeList';
-import { markCardsLiked, markShopsLiked } from '../data/likeStore';
+import {
+  hydrateLikedCards,
+  markCardsLiked,
+  markShopsLiked,
+} from '../data/likeStore';
 
 type WishTab = 'ART' | 'SHOP';
 type SortOption =
@@ -121,6 +125,9 @@ export default function WishListPage() {
         setShops(result.likedShops);
         setTotalShops(result.totalElements);
         markShopsLiked(result.likedShops.map((shop) => shop.shopId));
+        // 샵 응답에는 아트별 찜 여부가 없다. 아트 찜 목록을 한 번 채워둬야
+        // 샵 안의 ArtCard 하트가 실제 상태로 켜진다.
+        hydrateLikedCards();
       }
     } catch (err) {
       console.error(err);
