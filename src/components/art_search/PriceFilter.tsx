@@ -17,9 +17,12 @@ export default function PriceFilter({
 }: PriceFilterProps) {
   const sliderTrackRef = useRef<HTMLDivElement>(null);
 
+  // 숫자에 천 단위 콤마 추가 (예: 30000 -> "30,000")
+  const formatNumber = (num: number) => num.toLocaleString('ko-KR');
+
   // 최소 가격 직접 입력 시 호출
   const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+    const value = e.target.value.replace(/[^0-9]/g, ''); // 콤마 등 숫자 이외 문자 제거
     const numValue = value === '' ? 0 : Number(value);
     
     // 최대 가격을 넘지 않도록 제어하며 부모 상태 업데이트
@@ -29,7 +32,7 @@ export default function PriceFilter({
 
   // 최대 가격 직접 입력 시 호출
   const handleMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+    const value = e.target.value.replace(/[^0-9]/g, ''); // 콤마 등 숫자 이외 문자 제거
     const numValue = value === '' ? 0 : Number(value);
 
     // 전체 제한 한도(20만 원)를 넘지 않도록 제어
@@ -99,32 +102,34 @@ export default function PriceFilter({
       <h3 className="text-sm font-bold text-[#1d2026] mb-3">가격</h3>
       
       <div className="flex items-center space-x-2.5 mb-6">
-        <div className="flex-1 flex items-center border border-[#ced4da] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
+        <div className="flex-1 flex items-center border border-[#ADB0B5] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            value={minPrice === 0 ? '' : minPrice}
+            value={minPrice === 0 ? '' : formatNumber(minPrice)}
             placeholder="0"
             onChange={handleMinInputChange}
-            className="w-full text-center text-sm text-[#28323c] font-semibold outline-none bg-transparent"
+            className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
+            style={{ width: `${minPrice === 0 ? 1 : formatNumber(minPrice).length}ch` }}
           />
-          <span className="text-xs text-[#868e96] ml-1 font-semibold">원</span>
+          <span className="text-[#ADB0B5] -ml-0.5">원</span>
         </div>
 
-        <span className="text-[#868e96]">—</span>
+        <span className="text-[#374553]">—</span>
 
-        <div className="flex-1 flex items-center border border-[#ced4da] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
+        <div className="flex-1 flex items-center border border-[#ADB0B5] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            value={maxPrice === 0 ? '' : maxPrice}
+            value={maxPrice === 0 ? '' : formatNumber(maxPrice)}
             placeholder="200,000"
             onChange={handleMaxInputChange}
-            className="w-full text-center text-sm text-[#28323c] font-semibold outline-none bg-transparent"
+            className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
+            style={{ width: `${maxPrice === 0 ? 7 : formatNumber(maxPrice).length}ch` }}
           />
-          <span className="text-xs text-[#868e96] ml-1 font-semibold">원</span>
+          <span className="text-[#ADB0B5] -ml-0.5">원</span>
         </div>
       </div>
       
