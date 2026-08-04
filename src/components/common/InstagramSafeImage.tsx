@@ -37,7 +37,10 @@ export default function InstagramSafeImage({ url }: { url: string }) {
   const formattedUrl = cleanUrl.endsWith('/') ? cleanUrl : `${cleanUrl}/`;
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#E9EBEE]">
+    <div
+      ref={containerRef}
+      className="w-full h-full relative overflow-hidden bg-[#E9EBEE] pointer-events-none"
+    >
       <div
         className="absolute origin-top-left"
         style={{
