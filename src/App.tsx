@@ -1,5 +1,4 @@
 import './App.css';
-
 import {
   BrowserRouter,
   Routes,
@@ -9,14 +8,9 @@ import {
   useNavigate,
   Navigate,
 } from 'react-router-dom';
-
 import AdminLayout from './components/admin/AdminLayout';
 import BottomNav from './components/common/BottomNav';
-import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
-
-import { RequireLoginProvider } from './hooks/useReqireLogin';
-
 import HomePage from './pages/HomePage';
 import PhoneAuthPage from './pages/onboarding/PhoneAuthPage';
 import SignupCompletePage from './pages/onboarding/SignupCompletePage';
@@ -42,21 +36,19 @@ import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
 import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
-
 const NAV_HIDDEN_PATHS = [
   '/mypage/settings',
   '/mypage/notice',
   '/mypage/terms',
   '/mypage/withdraw',
+  // 재설정 화면은 하단 [저장] 버튼이 화면 끝에 붙어서 탭바와 겹친다.
   '/mypage/designre',
   '/mypage/regionre',
 ];
 
 function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-
   const isAdmin = location.pathname.startsWith('/admin');
-
   const showNav =
     NAV_VISIBLE_PATHS.some((path) => location.pathname.startsWith(path)) &&
     !NAV_HIDDEN_PATHS.some((path) => location.pathname.startsWith(path));
@@ -72,13 +64,9 @@ function LayoutWrapper({ children }: { children: React.ReactNode }) {
 function RegionPageRoute() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const goNext = (regionIds: number[]) => {
     navigate('/onboarding/nickname', {
-      state: {
-        ...location.state,
-        regionIds,
-      },
+      state: { ...location.state, regionIds },
     });
   };
 
@@ -87,8 +75,8 @@ function RegionPageRoute() {
       onNext={(regions) =>
         goNext(
           regions
-            .map((region) => region.regionId)
-            .filter((regionId): regionId is number => regionId != null),
+            .map((r) => r.regionId)
+            .filter((id): id is number => id != null)
         )
       }
       onSkip={() => goNext([])}
@@ -98,176 +86,51 @@ function RegionPageRoute() {
 
 function ArtDetailPageRoute() {
   const { cardId } = useParams();
-
   return <ArtDetailPage key={cardId} />;
 }
 
 function MyReservationDetailPageRoute() {
   const { reservationId } = useParams();
-
   return <MyReservationDetailPage key={reservationId} />;
 }
-
 function NailShopDetailPageRoute() {
   const { shopId } = useParams();
-
   return <NailShopDetailPage key={shopId} />;
-}
-
-function AppRoutes() {
-  return (
-    <>
-      <ScrollToTop />
-
-      <LayoutWrapper>
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-
-          <Route path="/admin" element={<AdminLayout />} />
-
-          <Route path="/home" element={<HomePage />} />
-
-          <Route path="/login" element={<KakaoLoginPage />} />
-
-          <Route path="/SplashPage" element={<SplashPage />} />
-
-          <Route path="/art-search" element={<ArtSearchPage />} />
-
-          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
-
-          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
-
-          <Route path="/onboarding/design" element={<DesignPage />} />
-
-          <Route path="/onboarding/region" element={<RegionPageRoute />} />
-
-          <Route path="/onboarding/nickname" element={<NicknamePage />} />
-
-          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
-
-          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
-
-          <Route
-            path="/wishlist"
-            element={
-              <ProtectedRoute>
-                <WishListPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/art/:cardId/reservation"
-            element={
-              <ProtectedRoute>
-                <ReservationPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage"
-            element={
-              <ProtectedRoute>
-                <MyPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/reservations"
-            element={
-              <ProtectedRoute>
-                <MyReservationListPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reservations/:reservationId"
-            element={
-              <ProtectedRoute>
-                <MyReservationDetailPageRoute />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/withdraw"
-            element={
-              <ProtectedRoute>
-                <WithdrawPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/terms"
-            element={
-              <ProtectedRoute>
-                <TermsDetailView />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/notice"
-            element={
-              <ProtectedRoute>
-                <NoticeList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/settings"
-            element={
-              <ProtectedRoute>
-                <NotificationToggle />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/edit"
-            element={
-              <ProtectedRoute>
-                <MyProfileEditPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/designre"
-            element={
-              <ProtectedRoute>
-                <MyMoodReconfigPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/mypage/regionre"
-            element={
-              <ProtectedRoute>
-                <MyRegionReconfigPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path="*" element={<Navigate to="/home" replace />} />
-        </Routes>
-      </LayoutWrapper>
-    </>
-  );
 }
 
 function App() {
   return (
     <BrowserRouter>
-      <RequireLoginProvider>
-        <AppRoutes />
-      </RequireLoginProvider>
+      <ScrollToTop />
+      <LayoutWrapper>
+        <Routes>
+          <Route path="/admin" element={<AdminLayout />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/login" element={<KakaoLoginPage />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/onboarding/design" element={<DesignPage />} />
+          <Route path="/onboarding/region" element={<RegionPageRoute />} />
+          <Route path="/onboarding/nickname" element={<NicknamePage />} />
+          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
+          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
+          <Route path="/art-search" element={<ArtSearchPage />} />
+          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
+          <Route path="/art/:cardId/reservation" element={<ReservationPage />}/>
+          <Route path="/wishlist" element={<WishListPage />} />
+          <Route path="/mypage/reservations" element={<MyReservationListPage />} />
+          <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
+          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+          <Route path="/SplashPage" element={<SplashPage />} />
+          <Route path="/mypage/withdraw" element={<WithdrawPage />} />
+          <Route path="/mypage/terms" element={<TermsDetailView />} />
+          <Route path="/mypage/notice" element={<NoticeList />} />
+          <Route path="/mypage/settings" element={<NotificationToggle />} />
+          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
+          <Route path="/mypage/designre" element={<MyMoodReconfigPage />} />
+          <Route path="/mypage/regionre" element={<MyRegionReconfigPage />} />
+        </Routes>
+      </LayoutWrapper>
     </BrowserRouter>
   );
 }
