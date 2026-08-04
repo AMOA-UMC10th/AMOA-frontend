@@ -102,28 +102,38 @@ export async function updateMyProfile(
   return parse<UserProfile>(res, '내 정보 수정');
 }
 
-// 🔑 SMS 발송 API 수정 (Bearer 추가, cleanPhone 처리, parse 적용)
 export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
-  const res = await authFetch(`${BASE_URL}/users/phone/send`, {
+  const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
+  const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
+
+  const res = await fetch(`${BASE_URL}/users/phone/send`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(authHeader ? { Authorization: authHeader } : {}),
     },
     body: JSON.stringify({ phoneNumber: onlyDigits(phone) }),
   });
+
   return parse<PhoneSendResult>(res, '인증번호 발송');
 }
 
-// 🔑 SMS 인증번호 검증 API 수정
 export async function verifyPhoneCode(
   phoneNumber: string,
   code: string,
 ): Promise<PhoneVerifyResult> {
-  const res = await authFetch(`${BASE_URL}/users/phone/verify`, {
+  const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
+  const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
+
+  const res = await fetch(`${BASE_URL}/users/phone/verify`, {
     method: 'POST',
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(authHeader ? { Authorization: authHeader } : {}),
+    },
     body: JSON.stringify({ phoneNumber: onlyDigits(phoneNumber), code }),
   });
+
   return parse<PhoneVerifyResult>(res, '인증번호 확인');
 }
 
