@@ -21,6 +21,14 @@ export default function NailShopDetailPage() {
   const [selectedFilter, setSelectedFilter] = useState<string>('전체');
   const [selectedSort, setSelectedSort] = useState<SortOption>('LATEST');
 
+  // 찜 숫자는 하트를 누른 즉시 반영되어야 해서 페이지에서 들고 있는다.
+  const [shopLikeCount, setShopLikeCount] = useState(0);
+  const [cardLikeCount, setCardLikeCount] = useState(0);
+
+  const bumpCount =
+    (setCount: React.Dispatch<React.SetStateAction<number>>) => (liked: boolean) =>
+      setCount((count) => Math.max(0, liked ? count + 1 : count - 1));
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -31,6 +39,8 @@ export default function NailShopDetailPage() {
         ]);
         setShopInfo(shopRes);
         setCardData(cardsRes);
+        setShopLikeCount(shopRes.shopLikeCount);
+        setCardLikeCount(shopRes.cardLikeCount);
       } catch (err) {
         console.error('샵 상세 정보 불러오기 실패:', err);
       } finally {
@@ -81,7 +91,12 @@ export default function NailShopDetailPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto">
-        <ShopInfo shop={shopInfo} />
+        <ShopInfo
+          shop={shopInfo}
+          shopLikeCount={shopLikeCount}
+          cardLikeCount={cardLikeCount}
+          onShopLikeChange={bumpCount(setShopLikeCount)}
+        />
 
         <ShopArtList
           cards={sortedAndFilteredCards} // ★ 정렬/필터링된 리스트 전달
@@ -89,6 +104,7 @@ export default function NailShopDetailPage() {
           shopName={cardData.shopName}
           onFilterChange={(artType) => setSelectedFilter(artType)}
           onSortChange={(sort) => setSelectedSort(sort)}
+          onCardLikeChange={bumpCount(setCardLikeCount)}
         />
       </main>
     </div>

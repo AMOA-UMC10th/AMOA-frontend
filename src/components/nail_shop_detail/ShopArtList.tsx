@@ -10,6 +10,8 @@ interface ShopArtListProps {
   shopName?: string;
   onFilterChange?: (artType: string) => void;
   onSortChange?: (sort: SortOption) => void;
+  // 상단 '아트찜' 숫자를 바로 올리고 내리기 위해 페이지로 올려보낸다.
+  onCardLikeChange?: (liked: boolean) => void;
 }
 
 export default function ShopArtList({
@@ -18,6 +20,7 @@ export default function ShopArtList({
   shopName = '',
   onFilterChange,
   onSortChange,
+  onCardLikeChange,
 }: ShopArtListProps) {
   const [activeFilter, setActiveFilter] = useState('전체');
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -124,6 +127,7 @@ export default function ShopArtList({
             maxPrice={card.maxPrice}
             artType={card.artType}
             isLiked={card.isLiked}
+            onLikeChange={onCardLikeChange}
           />
         ))}
       </div>

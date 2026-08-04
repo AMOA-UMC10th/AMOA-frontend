@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { likeShop, unlikeShop, LikeApiError } from '../../data/like';
+import { setShopLiked, useShopLiked } from '../../data/likeStore';
 
 interface ShopLikeBtnProps {
   initialLiked: boolean;
@@ -17,10 +18,18 @@ export default function ShopLikeBtn({
   size = 16,
   onToggle,
 }: ShopLikeBtnProps) {
-  const [liked, setLiked] = useState(initialLiked);
+  // shopId가 있으면 공용 저장소를 따른다. 목록·상세가 같은 값을 보게 하기 위해서다.
+  const [localLiked, setLocalLiked] = useState(initialLiked);
+  const liked = useShopLiked(shopId, localLiked);
+
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
+
+  const setLiked = (value: boolean) => {
+    if (shopId === undefined) setLocalLiked(value);
+    else setShopLiked(shopId, value);
+  };
 
   const handleClick = () => {
     const next = !liked;

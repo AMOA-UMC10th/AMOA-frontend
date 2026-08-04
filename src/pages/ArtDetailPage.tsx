@@ -13,6 +13,7 @@ import {
   type CardDetail,
   type RecommendedCard,
 } from '../data/card';
+import { hydrateLikedCards } from '../data/likeStore';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function ArtDetailPage() {
   useEffect(() => {
     if (!cardId) return;
     let cancelled = false;
+
+    // 상세 응답에 찜 여부가 없어서, 찜 목록으로 하트 상태를 채워둔다.
+    hydrateLikedCards();
 
     fetchCardDetail(Number(cardId))
       .then((data) => {
@@ -141,6 +145,7 @@ export default function ArtDetailPage() {
       <RelatedArtList cards={relatedCards} />
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
+        {/* 카드 상세 API가 isLiked를 안 내려줘서, 공용 저장소에 채워둔 값을 따른다. */}
         <ArtLikeBtn initialLiked={false} cardId={card.cardId} size={24} />
         <button
           onClick={handleShare}

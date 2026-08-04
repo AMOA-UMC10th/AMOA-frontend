@@ -4,8 +4,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import ShopLikeBtn from '../common/ShopLikeBtn';
-import ArtLikeBtn from '../common/ArtLikeBtn';
-import InstagramSafeImage from '../common/InstagramSafeImage';
+import ArtCard from '../common/ArtCard';
 import { AddressPinIcon, ChevronRightSmallIcon } from '../../assets/icons';
 import type { LikedShop } from '../../data/likeList';
 
@@ -67,33 +66,21 @@ export default function WishShopCard({ shop, onUnlike }: WishShopCardProps) {
         </button>
       </div>
 
-      {/* 대표 아트는 가로로 넘겨서 본다. 마지막 카드가 살짝 잘려 보이도록 오른쪽 여백을 준다. */}
-      <div className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* 대표 아트는 가로로 넘겨서 본다. 마지막 카드가 살짝 잘려 보이도록 오른쪽 여백을 준다.
+          카드 자체는 아트 탭/홈과 같은 공통 ArtCard를 그대로 쓴다. */}
+      <div className="flex gap-0.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shop.cards.map((art) => (
           <div key={art.cardId} className="w-[47%] shrink-0">
-            <button
-              type="button"
-              onClick={() => navigate(`/art-detail/${art.cardId}`)}
-              className="w-full text-left"
-            >
-              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl border border-gray-100 bg-[#E9EBEE] pointer-events-none">
-                <InstagramSafeImage url={art.instagramUrl} />
-              </div>
-            </button>
-
-            <div className="mt-1.5 flex items-center justify-between">
-              <span className="rounded bg-[#FFEEF6] px-1.5 py-0.5 text-[10px] font-bold text-[#F70071]">
-                {art.artType === 'EVENT' ? '이벤트' : '이달아'}
-              </span>
-              <ArtLikeBtn initialLiked={false} cardId={art.cardId} size={16} />
-            </div>
-
-            <p className="mt-1 truncate text-sm font-bold text-[#28323C]">
-              {shop.shopName}
-            </p>
-            <p className="mt-0.5 text-xs font-semibold text-[#646F7C]">
-              {art.minPrice?.toLocaleString()}~{art.maxPrice?.toLocaleString()}원
-            </p>
+            {/* 샵 응답의 아트에는 샵 이름/지역이 없어서 바깥 샵 정보를 그대로 내려준다. */}
+            <ArtCard
+              cardId={art.cardId}
+              instagramUrl={art.instagramUrl}
+              shopName={shop.shopName}
+              regionName={shop.regionName}
+              minPrice={art.minPrice}
+              maxPrice={art.maxPrice}
+              artType={art.artType}
+            />
           </div>
         ))}
       </div>
