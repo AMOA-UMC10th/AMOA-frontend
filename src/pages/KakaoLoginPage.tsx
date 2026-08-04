@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  postKakaoLogin,
-  type ExistingUserResult,
-  type NewUserResult,
+  initializeKakaoSdk,
+  saveKakaoLoginResult,
+  startKakaoLogin,
 } from '../data/userdata/kakaoLogin';
-
-const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 
 function KakaoLoginPage() {
   const navigate = useNavigate();
@@ -17,107 +15,39 @@ function KakaoLoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!KAKAO_JS_KEY) {
-      console.error('VITE_KAKAO_JS_KEY가 설정되지 않았습니다.');
-      setErrorMessage('카카오 로그인 설정을 확인해주세요.');
-      return;
-    }
+    let cancelled = false;
 
-    const initializeKakao = () => {
-      if (!window.Kakao) {
-        console.error('카카오 JavaScript SDK가 로드되지 않았습니다.');
-        setErrorMessage('카카오 로그인 기능을 불러오지 못했습니다.');
-        return;
+    const prepareKakaoLogin = async () => {
+      try {
+        await initializeKakaoSdk();
+
+        if (!cancelled) {
+          setIsKakaoReady(true);
+          setErrorMessage(null);
+        }
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : '카카오 로그인 기능을 불러오지 못했습니다.';
+
+        console.error('카카오 SDK 초기화 실패:', error);
+        setErrorMessage(message);
       }
-
-      if (!window.Kakao.isInitialized()) {
-        window.Kakao.init(KAKAO_JS_KEY);
-      }
-
-      setIsKakaoReady(true);
-      setErrorMessage(null);
     };
 
-    if (window.Kakao) {
-      initializeKakao();
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      if (window.Kakao) {
-        window.clearInterval(intervalId);
-        initializeKakao();
-      }
-    }, 100);
-
-    const timeoutId = window.setTimeout(() => {
-      window.clearInterval(intervalId);
-
-      if (!window.Kakao) {
-        setErrorMessage('카카오 로그인 기능을 불러오지 못했습니다.');
-      }
-    }, 5000);
+    prepareKakaoLogin();
 
     return () => {
-      window.clearInterval(intervalId);
-      window.clearTimeout(timeoutId);
+      cancelled = true;
     };
   }, []);
 
-  const handleNewUser = (result: NewUserResult): void => {
-    localStorage.setItem('tempToken', result.tempToken);
-    localStorage.setItem('memberId', String(result.memberId));
-
-    if (result.kakaoEmail) {
-      localStorage.setItem('kakaoEmail', result.kakaoEmail);
-    } else {
-      localStorage.removeItem('kakaoEmail');
-    }
-
-    if (result.refreshToken) {
-      localStorage.setItem('refreshToken', result.refreshToken);
-    } else {
-      localStorage.removeItem('refreshToken');
-    }
-
-    localStorage.removeItem('accessToken');
-
-    // 카카오 로그인을 시작했으므로 게스트 상태 해제
-    localStorage.removeItem('isGuest');
-
-    navigate('/onboarding/design', {
-      replace: true,
-    });
-  };
-
-  const handleExistingUser = (result: ExistingUserResult): void => {
-    localStorage.setItem('accessToken', result.accessToken);
-    localStorage.setItem('refreshToken', result.refreshToken);
-    localStorage.setItem('memberId', String(result.memberId));
-    localStorage.setItem('email', result.email);
-
-    if (result.nickName) {
-      localStorage.setItem('nickName', result.nickName);
-    } else {
-      localStorage.removeItem('nickName');
-    }
-
-    localStorage.removeItem('tempToken');
-    localStorage.removeItem('kakaoEmail');
-
-    // 기존 회원으로 로그인했으므로 게스트 상태 해제
-    localStorage.removeItem('isGuest');
-
-    navigate('/home', {
-      replace: true,
-    });
-  };
-
   const handleGuestMode = (): void => {
-    /*
-     * 이전 로그인 정보가 남아 있으면 게스트로 정확히 인식되지 않을 수 있으므로
-     * 서비스 로그인 관련 정보만 삭제합니다.
-     */
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('tempToken');
@@ -126,7 +56,6 @@ function KakaoLoginPage() {
     localStorage.removeItem('nickName');
     localStorage.removeItem('kakaoEmail');
 
-    // 게스트 상태 저장
     localStorage.setItem('isGuest', 'true');
 
     navigate('/home', {
@@ -134,90 +63,41 @@ function KakaoLoginPage() {
     });
   };
 
-  const handleKakaoLogin = (): void => {
+  const handleKakaoLogin = async (): Promise<void> => {
     if (isLoading) {
       return;
     }
 
+    setIsLoading(true);
     setErrorMessage(null);
 
-    if (!window.Kakao?.Auth) {
-      setErrorMessage('카카오 로그인이 아직 준비되지 않았습니다.');
-      return;
-    }
+    try {
+      const result = await startKakaoLogin();
 
-    if (!window.Kakao.isInitialized()) {
-      if (!KAKAO_JS_KEY) {
-        setErrorMessage('카카오 로그인 키가 없습니다.');
+      saveKakaoLoginResult(result);
+
+      if (result.isNewUser || !result.onboarding_completed) {
+        navigate('/onboarding/design', {
+          replace: true,
+        });
+
         return;
       }
 
-      window.Kakao.init(KAKAO_JS_KEY);
+      navigate('/home', {
+        replace: true,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '카카오 로그인 중 오류가 발생했습니다.';
+
+      console.error('카카오 로그인 실패:', error);
+      setErrorMessage(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(true);
-
-    window.Kakao.Auth.login({
-      throughTalk: true,
-      success: async (authResponse) => {
-        try {
-          const kakaoAccessToken = authResponse.access_token;
-
-          if (!kakaoAccessToken) {
-            throw new Error('카카오 Access Token을 받지 못했습니다.');
-          }
-
-          const data = await postKakaoLogin(kakaoAccessToken);
-          const result = data.result;
-
-          if (!result) {
-            throw new Error('로그인 결과가 없습니다.');
-          }
-
-          if (result.isNewUser || !result.onboarding_completed) {
-            if (!('tempToken' in result)) {
-              throw new Error('온보딩용 임시 토큰이 없습니다.');
-            }
-
-            handleNewUser(result as NewUserResult);
-            return;
-          }
-
-          if (!('accessToken' in result) || !('refreshToken' in result)) {
-            throw new Error('서비스 로그인 토큰이 없습니다.');
-          }
-
-          handleExistingUser(result as ExistingUserResult);
-        } catch (error) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : '카카오 로그인 중 오류가 발생했습니다.';
-
-          console.error('카카오 로그인 API 호출 실패:', error);
-
-          setErrorMessage(message);
-          setIsLoading(false);
-        }
-      },
-
-      fail: (error) => {
-        console.error('카카오 로그인 실패:', error);
-
-        setErrorMessage(
-          error.error_description ||
-            '카카오 로그인이 취소되었거나 실패했습니다.',
-        );
-
-        setIsLoading(false);
-      },
-
-      always: () => {
-        window.setTimeout(() => {
-          setIsLoading(false);
-        }, 300);
-      },
-    });
   };
 
   return (
