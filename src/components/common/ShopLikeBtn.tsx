@@ -22,6 +22,11 @@ export default function ShopLikeBtn({
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
 
+  const setLiked = (value: boolean) => {
+    if (shopId === undefined) setLocalLiked(value);
+    else setShopLiked(shopId, value);
+  };
+
   const handleClick = () => {
     if (!requireLogin()) {
       return;

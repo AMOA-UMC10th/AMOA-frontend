@@ -22,15 +22,12 @@ export class LikeApiError extends Error {
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
 
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("accessToken");
-  return { Authorization: `Bearer ${token}` };
-}
-
+// 나머지 찜 요청과 같이 authFetch를 쓴다.
+// 생 fetch로 보내면 액세스 토큰이 만료됐을 때 재발급 없이 401로 끝나서,
+// 화면 하트만 켜지고 서버에는 저장되지 않는다. (새로고침하면 찜이 풀림)
 export async function likeCard(cardId: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/${cardId}/like`, {
+  const res = await authFetch(`${BASE_URL}/${cardId}/like`, {
     method: "POST",
-    headers: authHeaders(),
   });
 
   const data: LikeApiResponse<unknown> = await res.json();

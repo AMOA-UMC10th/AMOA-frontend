@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '../../assets/icons';
 import ProfileForm from '../../components/mypage/ProfileEdit';
-import { getMyProfile, updateMyProfile, type UserProfile } from '../../data/userdata/user';
+import {
+  getMyProfile,
+  updateMyProfile,
+  updateProfileImage,
+  type UserProfile,
+} from '../../data/userdata/user';
 
 
 export default function MyProfileEditPage() {
@@ -43,8 +48,6 @@ export default function MyProfileEditPage() {
     };
   }, []);
 
-  // PATCH는 디자인태그와 관심지역을 필수로 요구한다.
-  // 지금 화면에서 바꾸지 않는 값은 조회해온 값을 그대로 다시 보내 유지시킨다.
   function keepSelections(current: UserProfile) {
     return {
       selectedDesignTagIds: current.selectedDesignTagIds,
@@ -52,8 +55,6 @@ export default function MyProfileEditPage() {
     };
   }
 
-  // 항목별 [변경하기]가 곧 저장이다. 성공했을 때만 true를 돌려줘서
-  // 폼이 입력 상태를 닫도록 한다.
   async function saveField(
     patch: { nickname?: string; phoneNumber?: string; profileImageUrl?: string },
     successMessage: string,
@@ -80,6 +81,23 @@ export default function MyProfileEditPage() {
 
   const handleSavePhone = (phoneNumber: string) =>
     saveField({ phoneNumber }, '전화번호가 수정되었어요');
+
+  // 사진만 전용 업로드 API를 쓴다. 통합 수정을 거치지 않으므로
+  // 디자인태그·관심지역을 다시 실어보낼 필요가 없다.
+  async function handleSaveImage(file: File): Promise<string | null> {
+    if (!profile) return null;
+
+    try {
+      const { profileImageUrl } = await updateProfileImage(file);
+      setProfile({ ...profile, profileImageUrl });
+      setToast('프로필 사진이 변경되었어요');
+      return profileImageUrl;
+    } catch (err) {
+      console.error(err);
+      setToast(err instanceof Error ? err.message : '사진 변경에 실패했어요');
+      return null;
+    }
+  }
 
 
   return (
@@ -118,11 +136,11 @@ export default function MyProfileEditPage() {
             phoneNumber={profile.phoneNumber}
             onSaveNickname={handleSaveNickname}
             onSavePhone={handleSavePhone}
+            onSaveImage={handleSaveImage}
           />
         </div>
       )}
 
-      {/* 하단 탭 네비게이션에 가리지 않도록 그 위에 띄운다. */}
       {toast && (
         <div className="fixed bottom-28 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#F70071] px-5 py-2.5 text-sm font-medium text-white shadow-lg">
           {toast}

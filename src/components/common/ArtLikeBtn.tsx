@@ -25,6 +25,11 @@ export default function ArtLikeBtn({
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
 
+  const setLiked = (value: boolean) => {
+    if (cardId === undefined) setLocalLiked(value);
+    else setCardLiked(cardId, value);
+  };
+
   const handleClick = () => {
     if (!requireLogin()) {
       return;

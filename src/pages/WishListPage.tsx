@@ -11,18 +11,35 @@ import {
   type LikedCard,
   type LikedShop,
 } from '../data/likeList';
+import {
+  hydrateLikedCards,
+  markCardsLiked,
+  markShopsLiked,
+} from '../data/likeStore';
 
 type WishTab = 'ART' | 'SHOP';
-type SortOption = 'RECOMMEND' | 'LATEST';
+type SortOption =
+  | 'RECOMMEND'
+  | 'POPULAR'
+  | 'LATEST'
+  | 'PRICE_LOW'
+  | 'PRICE_HIGH';
 
+// 샵 상세의 아트 정렬(ShopArtList)과 같은 구성으로 맞춘다.
 const SORT_LABEL: Record<SortOption, string> = {
   RECOMMEND: '추천순',
+  POPULAR: '인기순',
   LATEST: '최신순',
+  PRICE_LOW: '가격 낮은 순',
+  PRICE_HIGH: '가격 높은 순',
 };
 
 const SORT_TYPE: Record<SortOption, LikeSortType> = {
   RECOMMEND: 'RECOMMENDED',
+  POPULAR: 'POPULAR',
   LATEST: 'LATEST',
+  PRICE_LOW: 'PRICE_ASC',
+  PRICE_HIGH: 'PRICE_DESC',
 };
 
 function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
@@ -101,10 +118,16 @@ export default function WishListPage() {
         const result = await getLikedCards(SORT_TYPE[artSort]);
         setCards(result.cards);
         setTotalCards(result.totalCount);
+        // 여기 있는 아트는 전부 찜한 것이므로 상세 화면에서도 하트가 켜지도록 알려둔다.
+        markCardsLiked(result.cards.map((card) => card.cardId));
       } else {
         const result = await getLikedShops(SORT_TYPE[shopSort]);
         setShops(result.likedShops);
         setTotalShops(result.totalElements);
+        markShopsLiked(result.likedShops.map((shop) => shop.shopId));
+        // 샵 응답에는 아트별 찜 여부가 없다. 아트 찜 목록을 한 번 채워둬야
+        // 샵 안의 ArtCard 하트가 실제 상태로 켜진다.
+        hydrateLikedCards();
       }
     } catch (err) {
       console.error(err);
@@ -191,7 +214,7 @@ export default function WishListPage() {
                   className="fixed inset-0 z-10"
                   onClick={() => setSortOpen(false)}
                 />
-                <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-[#eceef1] bg-white py-1 text-center shadow-lg">
+                <div className="absolute right-0 top-6 z-20 w-32 rounded-lg border border-[#eceef1] bg-white py-1 text-center shadow-lg">
                   {(Object.keys(SORT_LABEL) as SortOption[]).map((option) => (
                     <button
                       key={option}
