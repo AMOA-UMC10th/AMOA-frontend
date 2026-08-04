@@ -13,26 +13,20 @@ function KakaoLoginPage() {
   const navigate = useNavigate();
 
   const [isKakaoReady, setIsKakaoReady] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!KAKAO_JS_KEY) {
       console.error('VITE_KAKAO_JS_KEY가 설정되지 않았습니다.');
-
       setErrorMessage('카카오 로그인 설정을 확인해주세요.');
-
       return;
     }
 
     const initializeKakao = () => {
       if (!window.Kakao) {
         console.error('카카오 JavaScript SDK가 로드되지 않았습니다.');
-
         setErrorMessage('카카오 로그인 기능을 불러오지 못했습니다.');
-
         return;
       }
 
@@ -49,10 +43,6 @@ function KakaoLoginPage() {
       return;
     }
 
-    /*
-     * index.html의 카카오 SDK가 아직 로드 중일 수 있어서
-     * 잠시 기다린 후 다시 확인한다.
-     */
     const intervalId = window.setInterval(() => {
       if (window.Kakao) {
         window.clearInterval(intervalId);
@@ -74,8 +64,7 @@ function KakaoLoginPage() {
     };
   }, []);
 
-const handleNewUser = (result: NewUserResult): void => {
-    // 신규 회원은 tempToken 저장
+  const handleNewUser = (result: NewUserResult): void => {
     localStorage.setItem('tempToken', result.tempToken);
     localStorage.setItem('memberId', String(result.memberId));
 
@@ -85,9 +74,11 @@ const handleNewUser = (result: NewUserResult): void => {
       localStorage.removeItem('kakaoEmail');
     }
 
-    // 신규 회원은 정식 토큰 삭제
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+
+    // 카카오 로그인을 시작했으므로 게스트 상태 해제
+    localStorage.removeItem('isGuest');
 
     navigate('/onboarding/design', {
       replace: true,
@@ -96,11 +87,8 @@ const handleNewUser = (result: NewUserResult): void => {
 
   const handleExistingUser = (result: ExistingUserResult): void => {
     localStorage.setItem('accessToken', result.accessToken);
-
     localStorage.setItem('refreshToken', result.refreshToken);
-
     localStorage.setItem('memberId', String(result.memberId));
-
     localStorage.setItem('email', result.email);
 
     if (result.nickName) {
@@ -111,6 +99,30 @@ const handleNewUser = (result: NewUserResult): void => {
 
     localStorage.removeItem('tempToken');
     localStorage.removeItem('kakaoEmail');
+
+    // 기존 회원으로 로그인했으므로 게스트 상태 해제
+    localStorage.removeItem('isGuest');
+
+    navigate('/home', {
+      replace: true,
+    });
+  };
+
+  const handleGuestMode = (): void => {
+    /*
+     * 이전 로그인 정보가 남아 있으면 게스트로 정확히 인식되지 않을 수 있으므로
+     * 서비스 로그인 관련 정보만 삭제합니다.
+     */
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('tempToken');
+    localStorage.removeItem('memberId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('nickName');
+    localStorage.removeItem('kakaoEmail');
+
+    // 게스트 상태 저장
+    localStorage.setItem('isGuest', 'true');
 
     navigate('/home', {
       replace: true,
@@ -126,14 +138,12 @@ const handleNewUser = (result: NewUserResult): void => {
 
     if (!window.Kakao?.Auth) {
       setErrorMessage('카카오 로그인이 아직 준비되지 않았습니다.');
-
       return;
     }
 
     if (!window.Kakao.isInitialized()) {
       if (!KAKAO_JS_KEY) {
         setErrorMessage('카카오 로그인 키가 없습니다.');
-
         return;
       }
 
@@ -143,10 +153,6 @@ const handleNewUser = (result: NewUserResult): void => {
     setIsLoading(true);
 
     window.Kakao.Auth.login({
-      /*
-       * 모바일에 카카오톡이 설치되어 있으면
-       * 카카오톡 간편 로그인을 우선 시도한다.
-       */
       throughTalk: true,
 
       success: async (authResponse) => {
@@ -158,29 +164,21 @@ const handleNewUser = (result: NewUserResult): void => {
           }
 
           const data = await postKakaoLogin(kakaoAccessToken);
-
           const result = data.result;
 
           if (!result) {
             throw new Error('로그인 결과가 없습니다.');
           }
 
-          /*
-           * 신규 회원 또는 온보딩 미완료 회원
-           */
           if (result.isNewUser || !result.onboarding_completed) {
             if (!('tempToken' in result)) {
               throw new Error('온보딩용 임시 토큰이 없습니다.');
             }
 
             handleNewUser(result as NewUserResult);
-
             return;
           }
 
-          /*
-           * 기존 회원
-           */
           if (!('accessToken' in result) || !('refreshToken' in result)) {
             throw new Error('서비스 로그인 토큰이 없습니다.');
           }
@@ -211,10 +209,6 @@ const handleNewUser = (result: NewUserResult): void => {
       },
 
       always: () => {
-        /*
-         * 성공하면 페이지가 이동하므로 큰 영향은 없고,
-         * 실패하거나 페이지 이동이 없을 때 버튼을 다시 활성화한다.
-         */
         window.setTimeout(() => {
           setIsLoading(false);
         }, 300);
@@ -236,15 +230,32 @@ const handleNewUser = (result: NewUserResult): void => {
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={handleKakaoLogin}
-        disabled={!isKakaoReady || isLoading}
-        className="mt-10 w-full max-w-xs flex items-center justify-center gap-2 bg-black text-white rounded-full py-3.5 font-medium active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <KakaoIcon />
-        {isLoading ? '로그인 중...' : '카카오로 시작하기'}
-      </button>
+      <div className="mt-10 flex w-full max-w-xs flex-col gap-3">
+        <button
+          type="button"
+          onClick={handleKakaoLogin}
+          disabled={!isKakaoReady || isLoading}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3.5 font-medium text-white transition active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <KakaoIcon />
+              <span>카카오로 시작하기</span>
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGuestMode}
+          disabled={isLoading}
+          className="w-full rounded-full border border-[#E9EBEE] bg-white py-3.5 font-medium text-[#646F7C] transition active:bg-[#F7F8F9] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          로그인 없이 둘러보기
+        </button>
+      </div>
 
       {errorMessage && (
         <p className="mt-4 max-w-xs text-center text-sm leading-relaxed text-red-500">
@@ -252,6 +263,15 @@ const handleNewUser = (result: NewUserResult): void => {
         </p>
       )}
     </div>
+  );
+}
+
+function LoadingSpinner() {
+  return (
+    <span
+      className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+      aria-label="로그인 처리 중"
+    />
   );
 }
 
@@ -263,6 +283,7 @@ function KakaoIcon() {
       viewBox="0 0 24 24"
       fill="white"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <path d="M12 3C6.48 3 2 6.58 2 11c0 2.78 1.8 5.22 4.52 6.62-.2.73-.72 2.62-.82 3.03-.13.51.19.5.4.36.16-.1 2.6-1.76 3.65-2.47.71.1 1.45.16 2.25.16 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
     </svg>

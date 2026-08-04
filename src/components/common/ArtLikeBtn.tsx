@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
+import { useRequireLogin } from '../../hooks/useReqireLogin';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;
@@ -17,11 +18,13 @@ export default function ArtLikeBtn({
   size = 22,
   onToggle,
 }: ArtLikeBtnProps) {
+  const {requireLogin} = useRequireLogin();
+
   const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
-
+  
   const handleClick = () => {
     const next = !liked;
     setLiked(next);
