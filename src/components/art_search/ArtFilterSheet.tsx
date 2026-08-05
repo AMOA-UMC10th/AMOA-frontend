@@ -30,6 +30,9 @@ export default function ArtFilterSheet({
   const [tempFilters, setTempFilters] = useState<FilterState>(filters);
   const [totalCount, setTotalCount] = useState<number>(0);
 
+  const regionIdsString = tempFilters.regions.map((r) => r.id).join(',');
+  const designIdsString = tempFilters.designs.join(',');
+
   useEffect(() => {
     if (isOpen) {
       setTempFilters(filters);
@@ -50,11 +53,9 @@ export default function ArtFilterSheet({
               ? undefined
               : tempFilters.artType,
           designTagIds: tempFilters.designs,
-          // 필터링된 전체 카드 수를 측정하기 위해 충분한 사이즈로 요청
           size: 100,
         });
 
-        // 6~12 제외 후 실제 필터링된 개수를 하단 버튼에 표시
         setTotalCount(result.cards.length);
       } catch (error) {
         console.error(error);
@@ -63,9 +64,18 @@ export default function ArtFilterSheet({
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [isOpen, tempFilters]);
+    
+  }, [
+    isOpen,
+    regionIdsString,
+    tempFilters.minPrice,
+    tempFilters.maxPrice,
+    tempFilters.artType,
+    designIdsString,
+  ]);
 
   if (!isOpen) return null;
+
 
   const handleApplyRegions = (regions: RegionSelection[]) => {
     setTempFilters((prev) => ({

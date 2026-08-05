@@ -210,6 +210,7 @@ export default function ArtSearchPage() {
                 maxPrice={card.maxPrice}
                 artType={card.artType}
                 isLiked={card.isLiked}
+                createdMonth={card.createdMonth}
               />
             ))}
           </div>

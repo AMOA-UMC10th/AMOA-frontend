@@ -26,6 +26,7 @@ export interface ShopCardItem {
   maxPrice: number;
   artType: string;
   isLiked: boolean;
+  createdMonth: string;
   instagramUrl?: string; // ArtCard 바인딩용 (응답에 없는 경우 기본값 처리)
 }
 
