@@ -1,6 +1,6 @@
 // 공통 찜(좋아요) 버튼 - 하트 토글 + 토스트
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
 import { useRequireLogin } from '../../hooks/useReqireLogin';
@@ -22,50 +22,93 @@ export default function ArtLikeBtn({
 
   const [liked, setLiked] = useState(initialLiked);
   const [showToast, setShowToast] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(initialLiked);
   const [animateOut, setAnimateOut] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
 
-  const setLiked = (value: boolean) => {
-    if (cardId === undefined) setLocalLiked(value);
-    else setCardLiked(cardId, value);
+  const fadeTimerRef = useRef<number | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setLiked(initialLiked);
+    setIsSaved(initialLiked);
+  }, [initialLiked]);
+
+  useEffect(() => {
+    return () => {
+      if (fadeTimerRef.current !== null) {
+        window.clearTimeout(fadeTimerRef.current);
+      }
+
+      if (hideTimerRef.current !== null) {
+        window.clearTimeout(hideTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showLikeToast = (saved: boolean) => {
+    if (fadeTimerRef.current !== null) {
+      window.clearTimeout(fadeTimerRef.current);
+    }
+
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+    }
+
+    setIsSaved(saved);
+    setAnimateOut(false);
+    setShowToast(true);
+
+    fadeTimerRef.current = window.setTimeout(() => {
+      setAnimateOut(true);
+    }, 1300);
+
+    hideTimerRef.current = window.setTimeout(() => {
+      setShowToast(false);
+    }, 1800);
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!requireLogin()) {
       return;
     }
 
-    const next = !liked;
+    if (isRequesting) {
+      return;
+    }
 
-    setLiked(next);
-    setIsSaved(next);
-    setAnimateOut(false);
-    setShowToast(true);
+    const previousLiked = liked;
+    const nextLiked = !previousLiked;
 
-    window.setTimeout(() => {
-      setAnimateOut(true);
-    }, 1300);
+    setLiked(nextLiked);
+    onToggle?.(nextLiked);
+    showLikeToast(nextLiked);
 
-    window.setTimeout(() => {
+    if (cardId === undefined) {
+      return;
+    }
+
+    setIsRequesting(true);
+
+    try {
+      if (nextLiked) {
+        await likeCard(cardId);
+      } else {
+        await unlikeCard(cardId);
+      }
+    } catch (error) {
+      console.error('아트 찜 처리 실패:', error);
+
+      if (error instanceof LikeApiError && error.status === 409) {
+        return;
+      }
+
+      setLiked(previousLiked);
+      setIsSaved(previousLiked);
       setShowToast(false);
-    }, 1800);
-
-    onToggle?.(next);
-
-    if (cardId !== undefined) {
-      const request = next ? likeCard(cardId) : unlikeCard(cardId);
-
-      request.catch((err) => {
-        console.error(err);
-
-        if (err instanceof LikeApiError && err.status === 409) {
-          return;
-        }
-
-        setLiked(!next);
-        setIsSaved(!next);
-        onToggle?.(!next);
-      });
+      onToggle?.(previousLiked);
+    } finally {
+      setIsRequesting(false);
     }
   };
 
@@ -74,6 +117,7 @@ export default function ArtLikeBtn({
       <button
         type="button"
         onClick={handleClick}
+        disabled={isRequesting}
         aria-label="찜하기"
         className="transition-transform active:scale-125 flex items-center justify-center"
       >

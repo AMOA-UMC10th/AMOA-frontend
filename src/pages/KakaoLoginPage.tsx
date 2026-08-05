@@ -76,7 +76,7 @@ function KakaoLoginPage() {
 
       saveKakaoLoginResult(result);
 
-      if (result.isNewUser || !result.onboarding_completed) {
+      if (result.isNewUser) {
         navigate('/onboarding/design', {
           replace: true,
         });

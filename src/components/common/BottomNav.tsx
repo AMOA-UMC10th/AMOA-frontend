@@ -80,9 +80,7 @@ export default function BottomNav() {
             key={item.path}
             type="button"
             onClick={() => handleNavClick(item)}
-            className={`flex flex-1 flex-col items-center gap-1 ${
-              active ? 'text-[#F70071]' : 'text-[#646F7C]'
-            }`}
+            className={`flex flex-1 flex-col items-center gap-1`}
           >
             {item.icon({
               className: 'h-[22px] w-[22px]',

@@ -1,26 +1,15 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 
-export interface NewUserResult {
-  memberId: number;
-  isNewUser: true;
-  onboarding_completed: false;
-  tempToken: string;
-  refreshToken?: string | null;
-  kakaoEmail: string | null;
+export interface KakaoLoginResult {
+  email: string | null;
+  userName: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  tempToken: string | null;
+  role: string;
+  isNewUser: boolean;
 }
-
-export interface ExistingUserResult {
-  memberId: number;
-  isNewUser: false;
-  onboarding_completed: true;
-  email: string;
-  accessToken: string;
-  refreshToken: string;
-  nickName: string | null;
-}
-
-export type KakaoLoginResult = NewUserResult | ExistingUserResult;
 
 export interface KakaoLoginResponse {
   isSuccess: boolean;
@@ -32,6 +21,8 @@ export interface KakaoLoginResponse {
 interface KakaoLoginRequest {
   accessToken: string;
 }
+
+let kakaoInitializePromise: Promise<void> | null = null;
 
 const waitForKakaoSdk = (): Promise<NonNullable<Window['Kakao']>> => {
   return new Promise((resolve, reject) => {
@@ -56,16 +47,27 @@ const waitForKakaoSdk = (): Promise<NonNullable<Window['Kakao']>> => {
   });
 };
 
-export const initializeKakaoSdk = async (): Promise<void> => {
-  if (!KAKAO_JS_KEY) {
-    throw new Error('VITE_KAKAO_JS_KEY가 설정되지 않았습니다.');
+export const initializeKakaoSdk = (): Promise<void> => {
+  if (kakaoInitializePromise) {
+    return kakaoInitializePromise;
   }
 
-  const kakao = await waitForKakaoSdk();
+  kakaoInitializePromise = (async () => {
+    if (!KAKAO_JS_KEY) {
+      throw new Error('VITE_KAKAO_JS_KEY가 설정되지 않았습니다.');
+    }
 
-  if (!kakao.isInitialized()) {
-    kakao.init(KAKAO_JS_KEY);
-  }
+    const kakao = await waitForKakaoSdk();
+
+    if (!kakao.isInitialized()) {
+      kakao.init(KAKAO_JS_KEY);
+    }
+  })().catch((error) => {
+    kakaoInitializePromise = null;
+    throw error;
+  });
+
+  return kakaoInitializePromise;
 };
 
 export async function postKakaoLogin(
@@ -79,24 +81,38 @@ export async function postKakaoLogin(
     accessToken: kakaoAccessToken,
   };
 
-  const response = await fetch(`${API_BASE_URL}/auth/kakao`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}/auth/kakao`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+  } catch (error) {
+    console.error('카카오 로그인 서버 요청 실패:', error);
+
+    throw new Error(
+      '로그인 서버에 연결하지 못했습니다. 서버 주소와 네트워크 상태를 확인해주세요.',
+    );
+  }
 
   let data: KakaoLoginResponse;
 
   try {
     data = (await response.json()) as KakaoLoginResponse;
   } catch {
-    throw new Error('서버 응답을 읽을 수 없습니다.');
+    throw new Error(
+      `서버 응답을 읽을 수 없습니다. 상태 코드: ${response.status}`,
+    );
   }
 
   if (!response.ok || !data.isSuccess) {
-    throw new Error(data.message || '카카오 로그인에 실패했습니다.');
+    throw new Error(
+      data.message || `카카오 로그인에 실패했습니다. (${response.status})`,
+    );
   }
 
   if (!data.result) {
@@ -155,40 +171,41 @@ export const startKakaoLogin = async (): Promise<KakaoLoginResult> => {
 };
 
 export const saveKakaoLoginResult = (result: KakaoLoginResult): void => {
-  localStorage.setItem('memberId', String(result.memberId));
   localStorage.removeItem('isGuest');
 
-  if (result.isNewUser) {
-    localStorage.setItem('tempToken', result.tempToken);
-    localStorage.removeItem('accessToken');
+  if (result.email) {
+    localStorage.setItem('email', result.email);
+  } else {
     localStorage.removeItem('email');
-    localStorage.removeItem('nickName');
-
-    if (result.kakaoEmail) {
-      localStorage.setItem('kakaoEmail', result.kakaoEmail);
-    } else {
-      localStorage.removeItem('kakaoEmail');
-    }
-
-    if (result.refreshToken) {
-      localStorage.setItem('refreshToken', result.refreshToken);
-    } else {
-      localStorage.removeItem('refreshToken');
-    }
-
-    return;
   }
 
-  localStorage.setItem('accessToken', result.accessToken);
-  localStorage.setItem('refreshToken', result.refreshToken);
-  localStorage.setItem('email', result.email);
-
-  if (result.nickName) {
-    localStorage.setItem('nickName', result.nickName);
+  if (result.userName) {
+    localStorage.setItem('nickName', result.userName);
   } else {
     localStorage.removeItem('nickName');
   }
 
+  if (result.refreshToken) {
+    localStorage.setItem('refreshToken', result.refreshToken);
+  } else {
+    localStorage.removeItem('refreshToken');
+  }
+
+  if (result.isNewUser) {
+    if (result.tempToken) {
+      localStorage.setItem('tempToken', result.tempToken);
+    } else {
+      localStorage.removeItem('tempToken');
+    }
+
+    localStorage.removeItem('accessToken');
+    return;
+  }
+
+  if (!result.accessToken) {
+    throw new Error('로그인 응답에 Access Token이 없습니다.');
+  }
+
+  localStorage.setItem('accessToken', result.accessToken);
   localStorage.removeItem('tempToken');
-  localStorage.removeItem('kakaoEmail');
 };

@@ -34,7 +34,7 @@ export default function LoginRequiredModal({
       saveKakaoLoginResult(result);
       onClose();
 
-      if (result.isNewUser || !result.onboarding_completed) {
+      if (result.isNewUser) {
         navigate('/onboarding/design', {
           replace: true,
         });
