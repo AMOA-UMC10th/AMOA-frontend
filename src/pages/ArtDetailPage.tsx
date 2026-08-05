@@ -1,4 +1,4 @@
-//아트 상세 페이지 (C101)
+// 아트 상세 페이지 (C101)
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -14,10 +14,13 @@ import {
   type RecommendedCard,
 } from '../data/card';
 import { hydrateLikedCards } from '../data/likeStore';
+import { useRequireLogin } from '../hooks/useRequireLogin';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();
   const { cardId } = useParams();
+  const { requireLogin } = useRequireLogin();
+
   const [showKakaoModal, setShowKakaoModal] = useState(false);
   const [card, setCard] = useState<CardDetail | null>(null);
   const [relatedCards, setRelatedCards] = useState<RecommendedCard[]>([]);
@@ -25,6 +28,7 @@ export default function ArtDetailPage() {
 
   useEffect(() => {
     if (!cardId) return;
+
     let cancelled = false;
 
     // 상세 응답에 찜 여부가 없어서, 찜 목록으로 하트 상태를 채워둔다.
@@ -36,7 +40,10 @@ export default function ArtDetailPage() {
       })
       .catch((err) => {
         console.error(err);
-        if (!cancelled) setError('아트 정보를 불러오지 못했어요');
+
+        if (!cancelled) {
+          setError('아트 정보를 불러오지 못했어요');
+        }
       });
 
     fetchRecommendedCards(Number(cardId))
@@ -54,16 +61,27 @@ export default function ArtDetailPage() {
 
   const handleShopClick = () => {
     if (!card) return;
+
     navigate(`/shop/${card.shopId}`);
   };
 
   const handleReservationClick = () => {
     if (!card) return;
+
+    if (!requireLogin()) {
+      return;
+    }
+
     navigate(`/art/${card.cardId}/reservation`);
   };
 
   const handleShare = () => {
     if (!card) return;
+
+    if (!requireLogin()) {
+      return;
+    }
+
     if (navigator.share) {
       navigator
         .share({
@@ -92,6 +110,7 @@ export default function ArtDetailPage() {
         <button onClick={() => navigate(-1)} className="absolute left-4">
           <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
         </button>
+
         <span className="text-sm font-bold">아트 상세</span>
       </div>
 
@@ -104,8 +123,10 @@ export default function ArtDetailPage() {
         className="flex items-center gap-2 px-4 py-4 w-full"
       >
         <span className="w-9 h-9 rounded-full bg-[#FFC0DC] shrink-0" />
+
         <div className="text-left">
           <p className="text-sm font-bold text-[#171B1C]">{card.shopName}</p>
+
           <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5">
             <AddressPinIcon className="w-3 h-3 text-[#ADB0B5]" />
             {card.address}
@@ -121,6 +142,7 @@ export default function ArtDetailPage() {
             ? `${Number(card.createdMonth.split('-')[1])}월 이달의 아트`
             : '이벤트 아트'}
         </p>
+
         <p className="text-lg font-bold text-[#171B1C] mb-3">
           {card.minPrice.toLocaleString()}~{card.maxPrice.toLocaleString()}원
         </p>
@@ -128,6 +150,7 @@ export default function ArtDetailPage() {
         {card.designTags.length > 0 && (
           <div className="py-1">
             <p className="text-xs text-[#646F7C] font-bold mb-2">디자인 태그</p>
+
             <div className="flex flex-wrap gap-2">
               {card.designTags.map((tag) => (
                 <span
@@ -147,6 +170,7 @@ export default function ArtDetailPage() {
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white border-t border-[#E9EBEE] flex items-center gap-9 px-4 py-3">
         {/* 카드 상세 API가 isLiked를 안 내려줘서, 공용 저장소에 채워둔 값을 따른다. */}
         <ArtLikeBtn initialLiked={false} cardId={card.cardId} size={24} />
+
         <button
           onClick={handleShare}
           aria-label="공유하기"
@@ -154,6 +178,7 @@ export default function ArtDetailPage() {
         >
           <ShareIcon className="w-5 h-6 text-[#171B1C] block" />
         </button>
+
         <button
           onClick={handleReservationClick}
           className="w-[70%] bg-[#F70071] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"

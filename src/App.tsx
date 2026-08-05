@@ -34,6 +34,7 @@ import NotificationToggle from './components/mypage/NotificationToggle';
 import MyProfileEditPage from './pages/mypage/MyProfileEditPage';
 import MyRegionReconfigPage from './pages/mypage/MyRegionReconfigPage';
 import MyMoodReconfigPage from './pages/mypage/MyMoodReconfigPage';
+import { RequireLoginProvider } from './hooks/useRequireLogin';
 
 const NAV_VISIBLE_PATHS = ['/home', '/art-search', '/wishlist', '/mypage'];
 const NAV_HIDDEN_PATHS = [
@@ -76,7 +77,7 @@ function RegionPageRoute() {
         goNext(
           regions
             .map((r) => r.regionId)
-            .filter((id): id is number => id != null)
+            .filter((id): id is number => id != null),
         )
       }
       onSkip={() => goNext([])}
@@ -101,36 +102,53 @@ function NailShopDetailPageRoute() {
 function App() {
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <LayoutWrapper>
-        <Routes>
-          <Route path="/admin" element={<AdminLayout />} />
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/login" element={<KakaoLoginPage />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/onboarding/design" element={<DesignPage />} />
-          <Route path="/onboarding/region" element={<RegionPageRoute />} />
-          <Route path="/onboarding/nickname" element={<NicknamePage />} />
-          <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
-          <Route path="/onboarding/complete" element={<SignupCompletePage />} />
-          <Route path="/art-search" element={<ArtSearchPage />} />
-          <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
-          <Route path="/art/:cardId/reservation" element={<ReservationPage />}/>
-          <Route path="/wishlist" element={<WishListPage />} />
-          <Route path="/mypage/reservations" element={<MyReservationListPage />} />
-          <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
-          <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
-          <Route path="/SplashPage" element={<SplashPage />} />
-          <Route path="/mypage/withdraw" element={<WithdrawPage />} />
-          <Route path="/mypage/terms" element={<TermsDetailView />} />
-          <Route path="/mypage/notice" element={<NoticeList />} />
-          <Route path="/mypage/settings" element={<NotificationToggle />} />
-          <Route path="/mypage/edit" element={<MyProfileEditPage />} />
-          <Route path="/mypage/designre" element={<MyMoodReconfigPage />} />
-          <Route path="/mypage/regionre" element={<MyRegionReconfigPage />} />
-        </Routes>
-      </LayoutWrapper>
+      <RequireLoginProvider>
+        <ScrollToTop />
+        <LayoutWrapper>
+          <Routes>
+            <Route path="/admin" element={<AdminLayout />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/login" element={<KakaoLoginPage />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/onboarding/design" element={<DesignPage />} />
+            <Route path="/onboarding/region" element={<RegionPageRoute />} />
+            <Route path="/onboarding/nickname" element={<NicknamePage />} />
+            <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
+            <Route
+              path="/onboarding/complete"
+              element={<SignupCompletePage />}
+            />
+            <Route path="/art-search" element={<ArtSearchPage />} />
+            <Route
+              path="/art-detail/:cardId"
+              element={<ArtDetailPageRoute />}
+            />
+            <Route
+              path="/art/:cardId/reservation"
+              element={<ReservationPage />}
+            />
+            <Route path="/wishlist" element={<WishListPage />} />
+            <Route
+              path="/mypage/reservations"
+              element={<MyReservationListPage />}
+            />
+            <Route
+              path="/reservations/:reservationId"
+              element={<MyReservationDetailPageRoute />}
+            />
+            <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+            <Route path="/SplashPage" element={<SplashPage />} />
+            <Route path="/mypage/withdraw" element={<WithdrawPage />} />
+            <Route path="/mypage/terms" element={<TermsDetailView />} />
+            <Route path="/mypage/notice" element={<NoticeList />} />
+            <Route path="/mypage/settings" element={<NotificationToggle />} />
+            <Route path="/mypage/edit" element={<MyProfileEditPage />} />
+            <Route path="/mypage/designre" element={<MyMoodReconfigPage />} />
+            <Route path="/mypage/regionre" element={<MyRegionReconfigPage />} />
+          </Routes>
+        </LayoutWrapper>
+      </RequireLoginProvider>
     </BrowserRouter>
   );
 }

@@ -20,7 +20,7 @@ export async function authFetch(url: string, options: RequestInit = {}) {
 
     isRefreshing = true;
     const refreshToken = localStorage.getItem('refreshToken');
-    
+
     if (!refreshToken) {
       isRefreshing = false;
       localStorage.clear();
@@ -29,11 +29,14 @@ export async function authFetch(url: string, options: RequestInit = {}) {
     }
 
     try {
-      const refreshRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/reissue`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      });
+      const refreshRes = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/reissue`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        },
+      );
 
       if (refreshRes.ok) {
         const data = await refreshRes.json();
