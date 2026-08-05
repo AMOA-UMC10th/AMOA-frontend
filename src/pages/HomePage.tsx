@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import HomeHeader from '../components/home/HomeHeader';
 import RecommendBanner from '../components/home/RecommendBanner';
 import RecommendArtList from '../components/home/RecommendArtList';
@@ -12,9 +11,8 @@ import {
   type RecommendedCard,
   type TrendSlide,
 } from '../data/home';
-
 import { getMyProfile } from '../data/userdata/user';
-import { useRequireLogin } from '../hooks/useReqireLogin';
+import { useRequireLogin } from '../hooks/useRequireLogin';
 
 const DEFAULT_TREND_SLIDES: TrendSlide[] = [
   {
@@ -30,7 +28,8 @@ export default function HomePage() {
   const [monthlyArt, setMonthlyArt] = useState<RecommendedCard[]>([]);
   const [yearEndPick, setYearEndPick] = useState<RecommendedCard[]>([]);
   const [nickname, setNickname] = useState<string | null>(null);
-  const [trendSlides] = useState<TrendSlide[]>(DEFAULT_TREND_SLIDES);
+  const [trendSlides, setTrendSlides] =
+    useState<TrendSlide[]>(DEFAULT_TREND_SLIDES);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {

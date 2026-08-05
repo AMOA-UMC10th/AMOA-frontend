@@ -1,5 +1,4 @@
 import { alarm, call_end, AddressPinIcon, star } from '../../assets/icons';
-
 import type { ShopDetail } from '../../data/shop';
 import ShopLikeBtn from '../common/ShopLikeBtn';
 
@@ -37,9 +36,7 @@ export default function ShopInfo({
                 </h1>
 
                 <span className="w-4 h-4 flex items-center justify-center shrink-0">
-                  {star({
-                    className: 'w-full h-full',
-                  })}
+                  {star({ className: 'w-full h-full' })}
                 </span>
               </div>
 
@@ -94,11 +91,12 @@ export default function ShopInfo({
             </div>
           </div>
 
-          {/* shopId를 넘겨야 하트가 실제 찜 등록/취소 요청까지 보낸다. */}
+          {/* 로그인 검사는 ShopLikeBtn 내부에서 처리한다. */}
           <ShopLikeBtn
             initialLiked={shop.isLiked}
             shopId={shop.shopId}
             size={22}
+            onToggle={onShopLikeChange}
           />
         </div>
       </div>
@@ -120,7 +118,7 @@ export default function ShopInfo({
             className="text-lg font-semibold mt-1"
             style={{ color: '#28323C' }}
           >
-            {formatLikeCount(shop.cardLikeCount)}
+            {formatLikeCount(cardLikeCount)}
           </p>
         </div>
 
@@ -138,7 +136,7 @@ export default function ShopInfo({
             className="text-lg font-semibold mt-1"
             style={{ color: '#28323C' }}
           >
-            {formatLikeCount(shop.shopLikeCount)}
+            {formatLikeCount(shopLikeCount)}
           </p>
         </div>
       </div>

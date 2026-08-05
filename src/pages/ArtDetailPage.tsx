@@ -2,14 +2,11 @@
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
 import InstagramEmbed from '../components/art_detail/InstagramEmbed';
 import ArtLikeBtn from '../components/common/ArtLikeBtn';
 import RelatedArtList from '../components/art_detail/RelatedArtList';
 import KakaoMoveModal from '../components/art_detail/KakaoMoveModal';
-
 import { ChevronLeftIcon, AddressPinIcon, ShareIcon } from '../assets/icons';
-
 import {
   fetchCardDetail,
   fetchRecommendedCards,
@@ -17,8 +14,7 @@ import {
   type RecommendedCard,
 } from '../data/card';
 import { hydrateLikedCards } from '../data/likeStore';
-
-import { useRequireLogin } from '../hooks/useReqireLogin';
+import { useRequireLogin } from '../hooks/useRequireLogin';
 
 export default function ArtDetailPage() {
   const navigate = useNavigate();
@@ -31,9 +27,7 @@ export default function ArtDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!cardId) {
-      return;
-    }
+    if (!cardId) return;
 
     let cancelled = false;
 
@@ -42,9 +36,7 @@ export default function ArtDetailPage() {
 
     fetchCardDetail(Number(cardId))
       .then((data) => {
-        if (!cancelled) {
-          setCard(data);
-        }
+        if (!cancelled) setCard(data);
       })
       .catch((err) => {
         console.error(err);
@@ -56,9 +48,7 @@ export default function ArtDetailPage() {
 
     fetchRecommendedCards(Number(cardId))
       .then((data) => {
-        if (!cancelled) {
-          setRelatedCards(data);
-        }
+        if (!cancelled) setRelatedCards(data);
       })
       .catch((err) => {
         console.error(err);
@@ -70,17 +60,13 @@ export default function ArtDetailPage() {
   }, [cardId]);
 
   const handleShopClick = () => {
-    if (!card) {
-      return;
-    }
+    if (!card) return;
 
     navigate(`/shop/${card.shopId}`);
   };
 
   const handleReservationClick = () => {
-    if (!card) {
-      return;
-    }
+    if (!card) return;
 
     if (!requireLogin()) {
       return;
@@ -90,9 +76,7 @@ export default function ArtDetailPage() {
   };
 
   const handleShare = () => {
-    if (!card) {
-      return;
-    }
+    if (!card) return;
 
     if (!requireLogin()) {
       return;
@@ -123,11 +107,7 @@ export default function ArtDetailPage() {
   return (
     <div className="w-full pb-24">
       <div className="relative flex items-center justify-center px-4 py-3">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="absolute left-4"
-        >
+        <button onClick={() => navigate(-1)} className="absolute left-4">
           <ChevronLeftIcon className="w-5 h-5 text-[#171B1C]" />
         </button>
 
@@ -139,7 +119,6 @@ export default function ArtDetailPage() {
       </div>
 
       <button
-        type="button"
         onClick={handleShopClick}
         className="flex items-center gap-2 px-4 py-4 w-full"
       >
@@ -193,7 +172,6 @@ export default function ArtDetailPage() {
         <ArtLikeBtn initialLiked={false} cardId={card.cardId} size={24} />
 
         <button
-          type="button"
           onClick={handleShare}
           aria-label="공유하기"
           className="flex items-center justify-center"
@@ -202,7 +180,6 @@ export default function ArtDetailPage() {
         </button>
 
         <button
-          type="button"
           onClick={handleReservationClick}
           className="w-[70%] bg-[#F70071] text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shrink-0"
         >

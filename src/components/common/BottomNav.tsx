@@ -7,7 +7,7 @@ import {
   UserIcon,
 } from '../../assets/icons';
 
-import { useRequireLogin } from '../../hooks/useReqireLogin';
+import { useRequireLogin } from '../../hooks/useRequireLogin';
 
 interface NavItem {
   label: string;
@@ -58,38 +58,26 @@ export default function BottomNav() {
     navigate(item.path);
   };
 
-  const isActivePath = (path: string) => {
-    if (path === '/home') {
-      return location.pathname === '/home';
-    }
-
-    return location.pathname.startsWith(path);
-  };
-
   if (hideBottomNav) {
     return null;
   }
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-40 flex h-16 w-full max-w-[430px] -translate-x-1/2 items-center border-t border-[#E9EBEE] bg-white px-6">
-      {NAV_ITEMS.map((item) => {
-        const active = isActivePath(item.path);
+    <nav className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 h-16 bg-white border-t border-[#E9EBEE] flex items-center px-6">
+      {NAV_ITEMS.map((item) => (
+        <button
+          key={item.path}
+          type="button"
+          onClick={() => handleNavClick(item)}
+          className="flex-1 flex flex-col items-center gap-1 text-[#000000]"
+        >
+          {item.icon({
+            className: 'w-[22px] h-[22px]',
+          })}
 
-        return (
-          <button
-            key={item.path}
-            type="button"
-            onClick={() => handleNavClick(item)}
-            className={`flex flex-1 flex-col items-center gap-1`}
-          >
-            {item.icon({
-              className: 'h-[22px] w-[22px]',
-            })}
-
-            <span className="text-[11px]">{item.label}</span>
-          </button>
-        );
-      })}
+          <span className="text-[11px]">{item.label}</span>
+        </button>
+      ))}
     </nav>
   );
 }

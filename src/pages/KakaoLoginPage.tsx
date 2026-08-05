@@ -47,22 +47,6 @@ function KakaoLoginPage() {
     };
   }, []);
 
-  const handleGuestMode = (): void => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tempToken');
-    localStorage.removeItem('memberId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('nickName');
-    localStorage.removeItem('kakaoEmail');
-
-    localStorage.setItem('isGuest', 'true');
-
-    navigate('/home', {
-      replace: true,
-    });
-  };
-
   const handleKakaoLogin = async (): Promise<void> => {
     if (isLoading) {
       return;
@@ -80,7 +64,6 @@ function KakaoLoginPage() {
         navigate('/onboarding/design', {
           replace: true,
         });
-
         return;
       }
 
@@ -114,32 +97,21 @@ function KakaoLoginPage() {
         </p>
       </div>
 
-      <div className="mt-10 flex w-full max-w-xs flex-col gap-3">
-        <button
-          type="button"
-          onClick={handleKakaoLogin}
-          disabled={!isKakaoReady || isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3.5 font-medium text-white transition active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <>
-              <KakaoIcon />
-              <span>카카오로 시작하기</span>
-            </>
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={handleGuestMode}
-          disabled={isLoading}
-          className="w-full rounded-full border border-[#E9EBEE] bg-white py-3.5 font-medium text-[#646F7C] transition active:bg-[#F7F8F9] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          로그인 없이 둘러보기
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleKakaoLogin}
+        disabled={!isKakaoReady || isLoading}
+        className="mt-10 w-full max-w-xs flex items-center justify-center gap-2 bg-black text-white rounded-full py-3.5 font-medium active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            <KakaoIcon />
+            <span>카카오로 시작하기</span>
+          </>
+        )}
+      </button>
 
       {errorMessage && (
         <p className="mt-4 max-w-xs text-center text-sm leading-relaxed text-red-500">
@@ -154,6 +126,7 @@ function LoadingSpinner() {
   return (
     <span
       className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+      role="status"
       aria-label="로그인 처리 중"
     />
   );

@@ -1,9 +1,7 @@
-// 공통 찜(좋아요) 버튼 - 하트 토글 + 토스트
-
 import { useEffect, useRef, useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
-import { useRequireLogin } from '../../hooks/useReqireLogin';
+import { useRequireLogin } from '../../hooks/useRequireLogin';
 
 interface ArtLikeBtnProps {
   initialLiked: boolean;

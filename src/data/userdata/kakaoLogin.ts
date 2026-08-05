@@ -36,7 +36,9 @@ const waitForKakaoSdk = (): Promise<NonNullable<Window['Kakao']>> => {
       }
 
       if (Date.now() - startedAt >= timeout) {
-        reject(new Error('카카오 JavaScript SDK를 불러오지 못했습니다.'));
+        reject(
+          new Error('카카오 JavaScript SDK를 불러오지 못했습니다.'),
+        );
         return;
       }
 
@@ -170,7 +172,9 @@ export const startKakaoLogin = async (): Promise<KakaoLoginResult> => {
   });
 };
 
-export const saveKakaoLoginResult = (result: KakaoLoginResult): void => {
+export const saveKakaoLoginResult = (
+  result: KakaoLoginResult,
+): void => {
   localStorage.removeItem('isGuest');
 
   if (result.email) {

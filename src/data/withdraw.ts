@@ -11,7 +11,7 @@ export interface WithdrawApiResponse {
 
 // ===== API 호출 =====
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/users/me`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/users/me/withdraw`;
 
 export async function withdrawUser(): Promise<void> {
   const token = localStorage.getItem("accessToken");

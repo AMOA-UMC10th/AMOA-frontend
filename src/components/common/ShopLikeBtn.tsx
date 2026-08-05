@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { likeShop, unlikeShop, LikeApiError } from '../../data/like';
-import { useRequireLogin } from '../../hooks/useReqireLogin';
+import { useRequireLogin } from '../../hooks/useRequireLogin';
 
 interface ShopLikeBtnProps {
   initialLiked: boolean;
