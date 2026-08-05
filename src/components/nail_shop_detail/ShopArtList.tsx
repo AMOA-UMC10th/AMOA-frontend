@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import ArtCard from '../common/ArtCard';
 import type { ShopCardItem } from '../../data/shop';
 
@@ -6,27 +6,25 @@ export type SortOption = 'RECOMMEND' | 'POPULAR' | 'LATEST' | 'PRICE_LOW' | 'PRI
 
 interface ShopArtListProps {
   cards: ShopCardItem[];
-  totalCount: number;
   shopName?: string;
-  onFilterChange?: (artType: string) => void;
-  onSortChange?: (sort: SortOption) => void;
-  // 상단 '아트찜' 숫자를 바로 올리고 내리기 위해 페이지로 올려보낸다.
   onCardLikeChange?: (liked: boolean) => void;
+}
+
+function getCurrentYearMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export default function ShopArtList({
   cards,
-  totalCount,
   shopName = '',
-  onFilterChange,
-  onSortChange,
   onCardLikeChange,
 }: ShopArtListProps) {
   const [activeFilter, setActiveFilter] = useState('전체');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState<SortOption>('LATEST');
 
-  const filters = ['전체', '이달아', '이벤트', '원컬러'];
+  const filters = ['전체', '이달아', '지난아', '이벤트', '원컬러'];
 
   const SORT_ITEMS: { label: string; value: SortOption }[] = [
     { label: '추천순', value: 'RECOMMEND' },
@@ -38,16 +36,44 @@ export default function ShopArtList({
 
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
-    onFilterChange?.(filter);
   };
 
   const handleSortClick = (sort: SortOption) => {
     setSelectedSort(sort);
     setIsSortOpen(false);
-    onSortChange?.(sort);
   };
 
   const currentSortLabel = SORT_ITEMS.find((item) => item.value === selectedSort)?.label || '최신순';
+
+  const filteredCards = useMemo(() => {
+    if (activeFilter === '전체') return cards;
+
+    const currentYearMonth = getCurrentYearMonth();
+
+    switch (activeFilter) {
+      case '이달아':
+        return cards.filter((card) => card.createdMonth === currentYearMonth);
+      case '지난아':
+        return cards.filter((card) => card.createdMonth < currentYearMonth);
+      case '이벤트':
+        return cards.filter((card) => card.artType === 'EVENT');
+      default:
+        return cards.filter((card) => card.artType === activeFilter);
+    }
+  }, [cards, activeFilter]);
+
+  const sortedCards = useMemo(() => {
+    const list = [...filteredCards];
+
+    if (selectedSort === 'PRICE_HIGH') {
+      list.sort((a, b) => (b.maxPrice ?? b.minPrice) - (a.maxPrice ?? a.minPrice));
+    } else if (selectedSort === 'PRICE_LOW') {
+      list.sort((a, b) => (a.minPrice ?? a.maxPrice) - (b.minPrice ?? b.maxPrice));
+    }
+    return list;
+  }, [filteredCards, selectedSort]);
+
+  const totalCount = sortedCards.length;
 
   return (
     <div className="w-full bg-white pt-4 pb-20">
@@ -116,7 +142,7 @@ export default function ShopArtList({
       </div>
 
       <div className="grid grid-cols-2 gap-x-0.5 gap-y-6">
-        {cards.map((card) => (
+        {sortedCards.map((card) => (
           <ArtCard
             key={card.cardId}
             cardId={card.cardId}
@@ -127,6 +153,7 @@ export default function ShopArtList({
             maxPrice={card.maxPrice}
             artType={card.artType}
             isLiked={card.isLiked}
+            createdMonth={card.createdMonth}
             onLikeChange={onCardLikeChange}
           />
         ))}
