@@ -80,6 +80,7 @@ export default function WishShopCard({ shop, onUnlike }: WishShopCardProps) {
               minPrice={art.minPrice}
               maxPrice={art.maxPrice}
               artType={art.artType}
+              createdMonth={art.createdMonth}
             />
           </div>
         ))}

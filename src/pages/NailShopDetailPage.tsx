@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ShopInfo from '../components/nail_shop_detail/ShopInfo';
-import ShopArtList, { type SortOption } from '../components/nail_shop_detail/ShopArtList';
+import ShopArtList from '../components/nail_shop_detail/ShopArtList';
 import {
   fetchShopDetail,
   fetchShopCards,
@@ -18,10 +18,6 @@ export default function NailShopDetailPage() {
   const [cardData, setCardData] = useState<ShopCardListResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [selectedFilter, setSelectedFilter] = useState<string>('전체');
-  const [selectedSort, setSelectedSort] = useState<SortOption>('LATEST');
-
-  // 찜 숫자는 하트를 누른 즉시 반영되어야 해서 페이지에서 들고 있는다.
   const [shopLikeCount, setShopLikeCount] = useState(0);
   const [cardLikeCount, setCardLikeCount] = useState(0);
 
@@ -35,7 +31,7 @@ export default function NailShopDetailPage() {
         setLoading(true);
         const [shopRes, cardsRes] = await Promise.all([
           fetchShopDetail(id),
-          fetchShopCards(id), // sort 파라미터를 안 넘겨서 500 에러 방지
+          fetchShopCards(id),
         ]);
         setShopInfo(shopRes);
         setCardData(cardsRes);
@@ -50,26 +46,6 @@ export default function NailShopDetailPage() {
 
     loadData();
   }, [id]);
-
-  const sortedAndFilteredCards = useMemo(() => {
-    if (!cardData?.cards) return [];
-
-    let list = [...cardData.cards];
-
-    // 1. 아트 타입 필터링
-    if (selectedFilter !== '전체') {
-      list = list.filter((card) => card.artType === selectedFilter);
-    }
-
-    // 2. 가격 정렬 처리
-    if (selectedSort === 'PRICE_HIGH') {
-      list.sort((a, b) => (b.maxPrice || b.minPrice) - (a.maxPrice || a.minPrice));
-    } else if (selectedSort === 'PRICE_LOW') {
-      list.sort((a, b) => (a.minPrice || a.maxPrice) - (b.minPrice || b.maxPrice));
-    }
-
-    return list;
-  }, [cardData, selectedFilter, selectedSort]);
 
   if (loading || !shopInfo || !cardData) {
     return (
@@ -99,11 +75,8 @@ export default function NailShopDetailPage() {
         />
 
         <ShopArtList
-          cards={sortedAndFilteredCards} // ★ 정렬/필터링된 리스트 전달
-          totalCount={sortedAndFilteredCards.length}
+          cards={cardData.cards}
           shopName={cardData.shopName}
-          onFilterChange={(artType) => setSelectedFilter(artType)}
-          onSortChange={(sort) => setSelectedSort(sort)}
           onCardLikeChange={bumpCount(setCardLikeCount)}
         />
       </main>

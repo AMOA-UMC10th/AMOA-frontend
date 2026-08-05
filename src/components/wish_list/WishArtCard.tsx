@@ -19,6 +19,7 @@ export default function WishArtCard({ card, onUnlike }: WishArtCardProps) {
       minPrice={card.minPrice}
       maxPrice={card.maxPrice}
       artType={card.artType}
+      createdMonth={card.createdMonth}
       isLiked
       onLikeChange={(liked) => {
         if (!liked) onUnlike(card.cardId);

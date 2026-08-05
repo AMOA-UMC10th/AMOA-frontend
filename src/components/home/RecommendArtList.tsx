@@ -30,6 +30,7 @@ export default function RecommendArtList({ items }: RecommendArtListProps) {
             maxPrice={item.maxPrice}
             artType={item.artType || 'ART'}
             isLiked={item.isLiked ?? false}
+            createdMonth={item.createdMonth}
           />
         ))
       ) : (

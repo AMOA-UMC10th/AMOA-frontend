@@ -19,6 +19,7 @@ export interface LikedCard {
   minPrice: number;
   maxPrice: number;
   likedAt: string;
+  createdMonth: string;
 }
 
 export interface LikedShopCard {
@@ -27,6 +28,7 @@ export interface LikedShopCard {
   artType: string;
   minPrice: number;
   maxPrice: number;
+  createdMonth: string;
 }
 
 export interface LikedShop {

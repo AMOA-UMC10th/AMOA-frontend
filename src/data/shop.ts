@@ -26,6 +26,7 @@ export interface ShopCardItem {
   maxPrice: number;
   artType: string;
   isLiked: boolean;
+  createdMonth: string;
   instagramUrl?: string; // ArtCard 바인딩용 (응답에 없는 경우 기본값 처리)
 }
 
@@ -95,6 +96,7 @@ export async function fetchShopCards(
           artType: detail.artType || card.artType,
           designTags: detail.designTags,
           address: detail.address,
+          createdMonth: detail.createdMonth ?? card.createdMonth,
         };
       } catch (err) {
         return card; // 상세 불러오기 실패 시 기본 카드 정보 유지

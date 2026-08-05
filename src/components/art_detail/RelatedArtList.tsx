@@ -23,6 +23,7 @@ export default function RelatedArtList({ cards }: RelatedArtListProps) {
             maxPrice={card.maxPrice}
             artType={card.artType}
             isLiked={card.isLiked}
+            createdMonth={card.createdMonth}
           />
         ))}
       </div>

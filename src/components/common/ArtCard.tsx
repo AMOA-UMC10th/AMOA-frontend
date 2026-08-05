@@ -13,7 +13,7 @@ interface CommonArtCardProps {
   maxPrice: number;
   artType: string;
   isLiked?: boolean;
-  // 찜 목록처럼 해제 결과를 바깥에서 알아야 하는 화면에서 쓴다.
+  createdMonth?: string;
   onLikeChange?: (liked: boolean) => void;
 }
 
@@ -25,27 +25,36 @@ export default function ArtCard({
   minPrice,
   maxPrice,
   artType,
+  createdMonth,
   isLiked = false,
   onLikeChange,
 }: CommonArtCardProps) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(isLiked);
-
-  const artMonth = new Date().getMonth() + 1;
+  const getDisplayMonth = () => {
+      if (createdMonth) {
+        const parts = createdMonth.split('-');
+        if (parts.length >= 2) {
+          return parseInt(parts[1], 10);
+        }
+      }
+      return new Date().getMonth() + 1; 
+    };
+  const artMonth = getDisplayMonth();
 
   const handleCardClick = () => {
     navigate(`/art-detail/${cardId}`);
   };
 
-  const getArtTypeLabel = (type: string) => {
-    switch (type) {
-      case 'MONTHLY':
-        return '이달아';
-      case 'EVENT':
-        return '이벤트';
-      default:
-        return '아트';
+  const getArtTypeLabel = (type: string, month?: string) => {
+    if (type === 'EVENT') return '이벤트';
+
+    if (month) {
+      const currentYearMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+      return month === currentYearMonth ? '이달아' : '지난아';
     }
+
+    return '아트';
   };
 
   return (
@@ -60,10 +69,9 @@ export default function ArtCard({
       <div className="mt-2.5 px-2 cursor-pointer" onClick={handleCardClick}>
         <div className="flex items-center justify-between">
           <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-1.5 py-0.5 rounded font-bold">
-            {artMonth}월 {getArtTypeLabel(artType)}
+            {artMonth}월 {getArtTypeLabel(artType, createdMonth)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
-            {/* cardId를 넘겨야 하트가 실제 찜 등록/취소 요청까지 보낸다. */}
             <ArtLikeBtn
               initialLiked={liked}
               cardId={cardId}
