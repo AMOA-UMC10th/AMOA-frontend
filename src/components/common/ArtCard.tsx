@@ -51,7 +51,7 @@ export default function ArtCard({
 
     if (month) {
       const currentYearMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-      return month === currentYearMonth ? '이달아' : '지난아';
+      return month === currentYearMonth ? '이달아' : '이달아';
     }
 
     return '아트';
