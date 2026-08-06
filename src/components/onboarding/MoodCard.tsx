@@ -29,7 +29,6 @@ export default function MoodCard({
           )}
         </div>
 
-        {/* 체크 배지는 카드 바깥이 아니라 이미지 안쪽 좌상단에 얹힌다. (설계서 A102) */}
         {selected && (
           <span className="absolute left-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-[#F70071] text-white">
             <CheckIcon className="h-3 w-3" />

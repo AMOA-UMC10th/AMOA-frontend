@@ -57,12 +57,12 @@ export default function DesignFilter({
 
         {(designTags || []).map((tag) => {
           if (!tag) return null;
-          const isSelected = selectedDesigns.includes(tag.designtagId);
+          const isSelected = selectedDesigns.includes(tag.designTagId);
           return (
             <button
-              key={tag.designtagId}
+              key={tag.designTagId}
               type="button"
-              onClick={() => onToggleDesign(tag.designtagId)}
+              onClick={() => onToggleDesign(tag.designTagId)}
               className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
                 isSelected
                   ? 'border-[#FF007A] bg-[#FF007A] text-white'
