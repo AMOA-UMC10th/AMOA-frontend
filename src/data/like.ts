@@ -26,7 +26,7 @@ const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/cards`;
 // 생 fetch로 보내면 액세스 토큰이 만료됐을 때 재발급 없이 401로 끝나서,
 // 화면 하트만 켜지고 서버에는 저장되지 않는다. (새로고침하면 찜이 풀림)
 export async function likeCard(cardId: number): Promise<void> {
-  const res = await authFetch(`${BASE_URL}/${cardId}/like`, {
+  const res = await authFetch(`${BASE_URL}/${cardId}/likes`, {
     method: "POST",
   });
 
@@ -38,7 +38,7 @@ export async function likeCard(cardId: number): Promise<void> {
 }
 
 export async function unlikeCard(cardId: number): Promise<void> {
-  const res = await authFetch(`${BASE_URL}/${cardId}/like`, {
+  const res = await authFetch(`${BASE_URL}/${cardId}/likes`, {
     method: "DELETE",
   });
 
@@ -49,11 +49,10 @@ export async function unlikeCard(cardId: number): Promise<void> {
   }
 }
 
-// 샵 찜은 아트카드와 별개다. (POST/DELETE /shops/{shopId}/like)
 const SHOP_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/shops`;
 
 export async function likeShop(shopId: number): Promise<void> {
-  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/likes`, {
     method: "POST",
   });
 
@@ -65,7 +64,7 @@ export async function likeShop(shopId: number): Promise<void> {
 }
 
 export async function unlikeShop(shopId: number): Promise<void> {
-  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/like`, {
+  const res = await authFetch(`${SHOP_BASE_URL}/${shopId}/likes`, {
     method: "DELETE",
   });
 
