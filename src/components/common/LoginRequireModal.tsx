@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import LoginModalImage from '../../assets/LoginModalImage.png';
 import Modal from './Modal';
 
 import {
@@ -59,7 +60,7 @@ export default function LoginRequiredModal({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     if (isLoading) {
       return;
     }
@@ -71,58 +72,135 @@ export default function LoginRequiredModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      contentClassName="relative w-[calc(100%-48px)] max-w-[408px] rounded-[30px] px-[34px] pb-[34px] pt-[28px]"
+      contentClassName="
+        relative
+        !h-[261px]
+        !w-[316px]
+        !max-w-[calc(100%-48px)]
+        !overflow-hidden
+        !rounded-[23px]
+        !bg-white
+        !p-0
+      "
     >
       <button
         type="button"
         onClick={handleClose}
         disabled={isLoading}
         aria-label="닫기"
-        className="absolute right-[23px] top-[20px] flex h-6 w-6 items-center justify-center disabled:cursor-not-allowed"
+        className="
+          absolute
+          right-[22px]
+          top-[20px]
+          z-10
+          flex
+          h-[8px]
+          w-[8px]
+          items-center
+          justify-center
+          disabled:cursor-not-allowed
+        "
       >
-        <svg
-          width="21"
-          height="21"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M6 6L18 18M18 6L6 18"
-            stroke="#171B1C"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-        </svg>
+        <CloseIcon />
       </button>
 
-      <div className="flex flex-col items-center text-center">
-        <div className="mt-[23px] flex h-[82px] w-[82px] items-center justify-center">
-          <HeartImage />
-        </div>
+      <img
+        src={LoginModalImage}
+        alt=""
+        aria-hidden="true"
+        className="
+    absolute
+    left-1/2
+    top-[30px]
+    h-[68px]
+    w-[68px]
+    -translate-x-1/2
+    object-contain
+    brightness-[1.18]
+    saturate-[1.12]
+    contrast-[0.9]
+  "
+      />
 
-        <h2 className="mt-[27px] text-[18px] font-bold leading-[24px] text-[#171B1C]">
+      <h2
+        className="
+          absolute
+          left-1/2
+          top-[114px]
+          flex
+          h-[36px]
+          w-[166px]
+          -translate-x-1/2
+          items-center
+          justify-center
+          text-center
+          text-[15px]
+          font-bold
+          leading-[18px]
+          tracking-[0]
+          text-black
+        "
+      >
+        <span>
           카카오 계정으로 로그인하고
           <br />더 많은 기능을 이용해보세요
-        </h2>
+        </span>
+      </h2>
 
-        <p className="mt-[15px] whitespace-nowrap text-[12px] leading-[18px] text-[#ADB0B5]">
-          현재 아트 맞춤 추천, 아트 찾기, 찜 기능을 모두 놓치고 있어요
-        </p>
-      </div>
+      <p
+        className="
+          absolute
+          left-1/2
+          top-[157px]
+          h-[18px]
+          w-[250px]
+          -translate-x-1/2
+          whitespace-nowrap
+          text-center
+          text-[10.5px]
+          font-normal
+          leading-[18px]
+          tracking-[0]
+          text-[#888888]
+        "
+      >
+        현재 아트 맞춤 추천, 아트 찾기, 찜 기능을 모두 놓치고 있어요
+      </p>
 
       <button
         type="button"
         onClick={handleLoginClick}
         disabled={isLoading}
-        className="mt-[28px] flex h-[52px] w-full items-center justify-center gap-[11px] rounded-[12px] bg-[#FEE500] text-[15px] font-bold text-[#171B1C] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-70"
+        className="
+          absolute
+          left-1/2
+          top-[195px]
+          flex
+          h-[39px]
+          w-[264px]
+          -translate-x-1/2
+          items-center
+          justify-center
+          gap-[9px]
+          rounded-[8px]
+          bg-[#FEE500]
+          text-[12px]
+          font-semibold
+          leading-[11.82px]
+          tracking-[0]
+          text-black
+          active:opacity-80
+          disabled:cursor-not-allowed
+          disabled:opacity-70
+        "
       >
         {isLoading ? (
           <LoadingSpinner />
         ) : (
           <>
             <KakaoIcon />
-            <span>카카오톡으로 시작하기</span>
+
+            <span className="whitespace-nowrap">카카오톡으로 시작하기</span>
           </>
         )}
       </button>
@@ -130,80 +208,59 @@ export default function LoginRequiredModal({
   );
 }
 
-function LoadingSpinner() {
-  return (
-    <span
-      className="h-5 w-5 animate-spin rounded-full border-2 border-[#171B1C]/30 border-t-[#171B1C]"
-      role="status"
-      aria-label="로그인 처리 중"
-    />
-  );
-}
-
-function HeartImage() {
+function CloseIcon() {
   return (
     <svg
-      width="82"
-      height="82"
-      viewBox="0 0 82 82"
+      width="8"
+      height="8"
+      viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <defs>
-        <linearGradient
-          id="loginHeartGradient"
-          x1="25"
-          y1="12"
-          x2="57"
-          y2="72"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#FF9FC7" />
-          <stop offset="0.42" stopColor="#E83C79" />
-          <stop offset="1" stopColor="#A70E43" />
-        </linearGradient>
-
-        <radialGradient
-          id="loginHeartHighlight"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientTransform="translate(31 25) rotate(45) scale(24)"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#FFFFFF" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
       <path
-        d="M41 72C36.5 68.8 17 55.8 17 35C17 22.8 24.6 15 34.5 15C40 15 44.5 18.3 47.5 22.8C50.5 18.3 55 15 61 15C70.8 15 76.3 23.8 75 35C72.8 54 54.3 68 41 72Z"
-        fill="url(#loginHeartGradient)"
-      />
-
-      <ellipse
-        cx="31"
-        cy="26"
-        rx="13"
-        ry="11"
-        fill="url(#loginHeartHighlight)"
+        d="M0.75 0.75L7.25 7.25M7.25 0.75L0.75 7.25"
+        stroke="#000000"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </svg>
+  );
+}
+
+function LoadingSpinner() {
+  return (
+    <span
+      role="status"
+      aria-label="로그인 처리 중"
+      className="
+        h-[17px]
+        w-[17px]
+        animate-spin
+        rounded-full
+        border-2
+        border-black/20
+        border-t-black
+      "
+    />
   );
 }
 
 function KakaoIcon() {
   return (
     <svg
-      width="21"
-      height="21"
-      viewBox="0 0 24 24"
-      fill="#171B1C"
+      width="13"
+      height="12"
+      viewBox="0 0 13 12"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="shrink-0"
     >
-      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.78 1.8 5.22 4.52 6.62-.2.73-.72 2.62-.82 3.03-.13.51.19.5.4.36.16-.1 2.6-1.76 3.65-2.47.71.1 1.45.16 2.25.16 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
+      <path
+        d="M6.5 0.75C3.186 0.75 0.5 2.857 0.5 5.456C0.5 7.084 1.566 8.52 3.186 9.364C3.066 9.808 2.754 10.952 2.694 11.15C2.616 11.462 2.808 11.456 2.934 11.372C3.03 11.312 4.494 10.306 5.124 9.88C5.55 9.94 5.994 9.976 6.5 9.976C9.814 9.976 12.5 7.869 12.5 5.27C12.5 2.671 9.814 0.75 6.5 0.75Z"
+        fill="#1E1E1E"
+      />
     </svg>
   );
 }
