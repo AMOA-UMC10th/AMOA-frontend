@@ -1,5 +1,3 @@
-// [I101] 예약 데모 화면 (손 상태 ➡️ 아트/옵션 ➡️ 날짜/시간 ➡️ 확인/결제 ➡️ 완료)
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '../assets/icons';
@@ -7,10 +5,6 @@ import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
 import {
-  MOCK_HAND_STATUS_OPTIONS,
-  MOCK_EXTENSION_REMOVAL_UNIT_PRICE,
-  MOCK_RESERVATION_DEPOSIT,
-  MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
   formatDuration,
   formatDateLabel,
   getTodayKey,
@@ -49,7 +43,6 @@ export default function ReservationPage() {
 
   const [step, setStep] = useState<Step>('hand-status');
 
-  // 카드/샵/옵션 — 실제 API로 받아옴
   const [cardDetail, setCardDetail] = useState<CardDetail | null>(null);
   const [artOptions, setArtOptions] = useState<ArtOption[]>([]);
   const [additionalOptions, setAdditionalOptions] = useState<
@@ -79,24 +72,20 @@ export default function ReservationPage() {
     load();
   }, [numericCardId]);
 
-  // 손 상태
   const [handStatus, setHandStatus] = useState<HandStatusId[]>([]);
   const [gelRemovalShop, setGelRemovalShop] = useState<GelRemovalShop | null>(
     null,
   );
   const [extensionRemovalCount, setExtensionRemovalCount] = useState(1);
 
-  // 아트/추가옵션
   const [selectedArtId, setSelectedArtId] = useState<number | null>(null);
   const [additionalCounts, setAdditionalCounts] = useState<
     Record<number, number>
   >({});
 
-  // 예약 draft — POST /reservations 성공하면 채워짐
   const [reservationId, setReservationId] = useState<number | null>(null);
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
 
-  // 날짜/시간
   const [selectedDate, setSelectedDate] = useState<string | null>(
     getTodayKey(),
   );
@@ -104,7 +93,6 @@ export default function ReservationPage() {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
 
-  // reservationId나 selectedDate가 바뀔 때마다 실제 가능 시간 조회
   useEffect(() => {
     if (!reservationId || !selectedDate) return;
 
@@ -129,7 +117,6 @@ export default function ReservationPage() {
     fetchTimes();
   }, [reservationId, selectedDate]);
 
-  // 예약자 정보 — 내 정보 조회로 자동 채움, 수정 불가
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -188,21 +175,10 @@ export default function ReservationPage() {
     setSelectedTime(null);
   };
 
-  // 실시간 미리보기용 가격/시간 (draft 생성 전, hand-status/art-option 스텝 하단바 표시용)
   const selectedArt = artOptions.find((a) => a.id === selectedArtId);
 
   const previewPrice = (() => {
     let total = 0;
-    handStatus.forEach((id) => {
-      const option = MOCK_HAND_STATUS_OPTIONS.find((o) => o.id === id);
-      if (option) total += option.price;
-    });
-    if (handStatus.includes('EXTENSION_REMOVAL')) {
-      total += extensionRemovalCount * MOCK_EXTENSION_REMOVAL_UNIT_PRICE;
-    }
-    if (handStatus.includes('GEL_REMOVAL') && gelRemovalShop === 'OTHER_SHOP') {
-      total += MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
-    }
     if (selectedArt) total += selectedArt.price;
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
@@ -213,17 +189,6 @@ export default function ReservationPage() {
 
   const previewDuration = (() => {
     let total = selectedArt?.badgeMinutes ?? 0;
-    handStatus.forEach((id) => {
-      const option = MOCK_HAND_STATUS_OPTIONS.find((o) => o.id === id);
-      if (!option?.badgeMinutes) return;
-
-      if (id === 'EXTENSION_REMOVAL') {
-        total += extensionRemovalCount * option.badgeMinutes;
-      } else {
-        total += option.badgeMinutes;
-      }
-    });
-
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
       total += count * option.badgeMinutes;
@@ -245,7 +210,6 @@ export default function ReservationPage() {
     paymentMethod !== null &&
     agreedToPolicy;
 
-  // 손상태/아트/옵션 스텝 끝 → 예약 draft 생성 후 날짜 스텝으로
   const handleGoToDateTime = async () => {
     if (!isArtOptionComplete || isCreatingDraft) return;
 
@@ -311,9 +275,6 @@ export default function ReservationPage() {
       });
 
       setCompleteResult(result);
-
-      // 예약 목록은 서버 API에서 다시 조회하므로 localStorage에 저장하지 않아요.
-
       setStep('complete');
     } catch (error) {
       console.error('예약 확정 실패:', error);
@@ -409,7 +370,7 @@ export default function ReservationPage() {
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">가격</span>
               <span className="font-medium text-[#171B1C]">
-                {MOCK_RESERVATION_DEPOSIT.toLocaleString()} 원
+                {completeResult.totalPrice.toLocaleString()} 원
               </span>
             </div>
           </div>
@@ -438,7 +399,7 @@ export default function ReservationPage() {
       <div className="relative flex h-[50px] items-center justify-center border-b border-[#E9EBEE]">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="absolute left-[12px] flex h-6 w-6 cursor-pointer items-center justify-center"
           aria-label="뒤로가기"
         >
@@ -570,7 +531,7 @@ export default function ReservationPage() {
                     예약금
                   </span>
                   <span className="text-[14px] font-bold text-[#F70071]">
-                    {MOCK_RESERVATION_DEPOSIT.toLocaleString()}원
+                    {previewPrice.toLocaleString()}원
                   </span>
                 </div>
                 <p className="pt-2 text-[10px] text-[#AAAAAA]">
@@ -598,7 +559,7 @@ export default function ReservationPage() {
                       }`}
                     >
                       <div className="flex flex-col">
-                        <span className="text-[13px]] font-semibold text-[#171B1C]">
+                        <span className="text-[13px] font-semibold text-[#171B1C]">
                           {method === 'KAKAO_PAY'
                             ? '카카오페이'
                             : '신용/체크카드'}

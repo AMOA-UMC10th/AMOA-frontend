@@ -18,18 +18,15 @@ interface ApiResponse<T> {
   result: T;
 }
 
-// 무드 목록은 서버가 내려주는 designtagId를 그대로 온보딩 저장에 써야 해서 API로 받아온다.
-async function fetchDesignMoods(): Promise<DesignTag[]> {
+async function fetchDesignMoods(): Promise<DesignMood[]> {
   const token = localStorage.getItem("tempToken");
-  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/design-moods`, {
+  const res = fetch(`${import.meta.env.VITE_API_BASE_URL}/design-tags`, {
     headers: token
       ? { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` }
       : {},
   });
-  if (!res.ok) {
-    throw new Error(`디자인 무드 목록 조회 실패: ${res.status}`);
-  }
-  const data: ApiResponse<{ designtags: DesignTag[] }> = await res.json();
+  
+  const data: ApiResponse<{ designtags: DesignMood[] }> = await (await res).json();
   if (!data.isSuccess) {
     throw new Error(data.message);
   }
@@ -57,13 +54,10 @@ export default function DesignPage() {
     );
   }
 
-  // 뒤로가기는 히스토리(-1) 대신 경로를 고정한다. 새로고침이나 주소 직접 진입처럼
-  // 돌아갈 기록이 없을 때 앱 밖으로 나가버리는 걸 막는다.
   function handleBack() {
     navigate("/home", { replace: true });
   }
 
-  // 선택한 디자인태그 ID를 다음 단계(지역 → 닉네임 → 전화번호)까지 state로 들고 간다.
   function goNext(designTagIds: number[]) {
     navigate("/onboarding/region", {
       state: { ...location.state, designTagIds },
@@ -97,11 +91,11 @@ export default function DesignPage() {
         <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5">
           {moods.map((mood) => (
             <MoodCard
-              key={mood.designtagId}
+              key={mood.designTagId}
               label={mood.name}
               imageUrl={getMoodImage(mood.name)}
-              selected={selected.includes(mood.designtagId)}
-              onClick={() => toggleMood(mood.designtagId)}
+              selected={selected.includes(mood.designTagId)}
+              onClick={() => toggleMood(mood.designTagId)}
             />
           ))}
         </div>

@@ -16,8 +16,7 @@ interface ApiResponse<T> {
 
 export async function fetchDesignTags(): Promise<DesignTag[]> {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/shops/design-tags`);
-//인증필요없는걸로 교체 필요
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/design-tags`);
     if (!res.ok) {
       console.error(`디자인 태그  실패: ${res.status}`);
       return [];

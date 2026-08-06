@@ -54,23 +54,6 @@ export interface HandStatusOption {
   badgeMinutes?: number;
 }
 
-export const MOCK_HAND_STATUS_OPTIONS: HandStatusOption[] = [
-  { id: 'BARE', label: '맨손이에요', price: 0 },
-  { id: 'GEL_REMOVAL', label: '젤 제거할게요', price: 0, badgeMinutes: 10 },
-  {
-    id: 'EXTENSION_REMOVAL',
-    label: '연장 제거할게요',
-    price: 0,
-    badgeMinutes: 2,
-  },
-];
-
-export const MOCK_EXTENSION_REMOVAL_UNIT_PRICE = 1000;
-export const MOCK_EXTENSION_REMOVAL_MAX_COUNT = 10;
-export const MOCK_GEL_REMOVAL_OTHER_SHOP_SURCHARGE = 5000;
-export const MOCK_BASE_DURATION_MINUTES = 60;
-export const MOCK_RESERVATION_DEPOSIT = 20000;
-
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -141,8 +124,6 @@ export interface ShopOption {
   maxQuantity: number;
 }
 
-// splitShopOptions가 만들어내는 실제 옵션 형태
-// (OptionSelector, ReservationPage의 가격/시간 계산이 이 필드명을 기준으로 짜여있음)
 
 export interface ArtOption {
   id: number;
@@ -161,7 +142,7 @@ export interface AdditionalOption {
 
 export async function getShopOptions(shopId: number): Promise<ShopOption[]> {
   const response = await authFetch(
-    `${API_BASE_URL}/admin/shops/${shopId}/options`,);
+    `${API_BASE_URL}/shops/${shopId}/options`,);
 
   const result = await parseApiResponse<{
     options: ShopOption[];
