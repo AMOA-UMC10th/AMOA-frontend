@@ -4,7 +4,6 @@ import ShopLikeBtn from '../common/ShopLikeBtn';
 
 interface ShopInfoProps {
   shop: ShopDetail;
-  // 찜 숫자는 화면에서 바로 오르내려야 해서 페이지가 들고 있는 값을 받아 쓴다.
   shopLikeCount: number;
   cardLikeCount: number;
   onShopLikeChange?: (liked: boolean) => void;
@@ -41,9 +40,9 @@ export default function ShopInfo({
               </div>
 
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {shop.designtags.map((tag) => (
+                {shop.designTags.map((tag) => (
                   <span
-                    key={tag.designtagId}
+                    key={tag.designTagId}
                     className="text-xs px-2.5 py-1 rounded-full font-medium"
                     style={{
                       backgroundColor: '#FFEFF6',

@@ -3,7 +3,7 @@ import { fetchCardDetail } from './card';
 
 // ===== 기존 샵 상세 타입 =====
 export interface DesignTag {
-  designtagId: number;
+  designTagId: number;
   name: string;
 }
 
@@ -13,7 +13,7 @@ export interface ShopDetail {
   address: string;
   shopPhoneNumber: string;
   businessHours: string;
-  designtags: DesignTag[];
+  designTags: DesignTag[];
   cardLikeCount: number;
   shopLikeCount: number;
   isLiked: boolean;
