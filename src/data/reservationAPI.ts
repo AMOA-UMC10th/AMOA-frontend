@@ -308,7 +308,7 @@ export interface ReservationDraftResult {
 export async function createReservationDraft(
   payload: CreateReservationDraftRequest,
 ): Promise<ReservationDraftResult> {
-  const response = await authFetch(`${API_BASE_URL}/reservations`, {
+  const response = await authFetch(`${API_BASE_URL}/reservations/schedule`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -394,7 +394,7 @@ export async function confirmReservationSchedule(
   payload: ConfirmReservationScheduleRequest,
 ): Promise<ConfirmReservationScheduleResult> {
   const response = await authFetch(
-    `${API_BASE_URL}/reservations/${reservationId}/schedule`,
+    `${API_BASE_URL}/reservations/${reservationId}/confirm`,
     {
       method: 'PATCH',
       headers: {
