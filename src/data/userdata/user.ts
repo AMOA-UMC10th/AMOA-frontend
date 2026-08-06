@@ -106,7 +106,7 @@ export async function sendPhoneCode(phone: string): Promise<PhoneSendResult> {
   const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
   const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
 
-  const res = await fetch(`${BASE_URL}/users/phone/send`, {
+  const res = await fetch(`${BASE_URL}/users/phone/verification`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export async function verifyPhoneCode(
   const token = localStorage.getItem('tempToken') ?? localStorage.getItem('accessToken');
   const authHeader = token?.startsWith('Bearer ') ? token : (token ? `Bearer ${token}` : '');
 
-  const res = await fetch(`${BASE_URL}/users/phone/verify`, {
+  const res = await fetch(`${BASE_URL}/users/phone/verification/verify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
