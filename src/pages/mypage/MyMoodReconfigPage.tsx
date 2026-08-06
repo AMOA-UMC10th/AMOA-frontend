@@ -134,11 +134,11 @@ export default function MyMoodReconfigPage() {
           <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5">
             {moods.map((mood) => (
               <MoodCard
-                key={mood.designtagId}
+                key={mood.designTagId}
                 label={mood.name}
                 imageUrl={getMoodImage(mood.name)}
-                selected={selectedIds.includes(mood.designtagId)}
-                onClick={() => toggleMood(mood.designtagId)}
+                selected={selectedIds.includes(mood.designTagId)}
+                onClick={() => toggleMood(mood.designTagId)}
               />
             ))}
           </div>
