@@ -561,7 +561,7 @@ export default function ReservationPage() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="h-dvh flex flex-col overflow-hidden">
       <div className="relative flex h-[50px] items-center justify-center border-b border-[#E9EBEE]">
         <button
           type="button"
@@ -799,7 +799,7 @@ export default function ReservationPage() {
       </div>
 
       {(step === 'hand-status' || step === 'art-option') && (
-        <div className="shrink-0 flex items-center justify-between border-t border-[#E9EBEE] px-[16px] py-[16px] gap-[30px]">
+        <div className="shrink-0 bg-white flex items-center justify-between border-t border-[#E9EBEE] px-[16px] py-[16px] gap-[30px]">
           <div className="flex items-center gap-[11px] text-[10px] text-[#ADB0B5]">
             <span className="flex items-center gap-[6px]">
               결제금액
