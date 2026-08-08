@@ -4,6 +4,7 @@ import { ChevronLeftIcon } from '../assets/icons';
 import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
+
 import {
   formatDuration,
   formatDateLabel,
@@ -16,16 +17,20 @@ import {
   confirmReservationSchedule,
   getMyProfile,
   formatPhoneNumber,
+  HAND_STATUS_OPTIONS,
+  EXTENSION_REMOVAL_UNIT_PRICE,
+  GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
+  RESERVATION_DEPOSIT,
   type CardDetail,
   type ArtOption,
   type AdditionalOption,
   type TimeSlot,
   type HandStatusId,
   type GelRemovalShop,
+  type PaymentMethod,
 } from '../data/reservationAPI';
 
 type Step = 'hand-status' | 'art-option' | 'datetime' | 'confirm' | 'complete';
-type PaymentMethod = 'KAKAO_PAY' | 'CARD';
 
 const HAND_STATUS_TO_BACKEND: Record<
   HandStatusId,
@@ -38,31 +43,42 @@ const HAND_STATUS_TO_BACKEND: Record<
 
 export default function ReservationPage() {
   const navigate = useNavigate();
+
   const { cardId } = useParams();
+
   const numericCardId = Number(cardId);
 
   const [step, setStep] = useState<Step>('hand-status');
 
   const [cardDetail, setCardDetail] = useState<CardDetail | null>(null);
+
   const [artOptions, setArtOptions] = useState<ArtOption[]>([]);
+
   const [additionalOptions, setAdditionalOptions] = useState<
     AdditionalOption[]
   >([]);
+
   const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
         const card = await getCardDetail(numericCardId);
+
         setCardDetail(card);
 
         const shopOptions = await getShopOptions(card.shopId);
+
         const split = splitShopOptions(shopOptions);
+
         setArtOptions(split.artOptions);
+
         setAdditionalOptions(split.additionalOptions);
       } catch (error) {
         console.error('카드/옵션 조회 실패:', error);
+
         setLoadError('예약 정보를 불러오지 못했어요. 다시 시도해주세요.');
       } finally {
         setIsLoadingOptions(false);
@@ -73,33 +89,44 @@ export default function ReservationPage() {
   }, [numericCardId]);
 
   const [handStatus, setHandStatus] = useState<HandStatusId[]>([]);
+
   const [gelRemovalShop, setGelRemovalShop] = useState<GelRemovalShop | null>(
     null,
   );
+
   const [extensionRemovalCount, setExtensionRemovalCount] = useState(1);
 
   const [selectedArtId, setSelectedArtId] = useState<number | null>(null);
+
   const [additionalCounts, setAdditionalCounts] = useState<
     Record<number, number>
   >({});
 
   const [reservationId, setReservationId] = useState<number | null>(null);
+
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(
     getTodayKey(),
   );
+
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
 
   useEffect(() => {
-    if (!reservationId || !selectedDate) return;
+    if (!reservationId || !selectedDate) {
+      return;
+    }
 
     const fetchTimes = async () => {
       setIsLoadingTimes(true);
+
       try {
         const result = await getAvailableTimes(reservationId, selectedDate);
+
         setTimeSlots(
           result.availableTimes.map((slot) => ({
             time: slot.time,
@@ -108,6 +135,7 @@ export default function ReservationPage() {
         );
       } catch (error) {
         console.error('예약 가능 시간 조회 실패:', error);
+
         setTimeSlots([]);
       } finally {
         setIsLoadingTimes(false);
@@ -118,15 +146,20 @@ export default function ReservationPage() {
   }, [reservationId, selectedDate]);
 
   const [customerName, setCustomerName] = useState('');
+
   const [customerPhone, setCustomerPhone] = useState('');
+
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+
   const [requestNote, setRequestNote] = useState('');
 
   useEffect(() => {
     const fetchMyProfile = async () => {
       try {
         const profile = await getMyProfile();
+
         setCustomerName(profile.name);
+
         setCustomerPhone(profile.phoneNumber);
       } catch (error) {
         console.error('내 정보 조회 실패:', error);
@@ -141,7 +174,9 @@ export default function ReservationPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
   );
+
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [completeResult, setCompleteResult] = useState<{
@@ -155,19 +190,33 @@ export default function ReservationPage() {
 
   const handleToggleHandStatus = (id: HandStatusId) => {
     setHandStatus((prev) => {
-      if (id === 'BARE') return prev.includes('BARE') ? [] : ['BARE'];
-      const withoutBare = prev.filter((s) => s !== 'BARE');
+      if (id === 'BARE') {
+        return prev.includes('BARE') ? [] : ['BARE'];
+      }
+
+      const withoutBare = prev.filter((status) => status !== 'BARE');
+
       const isActive = withoutBare.includes(id);
-      if (id === 'EXTENSION_REMOVAL' && !isActive) setExtensionRemovalCount(1);
-      if (id === 'GEL_REMOVAL' && isActive) setGelRemovalShop(null);
+
+      if (id === 'EXTENSION_REMOVAL' && !isActive) {
+        setExtensionRemovalCount(1);
+      }
+
+      if (id === 'GEL_REMOVAL' && isActive) {
+        setGelRemovalShop(null);
+      }
+
       return isActive
-        ? withoutBare.filter((s) => s !== id)
+        ? withoutBare.filter((status) => status !== id)
         : [...withoutBare, id];
     });
   };
 
   const handleChangeAdditionalCount = (id: number, count: number) => {
-    setAdditionalCounts((prev) => ({ ...prev, [id]: count }));
+    setAdditionalCounts((prev) => ({
+      ...prev,
+      [id]: count,
+    }));
   };
 
   const handleSelectDate = (date: string) => {
@@ -175,24 +224,86 @@ export default function ReservationPage() {
     setSelectedTime(null);
   };
 
-  const selectedArt = artOptions.find((a) => a.id === selectedArtId);
+  const selectedArt = artOptions.find((art) => art.id === selectedArtId);
+
+  // ─────────────────────────────────────
+  // 실시간 결제 금액 계산
+  // ─────────────────────────────────────
 
   const previewPrice = (() => {
     let total = 0;
-    if (selectedArt) total += selectedArt.price;
+
+    // 현재 손 상태 기본 가격
+    handStatus.forEach((id) => {
+      const option = HAND_STATUS_OPTIONS.find((item) => item.id === id);
+
+      if (option) {
+        total += option.price;
+      }
+    });
+
+    // 연장 제거
+    // 개당 +1,000원
+    if (handStatus.includes('EXTENSION_REMOVAL')) {
+      total += extensionRemovalCount * EXTENSION_REMOVAL_UNIT_PRICE;
+    }
+
+    // 젤 제거 타샵
+    // +5,000원
+    if (handStatus.includes('GEL_REMOVAL') && gelRemovalShop === 'OTHER_SHOP') {
+      total += GEL_REMOVAL_OTHER_SHOP_SURCHARGE;
+    }
+
+    // 아트 가격
+    if (selectedArt) {
+      total += selectedArt.price;
+    }
+
+    // 추가 옵션 가격
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
+
       total += count * option.unitPrice;
     });
+
     return total;
   })();
 
+  // ─────────────────────────────────────
+  // 실시간 소요시간 계산
+  // ─────────────────────────────────────
+
   const previewDuration = (() => {
     let total = selectedArt?.badgeMinutes ?? 0;
+
+    // 현재 손 상태 시간
+    handStatus.forEach((id) => {
+      const option = HAND_STATUS_OPTIONS.find((item) => item.id === id);
+
+      if (!option?.badgeMinutes) {
+        return;
+      }
+
+      // 연장 제거:
+      // 개수 × 2분
+      if (id === 'EXTENSION_REMOVAL') {
+        total += extensionRemovalCount * option.badgeMinutes;
+
+        return;
+      }
+
+      // 젤 제거:
+      // +10분
+      total += option.badgeMinutes;
+    });
+
+    // 추가 옵션 시간
     additionalOptions.forEach((option) => {
       const count = additionalCounts[option.id] ?? 0;
+
       total += count * option.badgeMinutes;
     });
+
     return total;
   })();
 
@@ -201,6 +312,7 @@ export default function ReservationPage() {
     (!handStatus.includes('GEL_REMOVAL') || gelRemovalShop !== null);
 
   const isArtOptionComplete = selectedArtId !== null;
+
   const isDateTimeComplete = selectedDate !== null && selectedTime !== null;
 
   const isConfirmComplete =
@@ -211,23 +323,36 @@ export default function ReservationPage() {
     agreedToPolicy;
 
   const handleGoToDateTime = async () => {
-    if (!isArtOptionComplete || isCreatingDraft) return;
+    if (!isArtOptionComplete || isCreatingDraft) {
+      return;
+    }
 
     setIsCreatingDraft(true);
+
     try {
       const draft = await createReservationDraft({
         cardId: numericCardId,
+
         handStates: handStatus.map((id) => HAND_STATUS_TO_BACKEND[id]),
+
         gelRemovalType: handStatus.includes('GEL_REMOVAL')
           ? (gelRemovalShop ?? 'NONE')
           : 'NONE',
+
         extensionRemovalCount: handStatus.includes('EXTENSION_REMOVAL')
           ? extensionRemovalCount
           : 0,
+
         selectedOptions: [
           ...(selectedArtId != null
-            ? [{ shopOptionId: selectedArtId, quantity: 1 }]
+            ? [
+                {
+                  shopOptionId: selectedArtId,
+                  quantity: 1,
+                },
+              ]
             : []),
+
           ...Object.entries(additionalCounts)
             .filter(([, count]) => count > 0)
             .map(([id, count]) => ({
@@ -238,9 +363,11 @@ export default function ReservationPage() {
       });
 
       setReservationId(draft.reservationId);
+
       setStep('datetime');
     } catch (error) {
       console.error('예약 생성 실패:', error);
+
       alert('예약 생성에 실패했어요. 다시 시도해주세요.');
     } finally {
       setIsCreatingDraft(false);
@@ -248,36 +375,59 @@ export default function ReservationPage() {
   };
 
   const handleNextStep = () => {
-    if (step === 'hand-status' && isHandStatusComplete) setStep('art-option');
-    else if (step === 'art-option' && isArtOptionComplete) handleGoToDateTime();
-    else if (step === 'datetime' && isDateTimeComplete) setStep('confirm');
+    if (step === 'hand-status' && isHandStatusComplete) {
+      setStep('art-option');
+    } else if (step === 'art-option' && isArtOptionComplete) {
+      handleGoToDateTime();
+    } else if (step === 'datetime' && isDateTimeComplete) {
+      setStep('confirm');
+    }
   };
 
   const handleBack = () => {
-    if (step === 'art-option') setStep('hand-status');
-    else if (step === 'datetime') setStep('art-option');
-    else if (step === 'confirm') setStep('datetime');
-    else navigate(-1);
+    if (step === 'art-option') {
+      setStep('hand-status');
+    } else if (step === 'datetime') {
+      setStep('art-option');
+    } else if (step === 'confirm') {
+      setStep('datetime');
+    } else {
+      navigate(-1);
+    }
   };
 
   const handleConfirmNext = async () => {
-    if (!isConfirmComplete || !selectedDate || !selectedTime || !reservationId)
+    if (
+      !isConfirmComplete ||
+      !selectedDate ||
+      !selectedTime ||
+      !reservationId
+    ) {
       return;
+    }
 
     setIsSubmitting(true);
+
     try {
       const result = await confirmReservationSchedule(reservationId, {
         reservationDate: selectedDate,
+
         reservationStartTime: selectedTime,
+
         requestMessage: requestNote,
-        paymentMethod: paymentMethod as 'KAKAO_PAY' | 'CARD',
+
+        paymentMethod: paymentMethod,
+
         refundPolicyAgreed: agreedToPolicy,
       });
 
+      // DB 예약 확정 성공 후
+      // 예약 완료 화면 표시
       setCompleteResult(result);
       setStep('complete');
     } catch (error) {
       console.error('예약 확정 실패:', error);
+
       alert('예약 확정에 실패했어요. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
@@ -288,6 +438,7 @@ export default function ReservationPage() {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center px-6">
         <p className="text-sm text-[#ADB0B5]">{loadError}</p>
+
         <button
           onClick={() => navigate(-1)}
           className="mt-4 rounded-lg bg-[#171B1C] text-white px-5 py-2.5 text-sm cursor-pointer"
@@ -316,7 +467,11 @@ export default function ReservationPage() {
         <div className="relative flex h-[50px] items-center justify-center border-b border-[#E9EBEE]">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(`/art-detail/${numericCardId}`, {
+                replace: true,
+              })
+            }
             className="absolute left-[12px] flex h-6 w-6 cursor-pointer items-center justify-center"
             aria-label="뒤로가기"
           >
@@ -340,35 +495,45 @@ export default function ReservationPage() {
               />
             </svg>
           </span>
+
           <h1 className="text-[17px] font-semibold text-[#171B1C]">
             예약이 완료됐어요
           </h1>
+
           <p className="text-[11px] text-[#ADB0B5]">
-            예약번호 A-{completeResult.reservationId}
+            예약번호 A-
+            {completeResult.reservationId}
           </p>
 
           <div className="mt-[44px] w-full rounded-[10px] bg-[#F7F8F9] divide-y divide-[#E9EBEE] px-[12px] py-[4px]">
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">샵명</span>
+
               <span className="font-medium text-[#171B1C]">
                 {completeResult.shopName}
               </span>
             </div>
+
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">아트</span>
+
               <span className="font-medium text-[#171B1C]">
                 {completeResult.artName}
               </span>
             </div>
+
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">일시</span>
+
               <span className="font-medium text-[#171B1C]">
                 {formatDateLabel(completeResult.reservationDate)}{' '}
                 {completeResult.reservationStartTime.slice(0, 5)}
               </span>
             </div>
+
             <div className="flex justify-between py-[10px] text-[11px]">
               <span className="text-[#ADB0B5]">가격</span>
+
               <span className="font-medium text-[#171B1C]">
                 {completeResult.totalPrice.toLocaleString()} 원
               </span>
@@ -382,6 +547,7 @@ export default function ReservationPage() {
             >
               홈으로
             </button>
+
             <button
               onClick={() => navigate('/mypage/reservations')}
               className="flex-1 bg-[#F70071] text-white text-[13px] rounded-[8px] cursor-pointer"
@@ -454,25 +620,32 @@ export default function ReservationPage() {
             <div className="mt-[10px] rounded-[10px] bg-[#F7F8F9] divide-y divide-[#E9EBEE] px-[12px] py-[4px]">
               <div className="flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">샵명</span>
+
                 <span className="font-medium text-[#171B1C]">
                   {cardDetail.shopName}
                 </span>
               </div>
+
               <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">아트</span>
+
                 <span className="font-medium text-[#171B1C]">
                   {selectedArt?.label ?? '-'}
                 </span>
               </div>
+
               <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">일시</span>
+
                 <span className="font-medium text-[#171B1C]">
                   {selectedDate ? formatDateLabel(selectedDate) : '-'}{' '}
                   {selectedTime?.slice(0, 5)}
                 </span>
               </div>
+
               <div className="mt-[3px] flex justify-between py-4 text-[11px]">
                 <span className="text-[#ADB0B5]">가격</span>
+
                 <span className="font-medium text-[#171B1C]">
                   {previewPrice.toLocaleString()} 원
                 </span>
@@ -484,16 +657,19 @@ export default function ReservationPage() {
                 <label className="text-[14px] text-[#171B1C] font-bold">
                   이름
                 </label>
+
                 <input
                   value={customerName}
                   disabled
                   className="mt-[5px] w-full bg-[#F7F8F9] rounded-[8px] px-[12px] py-3.5 outline-none text-sm text-[#ADB0B5] placeholder:text-[#ADB0B5]"
                 />
               </div>
+
               <div className="mt-[11px]">
                 <label className="text-[14px] text-[#171B1C] font-bold">
                   휴대폰 번호
                 </label>
+
                 <input
                   type="tel"
                   value={formatPhoneNumber(customerPhone)}
@@ -501,13 +677,15 @@ export default function ReservationPage() {
                   className="mt-[5px] w-full bg-[#F7F8FA] rounded-[8px] px-[12px] py-3.5 outline-none text-sm text-[#ADB0B5] placeholder:text-[#ADB0B5]"
                 />
               </div>
+
               <div className="mt-[16px]">
                 <label className="text-[14px] text-[#171B1C] font-bold">
                   요청사항
                 </label>
+
                 <textarea
                   value={requestNote}
-                  onChange={(e) => setRequestNote(e.target.value)}
+                  onChange={(event) => setRequestNote(event.target.value)}
                   placeholder="요청사항을 적어주세요."
                   rows={3}
                   className="mt-[4px] w-full border border-[1.5px] border-[#E9EBEE] rounded-[8px] px-[12px] py-[8px] outline-none text-sm resize-none"
@@ -519,21 +697,26 @@ export default function ReservationPage() {
               <p className="text-[16px] font-bold text-[#000000] mb-[6px]">
                 예약금 결제
               </p>
+
               <div className="rounded-[15px] bg-[#FFF3F8] py-[16px] pl-[18px] pr-[21px]">
                 <div className="flex justify-between text-[12px] pb-3 border-b border-[#C5C8CE]">
                   <span className="text-[#888888]">총 시술 금액</span>
+
                   <span className="text-[#888888]">
                     {previewPrice.toLocaleString()}원
                   </span>
                 </div>
+
                 <div className="flex justify-between items-center pt-3">
                   <span className="text-[13px] font-bold text-[#111111]">
                     예약금
                   </span>
+
                   <span className="text-[14px] font-bold text-[#F70071]">
-                    {previewPrice.toLocaleString()}원
+                    {RESERVATION_DEPOSIT.toLocaleString()}원
                   </span>
                 </div>
+
                 <p className="pt-2 text-[10px] text-[#AAAAAA]">
                   나머지 금액은 방문 후 현장에서 결제해주세요
                 </p>
@@ -546,47 +729,52 @@ export default function ReservationPage() {
               </p>
 
               <div className="flex flex-col gap-[13px]">
-                {(['KAKAO_PAY', 'CARD'] as PaymentMethod[]).map((method) => {
-                  const isSelected = paymentMethod === method;
+                {(['KAKAO_PAY', 'CREDIT_CARD'] as PaymentMethod[]).map(
+                  (method) => {
+                    const isSelected = paymentMethod === method;
 
-                  return (
-                    <button
-                      key={method}
-                      type="button"
-                      onClick={() => setPaymentMethod(method)}
-                      className={`flex w-full items-center justify-between rounded-[15px] border-[1.5px] bg-white px-[18px] py-[18px] text-left cursor-pointer transition-colors ${
-                        isSelected ? 'border-[#F70071]' : 'border-[#D4D7DC]'
-                      }`}
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-[13px] font-semibold text-[#171B1C]">
-                          {method === 'KAKAO_PAY'
-                            ? '카카오페이'
-                            : '신용/체크카드'}
-                        </span>
-                        <span className="text-[11px] text-[#ADB0B5]">
-                          {method === 'KAKAO_PAY'
-                            ? '카카오톡 간편결제'
-                            : '국내외 모든 카드 사용 가능'}
-                        </span>
-                      </div>
-                      <span
-                        className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] ${
-                          isSelected ? 'border-[#F70071]' : 'border-[#ADB0B5]'
+                    return (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setPaymentMethod(method)}
+                        className={`flex w-full items-center justify-between rounded-[15px] border-[1.5px] bg-white px-[18px] py-[18px] text-left cursor-pointer transition-colors ${
+                          isSelected ? 'border-[#F70071]' : 'border-[#D4D7DC]'
                         }`}
                       >
-                        {isSelected && (
-                          <span className="h-[10px] w-[10px] rounded-full bg-[#F70071]" />
-                        )}
-                      </span>
-                    </button>
-                  );
-                })}
+                        <div className="flex flex-col">
+                          <span className="text-[13px] font-semibold text-[#171B1C]">
+                            {method === 'KAKAO_PAY'
+                              ? '카카오페이'
+                              : '신용/체크카드'}
+                          </span>
+
+                          <span className="text-[11px] text-[#ADB0B5]">
+                            {method === 'KAKAO_PAY'
+                              ? '카카오톡 간편결제'
+                              : '국내외 모든 카드 사용 가능'}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] ${
+                            isSelected ? 'border-[#F70071]' : 'border-[#ADB0B5]'
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="h-[10px] w-[10px] rounded-full bg-[#F70071]" />
+                          )}
+                        </span>
+                      </button>
+                    );
+                  },
+                )}
               </div>
             </div>
 
             <div className="mt-[13px] flex gap-[8px] rounded-[10px] bg-[#F7F8F9] px-[12px] py-[12px]">
               <span className="text-[13px] text-[#ADB0B5]">ⓘ</span>
+
               <p className="mt-[1px] text-[10px] text-[#ADB0B5] leading-relaxed">
                 예약금은 노쇼 방지를 위해 수령됩니다. 예약 취소 시 환불 정책에
                 따라 예약금이 반환되지 않을 수 있습니다.
@@ -597,9 +785,10 @@ export default function ReservationPage() {
               <input
                 type="checkbox"
                 checked={agreedToPolicy}
-                onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                onChange={(event) => setAgreedToPolicy(event.target.checked)}
                 className="cursor-pointer"
               />
+
               <span>
                 취소/환불 규정에 동의합니다{' '}
                 <span className="text-[#CD0000] font-medium">(필수)</span>
@@ -618,6 +807,7 @@ export default function ReservationPage() {
                 {previewPrice.toLocaleString()}원
               </span>
             </span>
+
             <span className="flex items-center gap-[6px]">
               소요시간
               <span className="text-[15px] font-semibold text-[#171B1C]">
@@ -625,6 +815,7 @@ export default function ReservationPage() {
               </span>
             </span>
           </div>
+
           <button
             onClick={handleNextStep}
             disabled={
