@@ -62,6 +62,10 @@ export default function ArtDetailPage() {
   const handleShopClick = () => {
     if (!card) return;
 
+    if (!requireLogin()) {
+      return;
+    }
+
     navigate(`/shop/${card.shopId}`);
   };
 
