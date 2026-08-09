@@ -34,6 +34,12 @@ function toLocationErrorMessage(err: unknown): string {
   return "현재 위치를 불러오지 못했어요.";
 }
 
+type Coords = { latitude: number; longitude: number };
+// error가 null이면 아무 안내 없이 원래 화면에 그대로 머문다는 뜻이다.
+// 권한 거부가 여기 해당한다. 매번 요청을 다시 걸어서, 팝업을 닫기만 한 경우엔
+// 버튼을 다시 누를 때 팝업이 다시 뜬다.
+type PositionResult = { coords: Coords } | { error: string | null };
+
 type SelectedRegionWithId = SelectedRegion & { regionId?: number };
 
 interface RegionPageProps {
@@ -151,33 +157,35 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     setSelected((prev) => prev.filter((r) => r.id !== id));
   }
 
-  async function loadCurrentLocation() {
-    setIsLocating(true);
-    setLocationError(null);
-    setCurrentRegion(null);
-
+  // 좌표를 받아오는 데까지만 책임진다. 주소 조회와 화면 전환은 호출한 쪽에서 결정한다.
+  // 실패 메시지를 토스트로 띄울지 지도 하단에 띄울지가 화면마다 달라서 반환값으로 넘긴다.
+  async function requestCurrentPosition(): Promise<PositionResult> {
     if (!("geolocation" in navigator)) {
-      setLocationError("이 브라우저에서는 현재 위치를 쓸 수 없어요.");
-      setIsLocating(false);
-      return;
+      return { error: "이 브라우저에서는 현재 위치를 쓸 수 없어요" };
     }
 
     if (!window.isSecureContext) {
-      setLocationError("보안 연결(HTTPS)에서만 현재 위치를 쓸 수 있어요.");
-      setIsLocating(false);
-      return;
+      return { error: "보안 연결(HTTPS)에서만 현재 위치를 쓸 수 있어요" };
     }
 
+    setIsLocating(true);
     try {
+      // 여기서 브라우저 위치 권한 팝업이 뜬다. 사용자가 답할 때까지 멈춰 있는다.
       const position = await getCurrentPosition();
       const { latitude, longitude } = position.coords;
-      setMapCenter({ latitude, longitude });
-      setRecenterToken((n) => n + 1);
-      const region = await getPresentRegion(latitude, longitude);
-      setCurrentRegion(region);
+      return { coords: { latitude, longitude } };
     } catch (err) {
       console.error(err);
-      setLocationError(toLocationErrorMessage(err));
+
+      // 허용하지 않은 경우는 안내 없이 원래 화면에 머문다.
+      if (
+        err instanceof GeolocationPositionError &&
+        err.code === err.PERMISSION_DENIED
+      ) {
+        return { error: null };
+      }
+
+      return { error: toLocationErrorMessage(err) };
     } finally {
       setIsLocating(false);
     }
@@ -204,9 +212,36 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     }
   }
 
-  function handleOpenCurrentLocation() {
+  // 팝업 → 허용 → 지도 순서. 허용 전에는 지역 선택 화면에 그대로 머문다.
+  async function handleOpenCurrentLocation() {
+    const result = await requestCurrentPosition();
+
+    if ("error" in result) {
+      setToast(result.error);
+      return;
+    }
+
+    setCurrentRegion(null);
+    setLocationError(null);
+    setMapCenter(result.coords);
+    setRecenterToken((n) => n + 1);
     setView("map");
-    loadCurrentLocation();
+    handleCenterChange(result.coords.latitude, result.coords.longitude);
+  }
+
+  // 지도 화면의 [다시 시도]. 이 화면에는 토스트가 없어서 하단 시트에 에러를 남긴다.
+  async function handleRetryCurrentLocation() {
+    const result = await requestCurrentPosition();
+
+    if ("error" in result) {
+      setLocationError(result.error);
+      return;
+    }
+
+    setLocationError(null);
+    setMapCenter(result.coords);
+    setRecenterToken((n) => n + 1);
+    handleCenterChange(result.coords.latitude, result.coords.longitude);
   }
 
   function handleConfirmCurrentLocation() {
@@ -259,7 +294,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
         error={locationError}
         recenterToken={recenterToken}
         onCenterChange={handleCenterChange}
-        onRetry={loadCurrentLocation}
+        onRetry={handleRetryCurrentLocation}
         onBack={() => setView("search")}
         onConfirm={handleConfirmCurrentLocation}
       />
@@ -298,7 +333,8 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
         <button
           type="button"
           onClick={handleOpenCurrentLocation}
-          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3.5 text-sm text-gray-500"
+          disabled={isLocating}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3.5 text-sm text-gray-500 disabled:opacity-60"
         >
           <CrosshairIcon className="h-4 w-4" />
           현재 위치로 추가

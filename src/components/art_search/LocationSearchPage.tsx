@@ -114,7 +114,7 @@ export default function LocationSearchPage({
 
     try {
       const response = await fetch(
-        `https://api.amoa.beauty/api/v1/regions/present?latitude=${lat}&longitude=${lng}`,
+        `${import.meta.env.VITE_API_BASE_URL}/regions/present?latitude=${lat}&longitude=${lng}`,
         { cache: 'no-store' }
       );
 
