@@ -102,7 +102,7 @@ export default function ArtSearchPage() {
         setDisplayCards((prev) => (isInitial ? filtered : [...prev, ...filtered]));
 
         if (isInitial) {
-          setTotalCount(result.totalCount ?? filtered.length);
+          setTotalCount(filtered.length);
         }
 
         setCursor(result.nextCursor);
