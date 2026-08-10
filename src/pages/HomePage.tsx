@@ -102,7 +102,7 @@ export default function HomePage() {
           <RecommendArtList items={monthlyArt.slice(0, 2)} />
 
           <PickSection
-            title="완벽한 연말을 위한 PICK"
+            title="올여름 절대 놓칠 수 없는 PICK"
             highlightWord="PICK"
             items={yearEndPick}
             onMoreClick={handlePickMoreClick}
