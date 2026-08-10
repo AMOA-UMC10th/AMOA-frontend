@@ -22,18 +22,16 @@ const SORT_PARAM_MAP: Record<SortOption, string | undefined> = {
   PRICE_HIGH: 'PRICE_DESC',
 };
 
-// 초기 20개, 추가 로드 시 10개씩 설정
 const INITIAL_PAGE_SIZE = 20;
 const NEXT_PAGE_SIZE = 10;
 
 export default function ArtSearchPage() {
   const navigate = useNavigate();
+  const [allFilteredCards, setAllFilteredCards] = useState<RecommendedCard[]>([]);
   const [displayCards, setDisplayCards] = useState<RecommendedCard[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [hasNext, setHasNext] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [displayCount, setDisplayCount] = useState(INITIAL_PAGE_SIZE);
 
+  const [loading, setLoading] = useState(false);
   const [designTags, setDesignTags] = useState<DesignTag[]>([]);
 
   const [sortOpen, setSortOpen] = useState(false);
@@ -50,95 +48,90 @@ export default function ArtSearchPage() {
   useEffect(() => {
     fetchDesignTags()
       .then((tags) => setDesignTags(Array.isArray(tags) ? tags : []))
-      .catch((err) => console.error('디자인 태그 로드 실패:', err));
+      .catch((err) => console.error(err));
   }, []);
 
-  const loadCards = useCallback(
-    async (nextCursor?: string) => {
-      setLoading(true);
-      try {
-        const isInitial = !nextCursor;
-
-        let apiArtType: string | undefined = undefined;
-        if (filters.artType === 'MONTHLY' || filters.artType === 'LAST_MONTHLY') {
-          apiArtType = 'MONTHLY';
-        } else if (filters.artType !== 'ALL' && filters.artType) {
-          apiArtType = filters.artType;
-        }
-
-        const params: CardSearchParams = {
-          regionIds: filters.regions.map((r) => r.id),
-          designTagIds: filters.designs,
-          minPrice: filters.minPrice,
-          maxPrice: filters.maxPrice,
-          artType: apiArtType,
-          sort: SORT_PARAM_MAP[selectedSort],
-          cursor: nextCursor,
-          size: isInitial ? INITIAL_PAGE_SIZE : NEXT_PAGE_SIZE,
-        };
-
-        const result = await authFetchCards(params);
-
-        const now = new Date();
-        const currentYearMonth = `${now.getFullYear()}-${String(
-          now.getMonth() + 1
-        ).padStart(2, '0')}`;
-
-        let filtered = result.cards;
-
-        if (filters.artType === 'MONTHLY') {
-          filtered = result.cards.filter(
-            (card) =>
-              card.createdMonth && card.createdMonth.startsWith(currentYearMonth)
-          );
-        } else if (filters.artType === 'LAST_MONTHLY') {
-          filtered = result.cards.filter(
-            (card) =>
-              card.createdMonth &&
-              card.createdMonth.substring(0, 7) < currentYearMonth
-          );
-        }
-
-        setDisplayCards((prev) => (isInitial ? filtered : [...prev, ...filtered]));
-
-        if (isInitial) {
-          setTotalCount(filtered.length);
-        }
-
-        setCursor(result.nextCursor);
-        setHasNext(result.hasNext);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchAllCards = useCallback(async () => {
+    setLoading(true);
+    try {
+      let apiArtType: string | undefined = undefined;
+      if (filters.artType === 'MONTHLY' || filters.artType === 'LAST_MONTHLY') {
+        apiArtType = 'MONTHLY';
+      } else if (filters.artType !== 'ALL' && filters.artType) {
+        apiArtType = filters.artType;
       }
-    },
-    [filters, selectedSort]
-  );
 
-  // 초기 및 필터/정렬 변경 시 첫 페이지(20개) 조회
+      const params: CardSearchParams = {
+        regionIds: filters.regions.map((r) => r.id),
+        designTagIds: filters.designs,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        artType: apiArtType,
+        sort: SORT_PARAM_MAP[selectedSort],
+        size: 200,
+      };
+
+      const result = await authFetchCards(params);
+
+      const now = new Date();
+      const currentYearMonth = `${now.getFullYear()}-${String(
+        now.getMonth() + 1
+      ).padStart(2, '0')}`;
+
+      let filtered = result.cards;
+
+      if (filters.artType === 'MONTHLY') {
+        filtered = result.cards.filter(
+          (card) =>
+            card.createdMonth &&
+            card.createdMonth.substring(0, 7) === currentYearMonth
+        );
+      } else if (filters.artType === 'LAST_MONTHLY') {
+        filtered = result.cards.filter(
+          (card) =>
+            card.createdMonth &&
+            card.createdMonth.substring(0, 7) < currentYearMonth
+        );
+      }
+
+      setAllFilteredCards(filtered);
+      setDisplayCards(filtered.slice(0, INITIAL_PAGE_SIZE));
+      setDisplayCount(INITIAL_PAGE_SIZE);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, selectedSort]);
+
   useEffect(() => {
-    loadCards();
-  }, [loadCards]);
+    fetchAllCards();
+  }, [fetchAllCards]);
 
-  // 스크롤 80% 도달 시 추가 데이터(10개) 로드
   useEffect(() => {
     const handleScroll = () => {
-      if (loading || !hasNext || !cursor) return;
+      if (displayCards.length >= allFilteredCards.length || loading) return;
 
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;
 
-      // 스크롤 위치가 80% 이상 도달했는지 확인
       if ((scrollTop + clientHeight) / scrollHeight >= 0.8) {
-        loadCards(cursor);
+        setLoading(true);
+        setTimeout(() => {
+          setDisplayCount((prevCount) => {
+            const nextCount = prevCount + NEXT_PAGE_SIZE;
+            setDisplayCards(allFilteredCards.slice(0, nextCount));
+            return nextCount;
+          });
+          setLoading(false);
+        }, 300);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasNext, cursor, loadCards]);
+  }, [displayCards.length, allFilteredCards, loading]);
 
   const getSortLabel = () => {
     if (selectedSort === 'PRICE_LOW') return '가격 낮은 순';
@@ -162,6 +155,51 @@ export default function ArtSearchPage() {
 
     return `${firstName} 외 ${filters.designs.length - 1}`;
   };
+
+  const renderCardList = () => {
+      if (loading && displayCards.length === 0) {
+        return (
+          <div className="flex justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
+          </div>
+        );
+      }
+
+      if (!loading && displayCards.length === 0) {
+        return (
+          <div className="py-20 text-center text-sm text-gray-400">
+            조건에 맞는 아트가 없습니다.
+          </div>
+        );
+      }
+
+      return (
+        <>
+          <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
+            {displayCards.map((card, index) => (
+              <ArtCard
+                key={card.cardId || `search-card-${index}`}
+                cardId={card.cardId}
+                instagramUrl={card.instagramUrl}
+                shopName={card.shopName}
+                regionName={card.regionName}
+                minPrice={card.minPrice}
+                maxPrice={card.maxPrice}
+                artType={card.artType}
+                isLiked={card.isLiked}
+                createdMonth={card.createdMonth}
+              />
+            ))}
+          </div>
+
+          {loading && displayCards.length < allFilteredCards.length && (
+            <div className="flex justify-center pt-12 pb-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
+            </div>
+          )}
+        </>
+      );
+    };
 
   return (
     <main className="min-h-dvh bg-white pb-24">
@@ -252,7 +290,7 @@ export default function ArtSearchPage() {
 
       <section className="pt-5">
         <div className="px-5 mb-5 flex items-center justify-between text-xs text-[#727b88]">
-          <span>검색결과 {totalCount}개</span>
+          <span>검색결과 {allFilteredCards.length}개</span>
 
           <div className="relative">
             <button
@@ -271,34 +309,7 @@ export default function ArtSearchPage() {
           </div>
         </div>
 
-        {displayCards.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
-            {displayCards.map((card, index) => (
-              <ArtCard
-                key={card.cardId || `search-card-${index}`}
-                cardId={card.cardId}
-                instagramUrl={card.instagramUrl}
-                shopName={card.shopName}
-                regionName={card.regionName}
-                minPrice={card.minPrice}
-                maxPrice={card.maxPrice}
-                artType={card.artType}
-                isLiked={card.isLiked}
-                createdMonth={card.createdMonth}
-              />
-            ))}
-          </div>
-        ) : !loading ? (
-          <div className="py-20 text-center text-sm text-gray-400">
-            조건에 맞는 아트가 없습니다.
-          </div>
-        ) : null}
-
-        {loading && displayCards.length > 0 && (
-          <div className="flex justify-center pt-12 pb-8">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
-          </div>
-        )}
+        {renderCardList()}
       </section>
 
       <ArtFilterSheet
