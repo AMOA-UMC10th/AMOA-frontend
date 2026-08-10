@@ -5,6 +5,7 @@ import ArtCard from '../components/common/ArtCard';
 import ArtFilterSheet, { type FilterState } from '../components/art_search/ArtFilterSheet';
 import ArtSort, { type SortOption } from '../components/art_search/ArtSort';
 import { type RecommendedCard, type CardSearchParams, authFetchCards } from '../data/card';
+import { fetchDesignTags, type DesignTag } from '../data/designTag';
 
 const ART_TYPE_LABELS: Record<string, string> = {
   MONTHLY: '이달의 아트',
@@ -21,7 +22,9 @@ const SORT_PARAM_MAP: Record<SortOption, string | undefined> = {
   PRICE_HIGH: 'PRICE_DESC',
 };
 
-const PAGE_SIZE = 20;
+// 초기 20개, 추가 로드 시 10개씩 설정
+const INITIAL_PAGE_SIZE = 20;
+const NEXT_PAGE_SIZE = 10;
 
 export default function ArtSearchPage() {
   const navigate = useNavigate();
@@ -30,6 +33,8 @@ export default function ArtSearchPage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasNext, setHasNext] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [designTags, setDesignTags] = useState<DesignTag[]>([]);
 
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState<SortOption>('RECOMMEND');
@@ -42,29 +47,63 @@ export default function ArtSearchPage() {
     designs: [],
   });
 
+  useEffect(() => {
+    fetchDesignTags()
+      .then((tags) => setDesignTags(Array.isArray(tags) ? tags : []))
+      .catch((err) => console.error('디자인 태그 로드 실패:', err));
+  }, []);
+
   const loadCards = useCallback(
     async (nextCursor?: string) => {
       setLoading(true);
       try {
+        const isInitial = !nextCursor;
+
+        let apiArtType: string | undefined = undefined;
+        if (filters.artType === 'MONTHLY' || filters.artType === 'LAST_MONTHLY') {
+          apiArtType = 'MONTHLY';
+        } else if (filters.artType !== 'ALL' && filters.artType) {
+          apiArtType = filters.artType;
+        }
+
         const params: CardSearchParams = {
           regionIds: filters.regions.map((r) => r.id),
           designTagIds: filters.designs,
           minPrice: filters.minPrice,
           maxPrice: filters.maxPrice,
-          artType: filters.artType !== 'ALL' && filters.artType ? filters.artType : undefined,
+          artType: apiArtType,
           sort: SORT_PARAM_MAP[selectedSort],
           cursor: nextCursor,
-          size: PAGE_SIZE,
+          size: isInitial ? INITIAL_PAGE_SIZE : NEXT_PAGE_SIZE,
         };
 
         const result = await authFetchCards(params);
 
-        setDisplayCards((prev) => {
-          const updatedCards = nextCursor ? [...prev, ...result.cards] : result.cards;
-          // 필터링 적용 후 실제 화면에 보여지는 카드 개수 업데이트
-          setTotalCount(updatedCards.length);
-          return updatedCards;
-        });
+        const now = new Date();
+        const currentYearMonth = `${now.getFullYear()}-${String(
+          now.getMonth() + 1
+        ).padStart(2, '0')}`;
+
+        let filtered = result.cards;
+
+        if (filters.artType === 'MONTHLY') {
+          filtered = result.cards.filter(
+            (card) =>
+              card.createdMonth && card.createdMonth.startsWith(currentYearMonth)
+          );
+        } else if (filters.artType === 'LAST_MONTHLY') {
+          filtered = result.cards.filter(
+            (card) =>
+              card.createdMonth &&
+              card.createdMonth.substring(0, 7) < currentYearMonth
+          );
+        }
+
+        setDisplayCards((prev) => (isInitial ? filtered : [...prev, ...filtered]));
+
+        if (isInitial) {
+          setTotalCount(result.totalCount ?? filtered.length);
+        }
 
         setCursor(result.nextCursor);
         setHasNext(result.hasNext);
@@ -77,9 +116,29 @@ export default function ArtSearchPage() {
     [filters, selectedSort]
   );
 
+  // 초기 및 필터/정렬 변경 시 첫 페이지(20개) 조회
   useEffect(() => {
     loadCards();
   }, [loadCards]);
+
+  // 스크롤 80% 도달 시 추가 데이터(10개) 로드
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loading || !hasNext || !cursor) return;
+
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      // 스크롤 위치가 80% 이상 도달했는지 확인
+      if ((scrollTop + clientHeight) / scrollHeight >= 0.8) {
+        loadCards(cursor);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasNext, cursor, loadCards]);
 
   const getSortLabel = () => {
     if (selectedSort === 'PRICE_LOW') return '가격 낮은 순';
@@ -87,6 +146,21 @@ export default function ArtSearchPage() {
     if (selectedSort === 'POPULAR') return '인기순';
     if (selectedSort === 'LATEST') return '최신순';
     return '추천순';
+  };
+
+  const getDesignFilterLabel = () => {
+    if (filters.designs.length === 0) return '디자인';
+
+    const firstTag = designTags.find(
+      (tag) => tag.designTagId === filters.designs[0]
+    );
+    const firstName = firstTag ? firstTag.name : '디자인';
+
+    if (filters.designs.length === 1) {
+      return firstName;
+    }
+
+    return `${firstName} 외 ${filters.designs.length - 1}`;
   };
 
   return (
@@ -170,7 +244,7 @@ export default function ArtSearchPage() {
                 : 'border-[#b7bec8] text-[#56606d]'
             }`}
           >
-            {filters.designs.length > 0 ? `디자인 ${filters.designs.length}` : '디자인'}
+            {getDesignFilterLabel()}
             <FiChevronDown />
           </button>
         </div>
@@ -220,16 +294,9 @@ export default function ArtSearchPage() {
           </div>
         ) : null}
 
-        {hasNext && (
-          <div className="flex justify-center py-6">
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => cursor && loadCards(cursor)}
-              className="rounded-full border border-[#eceef1] px-4 py-2 text-xs text-[#56606d]"
-            >
-              {loading ? '불러오는 중...' : '더보기'}
-            </button>
+        {loading && displayCards.length > 0 && (
+          <div className="flex justify-center pt-12 pb-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
           </div>
         )}
       </section>

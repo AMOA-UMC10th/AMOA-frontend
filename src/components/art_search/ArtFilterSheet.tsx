@@ -44,19 +44,48 @@ export default function ArtFilterSheet({
 
     const timer = setTimeout(async () => {
       try {
+        // API 전송용 artType 변환 (MONTHLY, LAST_MONTHLY 모두 DB 백엔드에는 'MONTHLY'로 요청)
+        let apiArtType: string | undefined = undefined;
+        if (
+          tempFilters.artType === 'MONTHLY' ||
+          tempFilters.artType === 'LAST_MONTHLY'
+        ) {
+          apiArtType = 'MONTHLY';
+        } else if (tempFilters.artType !== 'ALL' && tempFilters.artType) {
+          apiArtType = tempFilters.artType;
+        }
+
         const result = await authFetchCards({
           regionIds: tempFilters.regions.map((r) => r.id),
           minPrice: tempFilters.minPrice,
           maxPrice: tempFilters.maxPrice,
-          artType:
-            tempFilters.artType === 'ALL' || !tempFilters.artType
-              ? undefined
-              : tempFilters.artType,
+          artType: apiArtType,
           designTagIds: tempFilters.designs,
           size: 100,
         });
 
-        setTotalCount(result.cards.length);
+        let fetchedCards = result.cards;
+
+        const now = new Date();
+        const currentYearMonth = `${now.getFullYear()}-${String(
+          now.getMonth() + 1
+        ).padStart(2, '0')}`;
+
+        if (tempFilters.artType === 'LAST_MONTHLY') {
+          fetchedCards = fetchedCards.filter(
+            (card) =>
+              card.createdMonth &&
+              card.createdMonth.substring(0, 7) < currentYearMonth
+          );
+        } else if (tempFilters.artType === 'MONTHLY') {
+          fetchedCards = fetchedCards.filter(
+            (card) =>
+              card.createdMonth &&
+              card.createdMonth.startsWith(currentYearMonth)
+          );
+        }
+
+        setTotalCount(fetchedCards.length);
       } catch (error) {
         console.error(error);
         setTotalCount(0);
@@ -64,7 +93,6 @@ export default function ArtFilterSheet({
     }, 200);
 
     return () => clearTimeout(timer);
-    
   }, [
     isOpen,
     regionIdsString,
@@ -75,7 +103,6 @@ export default function ArtFilterSheet({
   ]);
 
   if (!isOpen) return null;
-
 
   const handleApplyRegions = (regions: RegionSelection[]) => {
     setTempFilters((prev) => ({
@@ -118,7 +145,7 @@ export default function ArtFilterSheet({
               regions: [],
               minPrice: 0,
               maxPrice: 200000,
-              artType: '',
+              artType: 'ALL',
               designs: [],
             });
           }}
@@ -149,7 +176,7 @@ export default function ArtFilterSheet({
 
         <div className="border-b border-[#eceef1] pb-4">
           <ArtTypeFilter
-            selectedType={tempFilters.artType}
+            selectedType={tempFilters.artType || 'ALL'}
             onChangeType={(type) =>
               setTempFilters((prev) => ({ ...prev, artType: type }))
             }
