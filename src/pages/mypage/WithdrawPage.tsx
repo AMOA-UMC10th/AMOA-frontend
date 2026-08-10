@@ -13,6 +13,8 @@ export default function WithdrawPage() {
     setErrorMessage(null);
     try {
       await withdrawUser();
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       navigate('/home');
     } catch (err) {
       console.error(err);

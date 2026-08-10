@@ -50,6 +50,7 @@ export default function ArtSearchPage() {
       .then((tags) => setDesignTags(Array.isArray(tags) ? tags : []))
       .catch((err) => console.error(err));
   }, []);
+  
 
   const fetchAllCards = useCallback(async () => {
     setLoading(true);
@@ -93,7 +94,13 @@ export default function ArtSearchPage() {
             card.createdMonth.substring(0, 7) < currentYearMonth
         );
       }
-
+      if (selectedSort === 'LATEST') {
+        filtered = [...filtered].sort((a, b) => {
+          const dateA = new Date(a.createdMonth  || 0).getTime();
+          const dateB = new Date(b.createdMonth || 0).getTime();
+          return dateB - dateA;
+        });
+      }
       setAllFilteredCards(filtered);
       setDisplayCards(filtered.slice(0, INITIAL_PAGE_SIZE));
       setDisplayCount(INITIAL_PAGE_SIZE);
