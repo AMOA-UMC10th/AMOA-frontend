@@ -1,5 +1,3 @@
-// 전화번호 입력 페이지 A105
-
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PhoneInput from '../../components/onboarding/PhoneInput';
@@ -39,69 +37,94 @@ export default function PhoneAuthPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto p-6 flex flex-col min-h-screen">
-      <div className="relative flex items-center justify-center mb-8 pb-4 border-b border-[#E9EBEE]">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-white">
+      <header className="relative flex h-[50px] shrink-0 items-center justify-center border-b border-[#E9EBEE] px-5">
         <button
+          type="button"
           onClick={() => navigate(-1)}
-          className="absolute left-0 p-1"
+          className="absolute left-3.5 flex h-10 w-10 items-center justify-start"
           aria-label="뒤로가기"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
-              d="M15 18l-6-6 6-6"
-              stroke="#28323C"
+              d="M15 18L9 12L15 6"
+              stroke="#171B1C"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
         </button>
-        <span className="text-sm text-[#000000] font-bold">
+
+        <h2 className="text-[13px] font-semibold text-[#000000]">
           서비스 시작하기
-        </span>
-      </div>
+        </h2>
+      </header>
 
-      <h1 className="text-xl font-bold leading-relaxed whitespace-pre-line">
-        전화번호를{'\n'}인증해주세요
-      </h1>
-      <p className="text-sm font-semibold text-[#646F7C] mt-2 mb-8">
-        추후 간편한 예약을 위해 필요해요
-      </p>
+      <main className="flex flex-1 flex-col px-[24px] pb-[29px] pt-[42px]">
+        <section>
+          <h1 className="text-[21px] font-semibold leading-[1.5] text-[#000000]">
+            전화번호를
+            <br />
+            인증해 주세요
+          </h1>
 
-      <div className="flex flex-col gap-2 mb-8">
-        <label className="text-sm text-[#ADB0B5]">닉네임</label>
-        <div className="flex gap-2 items-center">
-          <input
-            type="text"
-            value={nickname}
-            disabled
-            className="flex-1 border-b border-[#E9EBEE] px-1 py-2 text-[#ADB0B5] bg-transparent"
-          />
-          <button
-            disabled
-            type="button"
-            className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white cursor-default"
-          >
-            확인완료
-          </button>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-xs text-[#ADB0B5]">2~10자, 한글/영문/숫자</span>
-          <span className="text-xs text-[#ADB0B5]">{nickname.length}/10</span>
-        </div>
-      </div>
+          <p className="mt-[7px] text-[13px] font-medium leading-[1.5] text-[#646F7C]">
+            추후 간편한 예약을 위해 필요해요
+          </p>
 
-      <PhoneInput onVerified={handleVerified} />
+          <div className="mt-[42px] flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-[#ADB0B5]">닉네임</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={nickname}
+                  disabled
+                  className="flex-1 border-b border-[#E9EBEE] px-1 py-2 text-sm text-[#ADB0B5] bg-transparent"
+                />
+                <button
+                  disabled
+                  type="button"
+                  className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white cursor-default"
+                >
+                  확인완료
+                </button>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-xs text-[#ADB0B5]">
+                  2~10자, 한글/영문/숫자
+                </span>
+                <span className="text-xs text-[#ADB0B5]">
+                  {nickname.length}/10
+                </span>
+              </div>
+            </div>
 
-      <div className="flex-1" />
+            <PhoneInput onVerified={handleVerified} />
+          </div>
+        </section>
 
-      <button
-        onClick={handleNext}
-        disabled={!isPhoneVerified}
-        className="bg-[#F70071] text-white rounded-lg py-3 disabled:bg-[#FFC0DC] disabled:text-white transition-colors"
-      >
-        다음
-      </button>
+        <div className="flex-1" />
+
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!isPhoneVerified}
+          className={`h-[52px] w-full rounded-[10px] text-[15px]
+            font-medium text-white transition-colors
+            ${isPhoneVerified ? 'bg-[#F70071]' : 'cursor-not-allowed bg-[#FFC0DC]'}
+          `}
+        >
+          다음
+        </button>
+      </main>
 
       {showTerms && (
         <TermsSheet
