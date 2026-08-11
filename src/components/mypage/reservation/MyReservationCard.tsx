@@ -47,7 +47,7 @@ export default function MyReservationCard({
   return (
     <div
       className={`rounded-[15px] pt-[12px] pb-[14px] pl-[17px] pr-[11px] py-[26px] ${
-        isThisMonth ? 'bg-[#FFF3F8]' : 'bg-[#F7F8F9]'
+        isThisMonth && isUpcoming ? 'bg-[#FFF3F8]' : 'bg-[#F7F8F9]'
       }`}
     >
       <div className="flex items-start justify-between">
