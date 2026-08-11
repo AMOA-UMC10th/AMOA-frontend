@@ -47,15 +47,16 @@ export default function ArtCard({
   };
 
   const getArtTypeLabel = (type: string, month?: string) => {
-    if (type === 'EVENT') return '이벤트';
+  if (type === 'EVENT') return '이벤트';
+  if (type === 'MONTHLY') return '이달아';
 
-    if (month) {
-      const currentYearMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-      return month === currentYearMonth ? '이달아' : '이달아';
-    }
+  if (month) {
+    const currentYearMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    return month === currentYearMonth ? '이달아' : '이달아';
+  }
 
-    return '아트';
-  };
+  return '아트';
+};
 
   return (
     <div className="w-full group">
