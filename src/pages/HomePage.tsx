@@ -99,7 +99,7 @@ export default function HomePage() {
         </div>
       ) : (
         <>
-          <RecommendArtList items={monthlyArt.slice(0, 2)} />
+          <RecommendArtList items={monthlyArt.slice(0, 6)} />
 
           <PickSection
             title="올여름 절대 놓칠 수 없는 PICK"
