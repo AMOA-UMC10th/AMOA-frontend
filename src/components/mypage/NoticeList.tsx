@@ -1,0 +1,119 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeftIcon, ChevronRightSmallIcon } from '../../assets/icons';
+import {
+  fetchNoticeDetail,
+  fetchNoticeList,
+  type NoticeDetail,
+  type NoticeListItem,
+} from '../../data/notice';
+
+function formatDate(dateTime: string) {
+  return dateTime.slice(0, 10).replace(/-/g, '.');
+}
+
+export default function NoticeList() {
+  const navigate = useNavigate();
+  const [notices, setNotices] = useState<NoticeListItem[]>([]);
+  const [listError, setListError] = useState<string | null>(null);
+
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedNotice, setSelectedNotice] = useState<NoticeDetail | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchNoticeList()
+      .then(setNotices)
+      .catch((err) => {
+        console.error(err);
+        setListError('공지사항을 불러오지 못했어요');
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedId === null) {
+      setSelectedNotice(null);
+      return;
+    }
+
+    setDetailError(null);
+    fetchNoticeDetail(selectedId)
+      .then(setSelectedNotice)
+      .catch((err) => {
+        console.error(err);
+        setDetailError('공지사항을 불러오지 못했어요');
+      });
+  }, [selectedId]);
+
+  if (selectedId !== null) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
+          <button
+            type="button"
+            onClick={() => setSelectedId(null)}
+            className="absolute left-4 cursor-pointer"
+          >
+            <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
+          </button>
+          <span className="text-[13px] font-semibold text-black">공지사항</span>
+        </div>
+        {detailError && (
+          <p className="px-4 pt-6 text-sm text-[#F70071]">{detailError}</p>
+        )}
+        {selectedNotice && (
+          <div>
+            <div className="flex flex-col justify-center gap-2.5 h-[93px] px-6 py-3">
+              <p className="text-[17px] font-semibold text-[#171B1C]">
+                {selectedNotice.title}
+              </p>
+              <p className="text-[13px] font-medium text-[#646F7C]">
+                {formatDate(selectedNotice.createdAt)}
+              </p>
+            </div>
+            <div className="border-t border-[#D4D7DC] mx-6" />
+            <p className="text-[13px] font-medium text-[#171B1C] whitespace-pre-line leading-relaxed px-6 py-4">
+              {selectedNotice.content}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="relative flex items-center justify-center h-11 px-4 border-b border-[#E9EBEE]">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="absolute left-4 cursor-pointer"
+        >
+          <ChevronLeftIcon className="w-5 h-5 text-[#646F7C]" />
+        </button>
+        <span className="text-[13px] font-semibold text-black">공지사항</span>
+      </div>
+      {listError && (
+        <p className="px-4 pt-6 text-sm text-[#F70071]">{listError}</p>
+      )}
+      <div>
+        {notices.map((notice) => (
+          <button
+            key={notice.noticeId}
+            type="button"
+            onClick={() => setSelectedId(notice.noticeId)}
+            className="flex w-full items-center justify-between py-3 px-6 text-left border-b border-[#C5C8CE]"
+          >
+            <div className="flex flex-col">
+              <p className="text-[15px] font-medium text-[#171B1C]">{notice.title}</p>
+              <p className="text-[11px] font-medium text-[#646F7C]">
+                {formatDate(notice.createdAt)}
+              </p>
+            </div>
+            <ChevronRightSmallIcon className="w-2 h-3 text-[#646F7C] shrink-0" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

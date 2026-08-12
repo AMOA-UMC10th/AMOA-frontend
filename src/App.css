@@ -1,0 +1,14 @@
+/*일반 유저 화면 비율*/
+    .mobile-layout {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: white;
+    }
+
+/* 어드민 화면 비율 */
+    .pc-layout {
+    width: 100%;
+    min-height: 100vh;
+    }
