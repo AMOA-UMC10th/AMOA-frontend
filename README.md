@@ -2,20 +2,24 @@
 
 ## 👥 팀원 
 * **두두/이혜인** : 프론트 파트장 
-* **챈니/손채은** :
-* **마루/김민호** :
-* **피노/윤서빈** :
+* **챈니/손채은** 
+* **마루/김민호** 
+* **피노/윤서빈** 
 
 ---
 
 ## 🛠️ Tech Stack
-* **Framework**: React
+
+* **Framework**: React (v19)
 * **Language**: TypeScript
 * **Build Tool**: Vite
 * **Package Manager**: pnpm
-* **Styling**: Tailwind CSS 
-
-* **추가예정**
+* **Styling**: Tailwind CSS (v4)
+* **Routing**: React Router (v7)
+* **HTTP Client**: Axios
+* **Form Management**: React Hook Form
+* **Icon Library**: React Icons
+* **Linter**: Oxlint
 
 ---
 
