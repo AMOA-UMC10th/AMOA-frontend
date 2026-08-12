@@ -33,6 +33,7 @@ function MyPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -80,6 +81,7 @@ function MyPage() {
 
       setIsLoggedIn(false);
       setUserProfile(null);
+      setShowLogoutModal(false);
       alert('로그아웃되었습니다.');
       navigate('/mypage');
     }
@@ -105,9 +107,7 @@ function MyPage() {
     }
 
     if (item.action === 'logout') {
-      if (window.confirm('로그아웃 하시겠습니까?')) {
-        handleLogout();
-      }
+      setShowLogoutModal(true);
       return;
     }
 
@@ -125,7 +125,7 @@ function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pb-20">
       <header className="flex items-center justify-center h-14 border-b border-gray-100">
         <h1 className="text-lg font-bold">마이페이지</h1>
       </header>
@@ -146,6 +146,7 @@ function MyPage() {
           </div>
         </div>
         <button
+          type="button"
           onClick={() =>
             isLoggedIn ? navigate('/mypage/edit') : navigate(LOGIN_PATH)
           }
@@ -164,8 +165,9 @@ function MyPage() {
             return (
               <button
                 key={item.label}
+                type="button"
                 onClick={() => handleAction(item)}
-                className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left"
+                className="w-full flex items-center px-4 h-[50px] border-b border-[#E9EBEE] last:border-b-0 text-left active:bg-gray-100"
               >
                 <span
                   className={`text-[15px] ${
@@ -180,6 +182,32 @@ function MyPage() {
           <div className="h-[11px] bg-gray-50" />
         </div>
       ))}
+
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-xs rounded-lg bg-white p-6 text-center shadow-lg">
+            <p className="text-base font-semibold text-[#171B1C] mb-4">
+              로그아웃 하시겠습니까?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 rounded-md border border-gray-300 py-2 text-sm font-medium text-gray-700"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 rounded-md bg-[#F70071] py-2 text-sm font-medium text-white"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
