@@ -1,4 +1,5 @@
 import { XIcon } from "../../assets/icons";
+import { stripSido } from "../../data/region";
 
 export interface SelectedRegion {
   id: string;
@@ -21,9 +22,10 @@ export default function RegionChips({ regions, onRemove }: RegionChipsProps) {
       <p className="mb-2 text-xs text-gray-400">선택된 위치</p>
       <div className="flex flex-wrap gap-2">
         {regions.map((region) => {
-          const guOnly = region.district ? region.district.split(" ").pop() : "";
-          const displayText = guOnly && region.keyword 
-            ? `${guOnly} ${region.keyword}` 
+          // "서울시 성동구" → "성동구", "경기도 성남시 분당구" → "성남시 분당구"
+          const sigungu = region.district ? stripSido(region.district) : "";
+          const displayText = sigungu && region.keyword
+            ? `${sigungu} ${region.keyword}`
             : region.label || "";
 
           return (

@@ -6,7 +6,7 @@ import RegionChips from "../../components/onboarding/RegionChips";
 import type { SelectedRegion } from "../../components/onboarding/RegionChips";
 import RegionMapPicker from "../../components/onboarding/RegionMapPicker";
 import { CrosshairIcon } from "../../assets/icons";
-import { getPresentRegion, type Region, type RegionMatch, searchRegions, shortenSido } from "../../data/region";
+import { getPresentRegion, type Region, type RegionMatch, searchRegions, shortenSido, spaceSigungu } from "../../data/region";
 
 const MAX_REGIONS = 3;
 
@@ -237,7 +237,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
     if (!currentRegion) return;
     addRegion({
       regionId: currentRegion.regionId,
-      district: `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth}`.trim(),
+      district: `${shortenSido(currentRegion.firstDepth)} ${spaceSigungu(currentRegion.secondDepth)}`.trim(),
       keyword: currentRegion.thirdDepth,
     });
     setView("search");
@@ -267,7 +267,7 @@ export default function RegionPage({ onBack, onNext, onSkip }: RegionPageProps) 
 
   if (view === "map") {
     const address = currentRegion
-      ? `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth} ${currentRegion.thirdDepth}`.trim()
+      ? `${shortenSido(currentRegion.firstDepth)} ${spaceSigungu(currentRegion.secondDepth)} ${currentRegion.thirdDepth}`.trim()
       : "";
 
     return (

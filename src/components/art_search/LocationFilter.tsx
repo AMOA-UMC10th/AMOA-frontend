@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRightSmallIcon, XIcon } from '../../assets/icons';
 import LocationSearchPage from './LocationSearchPage';
 import type { SelectedRegion } from '../onboarding/RegionChips';
+import { stripSido } from '../../data/region';
 
 export interface RegionSelection {
   id: number;
@@ -22,11 +23,12 @@ export default function LocationFilter({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleApply = (selected: SelectedRegion[]) => {
+    // 아트 조회는 regionId로 나가므로 백엔드가 준 id를 그대로 쓴다.
     const formattedRegions: RegionSelection[] = selected.map((item) => ({
-      id: Number(item.id) || Date.now(),
+      id: item.regionId ?? Number(item.id),
       label:
         item.district && item.keyword
-          ? `${item.district.split(' ').pop()} ${item.keyword}`
+          ? `${stripSido(item.district)} ${item.keyword}`
           : item.label || item.district || '',
     }));
 
@@ -75,6 +77,7 @@ export default function LocationFilter({
         <LocationSearchPage
           initialSelected={selectedRegions.map((r) => ({
             id: String(r.id),
+            regionId: r.id,
             label: r.label,
           }))}
           onClose={() => setIsSearchOpen(false)}
