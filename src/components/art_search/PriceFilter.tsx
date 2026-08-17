@@ -6,8 +6,8 @@ interface PriceFilterProps {
   onChangePrice: (min: number, max: number) => void;
 }
 
-const MIN_LIMIT = 0;
-const MAX_LIMIT = 200000;
+const MIN_LIMIT = 40000;
+const MAX_LIMIT = 120000;
 const STEP = 1000;
 
 export default function PriceFilter({
@@ -107,7 +107,7 @@ export default function PriceFilter({
             className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
             style={{ width: `${minPrice === 0 ? 1 : formatNumber(minPrice).length}ch` }}
           />
-          <span className="text-[#ADB0B5] -ml-1.5">원</span>
+          <span className={`text-[#ADB0B5] ${minPrice <= 99000 ? '-ml-1' : '-ml-1.5'}`}>원</span>
         </div>
 
         <span className="text-[#374553]">—</span>
@@ -123,7 +123,7 @@ export default function PriceFilter({
             className="flex-shrink-0 text-[#ADB0B5] outline-none bg-transparent"
             style={{ width: `${maxPrice === 0 ? 7 : formatNumber(maxPrice).length}ch` }}
           />
-          <span className="text-[#ADB0B5] -ml-1.5">원</span>
+          <span className={`text-[#ADB0B5] ${maxPrice <= 99000 ? '-ml-1' : '-ml-1.5'}`}>원</span>
         </div>
       </div>
       

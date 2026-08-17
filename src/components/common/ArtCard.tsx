@@ -69,7 +69,7 @@ export default function ArtCard({
 
       <div className="mt-2.5 px-2 cursor-pointer" onClick={handleCardClick}>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-1.5 py-0.5 rounded font-bold">
+          <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-1.5 py-0.5 rounded font-semibold">
             {artMonth}월 {getArtTypeLabel(artType, createdMonth)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
@@ -85,16 +85,16 @@ export default function ArtCard({
           </div>
         </div>
 
-        <p className="text-sm font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate mt-1">
+        <p className="text-[18px] font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate mt-0.5 -my-0.5">
           {shopName || '이름 없음'}
         </p>
 
-        <p className="text-xs text-[#ADB0B5] flex items-center gap-0.5 mt-0.5">
-          <AddressPinIcon className="w-3.5 h-3.5 text-[#ADB0B5]" />
+        <p className="text-[#ADB0B5] flex items-center gap-0.5 -mt-0.2">
+          <AddressPinIcon className="w-4 h-4 text-[#D4D7DC]" />
           {regionName || '지역 정보 없음'}
         </p>
 
-        <p className="text-xs text-[#646F7C] mt-1 font-semibold">
+        <p className="text-[14px] text-[#646F7C] font-semibold -mt-0.2">
           {minPrice ? `${minPrice.toLocaleString()}원` : '0원'} ~{' '}
           {maxPrice ? `${maxPrice.toLocaleString()}원` : '0원'}
         </p>

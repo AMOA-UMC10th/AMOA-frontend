@@ -39,8 +39,8 @@ export default function ArtSearchPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     regions: [],
-    minPrice: 30000,
-    maxPrice: 100000,
+    minPrice: 40000,
+    maxPrice: 120000,
     artType: 'ALL',
     designs: [],
   });
