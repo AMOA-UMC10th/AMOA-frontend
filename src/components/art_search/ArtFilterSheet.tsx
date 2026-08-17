@@ -10,7 +10,7 @@ export interface FilterState {
   regions: RegionSelection[];
   minPrice: number;
   maxPrice: number;
-  artType: string;
+  artTypes: string[];
   designs: number[];
 }
 
@@ -32,6 +32,7 @@ export default function ArtFilterSheet({
 
   const regionIdsString = tempFilters.regions.map((r) => r.id).join(',');
   const designIdsString = tempFilters.designs.join(',');
+  const artTypesString = tempFilters.artTypes.join(',');
 
   useEffect(() => {
     if (isOpen) {
@@ -44,15 +45,15 @@ export default function ArtFilterSheet({
 
     const timer = setTimeout(async () => {
       try {
-        // API 전송용 artType 변환 (MONTHLY, LAST_MONTHLY 모두 DB 백엔드에는 'MONTHLY'로 요청)
         let apiArtType: string | undefined = undefined;
-        if (
-          tempFilters.artType === 'MONTHLY' ||
-          tempFilters.artType === 'LAST_MONTHLY'
-        ) {
+        
+        const hasMonthly = tempFilters.artTypes.includes('MONTHLY') || tempFilters.artTypes.includes('LAST_MONTHLY');
+        const hasOtherType = tempFilters.artTypes.some((type) => type !== 'MONTHLY' && type !== 'LAST_MONTHLY');
+
+        if (hasMonthly && !hasOtherType) {
           apiArtType = 'MONTHLY';
-        } else if (tempFilters.artType !== 'ALL' && tempFilters.artType) {
-          apiArtType = tempFilters.artType;
+        } else if (!hasMonthly && tempFilters.artTypes.length === 1) {
+          apiArtType = tempFilters.artTypes[0];
         }
 
         const result = await authFetchCards({
@@ -61,7 +62,7 @@ export default function ArtFilterSheet({
           maxPrice: tempFilters.maxPrice,
           artType: apiArtType,
           designTagIds: tempFilters.designs,
-          size: 100,
+          size: 200,
         });
 
         let fetchedCards = result.cards;
@@ -71,18 +72,18 @@ export default function ArtFilterSheet({
           now.getMonth() + 1
         ).padStart(2, '0')}`;
 
-        if (tempFilters.artType === 'LAST_MONTHLY') {
-          fetchedCards = fetchedCards.filter(
-            (card) =>
-              card.createdMonth &&
-              card.createdMonth.substring(0, 7) < currentYearMonth
-          );
-        } else if (tempFilters.artType === 'MONTHLY') {
-          fetchedCards = fetchedCards.filter(
-            (card) =>
-              card.createdMonth &&
-              card.createdMonth.startsWith(currentYearMonth)
-          );
+        if (tempFilters.artTypes.length > 0) {
+          fetchedCards = fetchedCards.filter((card) => {
+            return tempFilters.artTypes.some((type) => {
+              if (type === 'MONTHLY') {
+                return card.createdMonth && card.createdMonth.startsWith(currentYearMonth);
+              }
+              if (type === 'LAST_MONTHLY') {
+                return card.createdMonth && card.createdMonth.substring(0, 7) < currentYearMonth;
+              }
+              return card.artType === type;
+            });
+          });
         }
 
         setTotalCount(fetchedCards.length);
@@ -98,7 +99,7 @@ export default function ArtFilterSheet({
     regionIdsString,
     tempFilters.minPrice,
     tempFilters.maxPrice,
-    tempFilters.artType,
+    artTypesString,
     designIdsString,
   ]);
 
@@ -116,6 +117,18 @@ export default function ArtFilterSheet({
       ...prev,
       regions: prev.regions.filter((r) => r.id !== regionId),
     }));
+  };
+
+  const handleToggleArtType = (artType: string) => {
+    setTempFilters((prev) => {
+      const isSelected = prev.artTypes.includes(artType);
+      return {
+        ...prev,
+        artTypes: isSelected
+          ? prev.artTypes.filter((type) => type !== artType)
+          : [...prev.artTypes, artType],
+      };
+    });
   };
 
   const handleToggleDesign = (designTagId: number) => {
@@ -145,7 +158,7 @@ export default function ArtFilterSheet({
               regions: [],
               minPrice: 0,
               maxPrice: 200000,
-              artType: 'ALL',
+              artTypes: [],
               designs: [],
             });
           }}
@@ -176,10 +189,8 @@ export default function ArtFilterSheet({
 
         <div className="border-b border-[#eceef1] pb-4">
           <ArtTypeFilter
-            selectedType={tempFilters.artType || 'ALL'}
-            onChangeType={(type) =>
-              setTempFilters((prev) => ({ ...prev, artType: type }))
-            }
+            selectedTypes={tempFilters.artTypes}
+            onToggleType={handleToggleArtType}
           />
         </div>
 
