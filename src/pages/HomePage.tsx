@@ -5,6 +5,7 @@ import RecommendBanner from '../components/home/RecommendBanner';
 import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
+import ArtCard from '../components/common/ArtCard';
 
 import {
   fetchHomeCards,
@@ -94,8 +95,10 @@ export default function HomePage() {
       <RecommendBanner nickname={nickname} onMoreClick={handleMoreClick} />
 
       {isLoading ? (
-        <div className="py-10 text-center text-sm text-gray-400">
-          아트를 불러오는 중입니다...
+        <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <ArtCard key={`home-skeleton-${index}`} isLoading={true} />
+          ))}
         </div>
       ) : (
         <>

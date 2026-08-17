@@ -43,7 +43,7 @@ export default function LocationFilter({
         <button
           type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-4 py-3.5 text-left text-sm text-gray-400 hover:bg-gray-50 transition-colors"
+          className="flex w-full items-center justify-between rounded-xl border border-[#ADB0B5] px-4 py-3.5 text-left text-sm text-gray-400 hover:bg-gray-50 transition-colors"
         >
           <span>위치 추가</span>
           <ChevronRightSmallIcon className="h-3 w-3 text-gray-400" />

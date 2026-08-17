@@ -1,4 +1,3 @@
-
 const ART_TYPES = [
   { label: '전체', value: 'ALL' },
   { label: '이달의 아트', value: 'MONTHLY' },
@@ -8,13 +7,13 @@ const ART_TYPES = [
 ];
 
 interface ArtTypeFilterProps {
-  selectedType: string;
-  onChangeType: (type: string) => void;
+  selectedTypes: string[];
+  onToggleType: (type: string) => void;
 }
 
 export default function ArtTypeFilter({
-  selectedType,
-  onChangeType,
+  selectedTypes = [],
+  onToggleType,
 }: ArtTypeFilterProps) {
   return (
     <div className="py-2">
@@ -22,20 +21,20 @@ export default function ArtTypeFilter({
 
       <div className="flex flex-wrap gap-2">
         {ART_TYPES.map((type) => {
-          const isSelected = selectedType === type.value;
+          const isSelected = selectedTypes.includes(type.value);
           return (
-           <button
-            key={type.value}
-            type="button"
-            onClick={() => onChangeType(type.value)}
-            className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
-              isSelected
-                ? 'border-[#FF007A] bg-[#FF007A] text-white'
-                : 'border-[#ced4da] bg-white text-[#56606d] hover:bg-gray-50'
-            }`}
-          >
-            {type.label}
-          </button>
+            <button
+              key={type.value}
+              type="button"
+              onClick={() => onToggleType(type.value)}
+              className={`flex h-8 items-center justify-center rounded-full border px-3 text-xs transition-all ${
+                isSelected
+                  ? 'border-[#FF007A] bg-[#FF007A] text-white'
+                  : 'border-[#ced4da] bg-white text-[#56606d] hover:bg-gray-50'
+              }`}
+            >
+              {type.label}
+            </button>
           );
         })}
       </div>

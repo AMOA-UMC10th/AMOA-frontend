@@ -41,7 +41,7 @@ export default function ArtSearchPage() {
     regions: [],
     minPrice: 40000,
     maxPrice: 120000,
-    artType: 'ALL',
+    artTypes: [],
     designs: [],
   });
 
@@ -50,16 +50,18 @@ export default function ArtSearchPage() {
       .then((tags) => setDesignTags(Array.isArray(tags) ? tags : []))
       .catch((err) => console.error(err));
   }, []);
-  
 
   const fetchAllCards = useCallback(async () => {
     setLoading(true);
     try {
       let apiArtType: string | undefined = undefined;
-      if (filters.artType === 'MONTHLY' || filters.artType === 'LAST_MONTHLY') {
+      const hasMonthly = filters.artTypes.includes('MONTHLY') || filters.artTypes.includes('LAST_MONTHLY');
+      const hasOtherType = filters.artTypes.some((type) => type !== 'MONTHLY' && type !== 'LAST_MONTHLY');
+
+      if (hasMonthly && !hasOtherType) {
         apiArtType = 'MONTHLY';
-      } else if (filters.artType !== 'ALL' && filters.artType) {
-        apiArtType = filters.artType;
+      } else if (!hasMonthly && filters.artTypes.length === 1) {
+        apiArtType = filters.artTypes[0];
       }
 
       const params: CardSearchParams = {
@@ -81,22 +83,23 @@ export default function ArtSearchPage() {
 
       let filtered = result.cards;
 
-      if (filters.artType === 'MONTHLY') {
-        filtered = result.cards.filter(
-          (card) =>
-            card.createdMonth &&
-            card.createdMonth.substring(0, 7) === currentYearMonth
-        );
-      } else if (filters.artType === 'LAST_MONTHLY') {
-        filtered = result.cards.filter(
-          (card) =>
-            card.createdMonth &&
-            card.createdMonth.substring(0, 7) < currentYearMonth
-        );
+      if (filters.artTypes.length > 0) {
+        filtered = filtered.filter((card) => {
+          return filters.artTypes.some((type) => {
+            if (type === 'MONTHLY') {
+              return card.createdMonth && card.createdMonth.substring(0, 7) === currentYearMonth;
+            }
+            if (type === 'LAST_MONTHLY') {
+              return card.createdMonth && card.createdMonth.substring(0, 7) < currentYearMonth;
+            }
+            return card.artType === type;
+          });
+        });
       }
+
       if (selectedSort === 'LATEST') {
         filtered = [...filtered].sort((a, b) => {
-          const dateA = new Date(a.createdMonth  || 0).getTime();
+          const dateA = new Date(a.createdMonth || 0).getTime();
           const dateB = new Date(b.createdMonth || 0).getTime();
           return dateB - dateA;
         });
@@ -148,6 +151,13 @@ export default function ArtSearchPage() {
     return '추천순';
   };
 
+  const getArtTypeFilterLabel = () => {
+    if (filters.artTypes.length === 0) return '아트';
+    const firstName = ART_TYPE_LABELS[filters.artTypes[0]] || '아트';
+    if (filters.artTypes.length === 1) return firstName;
+    return `${firstName} 외 ${filters.artTypes.length - 1}`;
+  };
+
   const getDesignFilterLabel = () => {
     if (filters.designs.length === 0) return '디자인';
 
@@ -164,49 +174,49 @@ export default function ArtSearchPage() {
   };
 
   const renderCardList = () => {
-      if (loading && displayCards.length === 0) {
-        return (
-          <div className="flex justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
-          </div>
-        );
-      }
-
-      if (!loading && displayCards.length === 0) {
-        return (
-          <div className="py-20 text-center text-sm text-gray-400">
-            조건에 맞는 아트가 없습니다.
-          </div>
-        );
-      }
-
+    if (loading && displayCards.length === 0) {
       return (
-        <>
-          <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
-            {displayCards.map((card, index) => (
-              <ArtCard
-                key={card.cardId || `search-card-${index}`}
-                cardId={card.cardId}
-                instagramUrl={card.instagramUrl}
-                shopName={card.shopName}
-                regionName={card.regionName}
-                minPrice={card.minPrice}
-                maxPrice={card.maxPrice}
-                artType={card.artType}
-                isLiked={card.isLiked}
-                createdMonth={card.createdMonth}
-              />
-            ))}
-          </div>
-
-          {loading && displayCards.length < allFilteredCards.length && (
-            <div className="flex justify-center pt-12 pb-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#FF007A] border-t-transparent" />
-            </div>
-          )}
-        </>
+        <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ArtCard key={`skeleton-initial-${index}`} isLoading={true} />
+          ))}
+        </div>
       );
-    };
+    }
+
+    if (!loading && displayCards.length === 0) {
+      return (
+        <div className="py-20 text-center text-sm text-gray-400">
+          조건에 맞는 아트가 없습니다.
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
+        {displayCards.map((card, index) => (
+          <ArtCard
+            key={card.cardId || `search-card-${index}`}
+            cardId={card.cardId}
+            instagramUrl={card.instagramUrl}
+            shopName={card.shopName}
+            regionName={card.regionName}
+            minPrice={card.minPrice}
+            maxPrice={card.maxPrice}
+            artType={card.artType}
+            isLiked={card.isLiked}
+            createdMonth={card.createdMonth}
+          />
+        ))}
+
+        {loading &&
+          displayCards.length < allFilteredCards.length &&
+          Array.from({ length: 2 }).map((_, index) => (
+            <ArtCard key={`skeleton-more-${index}`} isLoading={true} />
+          ))}
+      </div>
+    );
+  };
 
   return (
     <main className="min-h-dvh bg-white pb-24">
@@ -269,14 +279,12 @@ export default function ArtSearchPage() {
             type="button"
             onClick={() => setFilterOpen(true)}
             className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
-              filters.artType !== 'ALL' && filters.artType
+              filters.artTypes.length > 0
                 ? 'border-transparent bg-[#FF007A] text-white font-semibold'
                 : 'border-[#b7bec8] text-[#56606d]'
             }`}
           >
-            {filters.artType !== 'ALL' && filters.artType
-              ? (ART_TYPE_LABELS[filters.artType] ?? '아트')
-              : '아트'}
+            {getArtTypeFilterLabel()}
             <FiChevronDown />
           </button>
 

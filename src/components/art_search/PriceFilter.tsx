@@ -76,7 +76,6 @@ export default function PriceFilter({
           border-radius: 50%;
           background: #FF007A !important;
           border: none !important;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.2);
           cursor: pointer;
           pointer-events: auto;
           margin-top: 0 !important; 
@@ -87,7 +86,6 @@ export default function PriceFilter({
           border-radius: 50%;
           background: #FF007A !important;
           border: none !important;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.2);
           cursor: pointer;
           pointer-events: auto;
         }
@@ -96,7 +94,7 @@ export default function PriceFilter({
       <h3 className="text-sm font-bold text-[#1d2026] mb-3">가격</h3>
       
       <div className="flex items-center space-x-2.5 mb-6">
-        <div className="flex-1 flex items-center border border-[#ADB0B5] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
+        <div className="flex-1 flex items-center border-1 border-[#ADB0B5] focus-within:border-[#FF007A] rounded-xl px-3 py-2.5 bg-white">
           <input
             type="text"
             inputMode="numeric"
