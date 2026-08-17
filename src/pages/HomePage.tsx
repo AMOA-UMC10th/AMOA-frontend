@@ -93,22 +93,15 @@ export default function HomePage() {
 
       <RecommendBanner nickname={nickname} onMoreClick={handleMoreClick} />
 
-      {isLoading ? (
-        <div className="py-10 text-center text-sm text-gray-400">
-          아트를 불러오는 중입니다...
-        </div>
-      ) : (
-        <>
-          <RecommendArtList items={monthlyArt.slice(0, 2)} />
+      <RecommendArtList items={monthlyArt.slice(0, 2)} loading={isLoading} />
 
-          <PickSection
-            title="완벽한 연말을 위한 PICK"
-            highlightWord="PICK"
-            items={yearEndPick}
-            onMoreClick={handlePickMoreClick}
-          />
-        </>
-      )}
+      <PickSection
+        title="완벽한 연말을 위한 PICK"
+        highlightWord="PICK"
+        items={yearEndPick}
+        onMoreClick={handlePickMoreClick}
+        loading={isLoading}
+      />
     </div>
   );
 }

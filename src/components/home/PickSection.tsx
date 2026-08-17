@@ -6,6 +6,7 @@ interface PickSectionProps {
   highlightWord: string;
   items: RecommendedCard[];
   onMoreClick: () => void;
+  loading?: boolean;
 }
 
 export default function PickSection({
@@ -13,6 +14,7 @@ export default function PickSection({
   highlightWord,
   items,
   onMoreClick,
+  loading = false,
 }: PickSectionProps) {
   const parts = title.split(highlightWord);
 
@@ -41,7 +43,7 @@ export default function PickSection({
           </svg>
         </button>
       </div>
-      <RecommendArtList items={items} />
+      <RecommendArtList items={items} loading={loading} />
     </div>
   );
 }

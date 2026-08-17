@@ -84,7 +84,7 @@ export default function ArtCard({
           </div>
         </div>
 
-        <p className="text-sm font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate mt-1">
+        <p className="text-sm font-bold text-[#28323C] truncate mt-1">
           {shopName || '이름 없음'}
         </p>
 
