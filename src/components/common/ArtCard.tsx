@@ -18,11 +18,9 @@ interface CommonArtCardProps {
   onLikeChange?: (liked: boolean) => void;
 }
 
-// 이미지 시안에 맞춘 스켈레톤 UI 컴포넌트
 export function ArtCardSkeleton() {
   return (
     <div className="w-full animate-pulse">
-      {/* 카드 상단: 프로필 & 우측 뱃지 스켈레톤 */}
       <div className="flex items-center justify-between py-2 px-1">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-5 bg-gray-200 rounded-full" />
@@ -30,20 +28,12 @@ export function ArtCardSkeleton() {
         </div>
         <div className="h-3.5 w-12 bg-[#E2E0FF] rounded" />
       </div>
-
-      {/* 메인 이미지 스켈레톤 */}
       <div className="w-full aspect-[18/25] bg-gray-200" />
-
-      {/* 카드 하단 정보 스켈레톤 */}
       <div className="mt-2.5 px-2 space-y-2">
         <div className="flex items-center justify-between">
-          {/* 연분홍 뱃지 */}
           <div className="h-4 w-14 bg-[#FFF0F6] rounded" />
-          {/* 하트 아이콘 위치 */}
           <div className="h-4 w-4 bg-gray-200 rounded-full" />
         </div>
-
-        {/* 샵 이름 / 지역 / 가격 */}
         <div className="h-5 w-3/4 bg-gray-200 rounded" />
         <div className="h-3.5 w-1/2 bg-gray-200 rounded" />
         <div className="h-4 w-2/3 bg-gray-200 rounded" />
@@ -115,7 +105,7 @@ export default function ArtCard({
           <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-1.5 py-0.5 rounded font-semibold">
             {artMonth}월 {getArtTypeLabel(artType, createdMonth)}
           </span>
-          <div onClick={(e) => e.stopPropagation()} className="mr-1.5">
+          <div onClick={(e) => e.stopPropagation()} className="mr-1.5 translate-y-1">
             {cardId && (
               <ArtLikeBtn
                 initialLiked={liked}
