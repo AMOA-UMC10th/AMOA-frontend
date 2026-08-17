@@ -110,7 +110,7 @@ export default function ArtCard({
               <ArtLikeBtn
                 initialLiked={liked}
                 cardId={cardId}
-                size={16}
+                size={20}
                 onToggle={(nextLiked) => {
                   setLiked(nextLiked);
                   onLikeChange?.(nextLiked);
