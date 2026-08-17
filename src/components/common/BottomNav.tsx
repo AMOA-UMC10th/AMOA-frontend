@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: '아트찾기',
     path: '/art-search',
-    requiresLogin: true,
+    requiresLogin: false,
     icon: NavSearchIcon,
   },
   {

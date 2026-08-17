@@ -39,12 +39,11 @@ async function parseApiResponse<T>(
 }
 
 // ─────────────────────────────────────────
-// 예약 페이지 목업 전용 데이터
+// 예약 화면 공통 값
 // ─────────────────────────────────────────
-// ⚠️ 아래 값은 백엔드 API 응답이 아니라 목업 화면 구현을 위한 임시 데이터입니다.
-// TODO: 백엔드에서 손 상태별 가격·소요시간·예약금 정보를 제공하면 API 응답으로 교체해주세요.
 
 export type HandStatusId = 'BARE' | 'GEL_REMOVAL' | 'EXTENSION_REMOVAL';
+
 export type GelRemovalShop = 'OWN_SHOP' | 'OTHER_SHOP';
 
 export interface HandStatusOption {
@@ -53,6 +52,37 @@ export interface HandStatusOption {
   price: number;
   badgeMinutes?: number;
 }
+
+// 현재 손 상태 옵션
+export const HAND_STATUS_OPTIONS: HandStatusOption[] = [
+  {
+    id: 'BARE',
+    label: '맨손이에요',
+    price: 0,
+  },
+  {
+    id: 'GEL_REMOVAL',
+    label: '젤 제거할게요',
+    price: 0,
+    badgeMinutes: 10,
+  },
+  {
+    id: 'EXTENSION_REMOVAL',
+    label: '연장 제거할게요',
+    price: 0,
+    badgeMinutes: 2,
+  },
+];
+
+// 연장 제거
+export const EXTENSION_REMOVAL_UNIT_PRICE = 1000;
+export const EXTENSION_REMOVAL_MAX_COUNT = 10;
+
+// 타샵 젤 제거 추가 금액
+export const GEL_REMOVAL_OTHER_SHOP_SURCHARGE = 5000;
+
+// 예약금 고정
+export const RESERVATION_DEPOSIT = 20000;
 
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -100,8 +130,7 @@ export interface CardDetail {
 }
 
 export async function getCardDetail(cardId: number): Promise<CardDetail> {
-  const response = await authFetch(`${API_BASE_URL}/cards/${cardId}`, {
-  });
+  const response = await authFetch(`${API_BASE_URL}/cards/${cardId}`, {});
 
   const result = await parseApiResponse<{
     card: CardDetail;
@@ -124,7 +153,6 @@ export interface ShopOption {
   maxQuantity: number;
 }
 
-
 export interface ArtOption {
   id: number;
   label: string;
@@ -141,8 +169,7 @@ export interface AdditionalOption {
 }
 
 export async function getShopOptions(shopId: number): Promise<ShopOption[]> {
-  const response = await authFetch(
-    `${API_BASE_URL}/shops/${shopId}/options`,);
+  const response = await authFetch(`${API_BASE_URL}/shops/${shopId}/options`);
 
   const result = await parseApiResponse<{
     options: ShopOption[];
@@ -151,7 +178,8 @@ export async function getShopOptions(shopId: number): Promise<ShopOption[]> {
   return result.options;
 }
 
-// 기존 컴포넌트가 사용하는 ArtOption/AdditionalOption 형태로 변환
+// 기존 컴포넌트가 사용하는
+// ArtOption / AdditionalOption 형태로 변환
 export function splitShopOptions(options: ShopOption[]): {
   artOptions: ArtOption[];
   additionalOptions: AdditionalOption[];
@@ -239,6 +267,7 @@ export function getReservationDisplayStatus({
   }
 
   const reservationDay = new Date(year, month - 1, day);
+
   reservationDay.setHours(0, 0, 0, 0);
 
   const today = new Date();
@@ -332,7 +361,6 @@ export interface AvailableTimeSlot {
   isAvailable: number;
 }
 
-// ReservationPage가 AvailableTimeSlot[]를 이 형태로 변환해서 DateTimeCalendar에 내려줌
 export interface TimeSlot {
   time: string;
   available: boolean;
@@ -357,7 +385,8 @@ export async function getAvailableTimes(
   });
 
   const response = await authFetch(
-    `${API_BASE_URL}/reservations/${reservationId}/available-times?${searchParams.toString()}`,);
+    `${API_BASE_URL}/reservations/${reservationId}/available-times?${searchParams.toString()}`,
+  );
 
   return parseApiResponse<AvailableTimesResult>(
     response,
@@ -370,7 +399,7 @@ export async function getAvailableTimes(
 // PATCH /api/v1/reservations/{reservationId}/schedule
 // ─────────────────────────────────────────
 
-export type PaymentMethod = 'KAKAO_PAY' | 'CARD';
+export type PaymentMethod = 'KAKAO_PAY' | 'CREDIT_CARD';
 
 export interface ConfirmReservationScheduleRequest {
   reservationDate: string;
@@ -437,7 +466,8 @@ export async function getMyReservations(
   });
 
   const response = await authFetch(
-    `${API_BASE_URL}/reservations?${searchParams.toString()}`);
+    `${API_BASE_URL}/reservations?${searchParams.toString()}`,
+  );
 
   const result = await parseApiResponse<ReservationListResult>(
     response,
@@ -471,7 +501,8 @@ export async function getMyReservationDetail(
   reservationId: number,
 ): Promise<ReservationDetail> {
   const response = await authFetch(
-    `${API_BASE_URL}/reservations/${reservationId}`);
+    `${API_BASE_URL}/reservations/${reservationId}`,
+  );
 
   return parseApiResponse<ReservationDetail>(
     response,

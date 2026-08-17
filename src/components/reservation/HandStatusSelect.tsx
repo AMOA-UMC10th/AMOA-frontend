@@ -5,7 +5,7 @@ import {
   GEL_REMOVAL_OTHER_SHOP_SURCHARGE,
   type HandStatusId,
   type GelRemovalShop,
-} from '../../data/mockupdata/reservationData';
+} from '../../data/reservationAPI';
 
 interface HandStatusSelectProps {
   selected: HandStatusId[];

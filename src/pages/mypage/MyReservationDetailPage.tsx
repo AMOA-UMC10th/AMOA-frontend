@@ -94,6 +94,18 @@ export default function MyReservationDetailPage() {
     };
   }, [reservationId]);
 
+  useEffect(() => {
+    if (!justCancelled) return;
+
+    const timer = window.setTimeout(() => {
+      navigate('/mypage/reservations', { replace: true });
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [justCancelled, navigate]);
+
   const handleConfirmCancel = async () => {
     if (!reservation || isCancelling) {
       return;
@@ -306,7 +318,8 @@ export default function MyReservationDetailPage() {
             <button
               type="button"
               onClick={() =>
-                navigate(`/reviews/write/${reservation.reservationId}`)
+                /*navigate(`/reviews/write/${reservation.reservationId}`*/
+                alert('구현 중인 페이지 입니다.')
               }
               className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#F70071] bg-white text-[15px] font-medium text-[#F70071]"
             >

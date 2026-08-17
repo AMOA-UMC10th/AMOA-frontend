@@ -1,21 +1,25 @@
 # 💅 AMOA - 프론트엔드
 
 ## 👥 팀원 
-* **두두/이혜인** : 프론트 파트장 
-* **챈니/손채은** :
-* **마루/김민호** :
-* **피노/윤서빈** :
+* **두두/이혜인** : 프론트 파트장, 아트 찾기, 샵 상세
+* **챈니/손채은** : 온보딩, 예약
+* **마루/김민호** : 온보딩, 찜, 마이페이지 
+* **피노/윤서빈** : 온보딩, 홈화면, 상세페이지, 마이페이지 
 
 ---
 
 ## 🛠️ Tech Stack
-* **Framework**: React
+
+* **Framework**: React (v19)
 * **Language**: TypeScript
 * **Build Tool**: Vite
 * **Package Manager**: pnpm
-* **Styling**: Tailwind CSS 
-
-* **추가예정**
+* **Styling**: Tailwind CSS (v4)
+* **Routing**: React Router (v7)
+* **HTTP Client**: Axios
+* **Form Management**: React Hook Form
+* **Icon Library**: React Icons
+* **Linter**: Oxlint
 
 ---
 

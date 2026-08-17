@@ -1,8 +1,6 @@
-//선호 디자인 선택 페이지 A102
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import MoodCard from "../../components/onboarding/MoodCard";
-import { ChevronLeftIcon } from "../../assets/icons";
 import { getMoodImage } from "../../assets/moods";
 import { getDesignMoods, type DesignMood } from "../../data/designMood";
 
@@ -67,59 +65,84 @@ export default function DesignPage() {
   const canProceed = selected.length > 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="relative flex h-14 shrink-0 items-center justify-center border-b border-gray-100">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-white">
+      <header className="relative flex h-[50px] shrink-0 items-center justify-center border-b border-[#E9EBEE] px-5">
         <button
           type="button"
           onClick={handleBack}
+          className="absolute left-3.5 flex h-10 w-10 items-center justify-start"
           aria-label="뒤로가기"
-          className="absolute left-4 text-gray-700"
         >
-          <ChevronLeftIcon className="h-6 w-6" />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="#171B1C"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
-        <h1 className="text-sm font-medium text-gray-900">서비스 시작하기</h1>
+
+        <h2 className="text-[13px] font-semibold text-[#000000]">
+          서비스 시작하기
+        </h2>
       </header>
 
-      <div className="flex-1 px-5 pt-6">
-        <h2 className="text-xl font-bold leading-snug text-gray-900">
-          어떤 느낌의 디자인을
-          <br />
-          선호하시나요?
-        </h2>
-        <p className="mt-2 text-sm text-gray-400">여러 개 선택할 수 있어요</p>
+      <main className="flex flex-1 flex-col px-[24px] pb-[29px] pt-[42px]">
+        <section>
+          <h1 className="text-[21px] font-semibold leading-[1.5] text-[#000000]">
+            어떤 느낌의 디자인을
+            <br />
+            선호하시나요?
+          </h1>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5">
-          {moods.map((mood) => (
-            <MoodCard
-              key={mood.designTagId}
-              label={mood.name}
-              imageUrl={getMoodImage(mood.name)}
-              selected={selected.includes(mood.designTagId)}
-              onClick={() => toggleMood(mood.designTagId)}
-            />
-          ))}
+          <p className="mt-[7px] text-[13px] font-medium leading-[1.5] text-[#646F7C]">
+            여러 개 선택할 수 있어요
+          </p>
+
+          <div className="mt-[42px] grid grid-cols-2 gap-x-5 gap-y-5">
+            {moods.map((mood) => (
+              <MoodCard
+                key={mood.designTagId}
+                label={mood.name}
+                imageUrl={getMoodImage(mood.name)}
+                selected={selected.includes(mood.designTagId)}
+                onClick={() => toggleMood(mood.designTagId)}
+              />
+            ))}
+          </div>
+        </section>
+
+        <div className="flex-1 min-h-[30px]" />
+
+        <div className="flex flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={() => goNext([])}
+            className="text-[13px] text-[#ADB0B5]"
+          >
+            건너뛰기
+          </button>
+          <button
+            type="button"
+            disabled={!canProceed}
+            onClick={() => goNext(selected)}
+            className={`h-[52px] w-full rounded-[10px] text-[15px]
+              font-medium text-white transition-colors
+              ${canProceed ? 'bg-[#F70071]' : 'cursor-not-allowed bg-[#FFC0DC]'}
+            `}
+          >
+            다음
+          </button>
         </div>
-      </div>
-
-      <div className="shrink-0 px-5 pb-8 pt-4">
-        <button
-          type="button"
-          onClick={() => goNext([])}
-          className="mb-3 w-full text-center text-sm text-gray-400"
-        >
-          건너뛰기
-        </button>
-        <button
-          type="button"
-          disabled={!canProceed}
-          onClick={() => goNext(selected)}
-          className={`w-full rounded-2xl py-4 text-sm font-semibold text-white ${
-            canProceed ? "bg-[#F70071]" : "bg-[#FFC0DC]"
-          }`}
-        >
-          다음
-        </button>
-      </div>
+      </main>
     </div>
   );
 }

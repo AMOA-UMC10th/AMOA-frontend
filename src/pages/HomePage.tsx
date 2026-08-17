@@ -5,6 +5,7 @@ import RecommendBanner from '../components/home/RecommendBanner';
 import RecommendArtList from '../components/home/RecommendArtList';
 import TrendBanner from '../components/home/TrendBanner';
 import PickSection from '../components/home/PickSection';
+import ArtCard from '../components/common/ArtCard';
 
 import {
   fetchHomeCards,
@@ -93,15 +94,24 @@ export default function HomePage() {
 
       <RecommendBanner nickname={nickname} onMoreClick={handleMoreClick} />
 
-      <RecommendArtList items={monthlyArt.slice(0, 2)} loading={isLoading} />
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-x-0.5 gap-y-5">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <ArtCard key={`home-skeleton-${index}`} isLoading={true} />
+          ))}
+        </div>
+      ) : (
+        <>
+          <RecommendArtList items={monthlyArt.slice(0, 6)} />
 
-      <PickSection
-        title="완벽한 연말을 위한 PICK"
-        highlightWord="PICK"
-        items={yearEndPick}
-        onMoreClick={handlePickMoreClick}
-        loading={isLoading}
-      />
+          <PickSection
+            title="올여름 절대 놓칠 수 없는 PICK"
+            highlightWord="PICK"
+            items={yearEndPick}
+            onMoreClick={handlePickMoreClick}
+          />
+        </>
+      )}
     </div>
   );
 }
