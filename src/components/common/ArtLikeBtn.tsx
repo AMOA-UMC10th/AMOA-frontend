@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { HeartIcon } from '../../assets/icons';
 import { likeCard, unlikeCard, LikeApiError } from '../../data/like';
+import { setCardLiked } from '../../data/likeStore';
+import LikeToast from './LikeToast';
 import { useRequireLogin } from '../../hooks/useRequireLogin';
 
 interface ArtLikeBtnProps {
@@ -79,6 +81,11 @@ export default function ArtLikeBtn({
     const nextLiked = !previousLiked;
 
     setLiked(nextLiked);
+    // 같은 아트가 여러 화면(찜 목록/샵 안 캐러셀/상세)에 동시에 떠 있으므로
+    // 로컬 state만 바꾸면 나머지 하트가 따라오지 않는다.
+    if (cardId !== undefined) {
+      setCardLiked(cardId, nextLiked);
+    }
     onToggle?.(nextLiked);
     showLikeToast(nextLiked);
 
@@ -104,6 +111,7 @@ export default function ArtLikeBtn({
       setLiked(previousLiked);
       setIsSaved(previousLiked);
       setShowToast(false);
+      setCardLiked(cardId, previousLiked);
       onToggle?.(previousLiked);
     } finally {
       setIsRequesting(false);
@@ -130,15 +138,7 @@ export default function ArtLikeBtn({
         </span>
       </button>
 
-      {showToast && (
-        <div
-          className={`fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap z-50 transition-opacity duration-500 ease-out ${
-            isSaved ? 'bg-[#F70071]' : 'bg-[#171B1C]'
-          } ${animateOut ? 'opacity-0' : 'opacity-100'}`}
-        >
-          {isSaved ? '찜 목록에 저장되었어요' : '찜 목록에서 삭제되었어요'}
-        </div>
-      )}
+      {showToast && <LikeToast saved={isSaved} fadingOut={animateOut} />}
     </div>
   );
 }

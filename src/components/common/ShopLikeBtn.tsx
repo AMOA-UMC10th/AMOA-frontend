@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { likeShop, unlikeShop, LikeApiError } from '../../data/like';
+import { setShopLiked } from '../../data/likeStore';
+import LikeToast from './LikeToast';
 import { useRequireLogin } from '../../hooks/useRequireLogin';
 
 interface ShopLikeBtnProps {
@@ -78,6 +80,9 @@ export default function ShopLikeBtn({
     const nextLiked = !previousLiked;
 
     setLiked(nextLiked);
+    if (shopId !== undefined) {
+      setShopLiked(shopId, nextLiked);
+    }
     onToggle?.(nextLiked);
     showLikeToast(nextLiked);
 
@@ -103,6 +108,7 @@ export default function ShopLikeBtn({
       setLiked(previousLiked);
       setIsSaved(previousLiked);
       setShowToast(false);
+      setShopLiked(shopId, previousLiked);
       onToggle?.(previousLiked);
     } finally {
       setIsRequesting(false);
@@ -130,15 +136,7 @@ export default function ShopLikeBtn({
         </svg>
       </button>
 
-      {showToast && (
-        <div
-          className={`fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap z-50 transition-opacity duration-500 ease-out ${
-            isSaved ? 'bg-[#F70071]' : 'bg-[#171B1C]'
-          } ${animateOut ? 'opacity-0' : 'opacity-100'}`}
-        >
-          {isSaved ? '찜 목록에 저장되었어요' : '찜 목록에서 삭제되었어요'}
-        </div>
-      )}
+      {showToast && <LikeToast saved={isSaved} fadingOut={animateOut} />}
     </div>
   );
 }
