@@ -1,6 +1,7 @@
 import { alarm, call_end, AddressPinIcon, star } from '../../assets/icons';
 import type { ShopDetail } from '../../data/shop';
 import ShopLikeBtn from '../common/ShopLikeBtn';
+import { useShopLiked } from '../../data/likeStore';
 
 interface ShopInfoProps {
   shop: ShopDetail;
@@ -15,6 +16,8 @@ export default function ShopInfo({
   cardLikeCount,
   onShopLikeChange,
 }: ShopInfoProps) {
+  const isLiked = useShopLiked(shop.shopId, shop.isLiked);
+
   const formatLikeCount = (count: number) => {
     if (count >= 10000) {
       return `${Math.floor(count / 10000)}만`;
@@ -92,7 +95,7 @@ export default function ShopInfo({
 
           {/* 로그인 검사는 ShopLikeBtn 내부에서 처리한다. */}
           <ShopLikeBtn
-            initialLiked={shop.isLiked}
+            initialLiked={isLiked}
             shopId={shop.shopId}
             size={22}
             onToggle={onShopLikeChange}

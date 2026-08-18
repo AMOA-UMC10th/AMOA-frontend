@@ -4,6 +4,7 @@ import { ChevronLeftIcon, HeartIcon } from '../assets/icons';
 import { FiChevronDown } from 'react-icons/fi';
 import WishArtCard from '../components/wish_list/WishArtCard';
 import WishShopCard from '../components/wish_list/WishShopCard';
+import LikeToast from '../components/common/LikeToast';
 import {
   getLikedCards,
   getLikedShops,
@@ -293,15 +294,7 @@ export default function WishListPage() {
         )}
       </section>
 
-      {toast && (
-        <div
-          className={`fixed bottom-24 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#171B1C] px-4 py-2 text-sm text-white shadow-lg transition-opacity duration-500 ease-out ${
-            toastFading ? 'opacity-0' : 'opacity-100'
-          }`}
-        >
-          {toast}
-        </div>
-      )}
+      {toast && <LikeToast saved={false} fadingOut={toastFading} />}
     </main>
   );
 }
