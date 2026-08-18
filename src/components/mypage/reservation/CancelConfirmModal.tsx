@@ -1,4 +1,5 @@
 import Modal from '../../common/Modal';
+import Spinner from '../../common/Spinner';
 
 interface CancelConfirmModalProps {
   isOpen: boolean;
@@ -47,10 +48,10 @@ export default function CancelConfirmModal({
             className="flex h-[42px] flex-1 cursor-pointer items-center justify-center rounded-[10px] bg-[#F70071] text-[13px] font-semibold text-white disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <span
-                className="h-5 w-5 animate-spin rounded-full border-2 border-white/50 border-t-white"
-                role="status"
-                aria-label="예약 취소 중"
+              <Spinner
+                color="#FFFFFF"
+                fadedColor="rgba(255, 255, 255, 0.5)"
+                ariaLabel="예약 취소 중"
               />
             ) : (
               '취소하기'

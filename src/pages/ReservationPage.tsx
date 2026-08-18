@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from '../assets/icons';
 import HandStatusSelect from '../components/reservation/HandStatusSelect';
 import OptionSelector from '../components/reservation/OptionSelector';
 import DateTimeCalendar from '../components/reservation/DateTimeCalendar';
-
+import Spinner from '../components/common/Spinner';
 import {
   formatDuration,
   formatDateLabel,
@@ -452,11 +452,7 @@ export default function ReservationPage() {
   if (isLoadingOptions || !cardDetail) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <span
-          className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
-          role="status"
-          aria-label="불러오는 중"
-        />
+        <Spinner size={20} ariaLabel="예약 정보 불러오는 중" />
       </div>
     );
   }
@@ -826,10 +822,11 @@ export default function ReservationPage() {
             className="w-[87px] h-[40px] rounded-[10px] bg-[#F70071] flex items-center justify-center text-sm font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DA]"
           >
             {isCreatingDraft ? (
-              <span
-                className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
-                role="status"
-                aria-label="로딩 중"
+              <Spinner
+                size={20}
+                color="#FFFFFF"
+                fadedColor="rgba(255, 255, 255, 0.5)"
+                ariaLabel="예약 정보 생성 중"
               />
             ) : (
               '다음'
@@ -858,10 +855,11 @@ export default function ReservationPage() {
             className="w-full h-[60px] rounded-[10px] bg-[#F70071] flex items-center justify-center text-[15px] font-medium text-white cursor-pointer disabled:cursor-not-allowed disabled:bg-[#FFC0DC] disabled:text-white"
           >
             {isSubmitting ? (
-              <span
-                className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
-                role="status"
-                aria-label="예약 처리 중"
+              <Spinner
+                size={20}
+                color="#FFFFFF"
+                fadedColor="rgba(255, 255, 255, 0.5)"
+                ariaLabel="예약 처리 중"
               />
             ) : (
               '다음'
