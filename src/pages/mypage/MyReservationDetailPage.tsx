@@ -10,8 +10,7 @@ import { ChevronLeftIcon } from '../../assets/icons';
 import ReservationDetailCard from '../../components/mypage/reservation/ReservationDetailCard';
 import BookerInfoSection from '../../components/mypage/reservation/BookerInfoSection';
 import CancelConfirmModal from '../../components/mypage/reservation/CancelConfirmModal';
-import KakaoMoveModal from '../../components/art_detail/KakaoMoveModal';
-
+import Spinner from '../../components/common/Spinner';
 import {
   cancelMyReservation,
   getMyReservationDetail,
@@ -161,11 +160,7 @@ export default function MyReservationDetailPage() {
 
         {/* 헤더를 제외한 영역의 정중앙 */}
         <div className="flex h-[calc(100dvh-50px)] items-center justify-center">
-          <span
-            className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
-            role="status"
-            aria-label="예약 상세 정보 불러오는 중"
-          />
+          <Spinner size={20} ariaLabel="예약 상세 정보 불러오는 중" />
         </div>
       </div>
     );
@@ -302,15 +297,7 @@ export default function MyReservationDetailPage() {
               disabled={isCancelling}
               className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#F70071] bg-white text-[15px] font-medium text-[#F70071] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isCancelling ? (
-                <span
-                  className="h-5 w-5 animate-spin rounded-full border-2 border-[#F7B4D2] border-t-[#F70071]"
-                  role="status"
-                  aria-label="예약 취소 중"
-                />
-              ) : (
-                '예약 취소'
-              )}
+              예약 취소
             </button>
           )}
 
@@ -337,6 +324,7 @@ export default function MyReservationDetailPage() {
           }
         }}
         onConfirm={handleConfirmCancel}
+        isLoading={isCancelling}
       />
     </div>
   );

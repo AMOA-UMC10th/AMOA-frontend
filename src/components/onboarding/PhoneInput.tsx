@@ -70,20 +70,20 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm text-[#28323C] font-medium">전화번호</label>
-      <div className="flex gap-2">
+      <label className="text-[13px] text-[#28323C] font-medium">전화번호</label>
+      <div className="flex items-end gap-[9px]">
         <input
           type="tel"
           placeholder="010-0000-0000"
           value={phone}
           disabled={isVerified}
           onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
-          className="flex-1 border-b border-[#E9EBEE] px-1 py-2 outline-none disabled:text-[#ADB0B5]"
+          className="h-11 min-w-0 flex-1 border-b border-[#E9EBEE] bg-transparent px-0 pt-[14px] pb-[14px] text-[13px] font-medium outline-none disabled:text-[#ADB0B5]"
         />
         <button
           onClick={handleRequestCode}
           disabled={!isPhoneValid || isVerified || isSending}
-          className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#F70071] text-white disabled:bg-[#FFC0DC] disabled:text-white"
+          className="h-[38px] w-[81px] shrink-0 rounded-[7px] text-[13px] whitespace-nowrap bg-[#F70071] text-white transition-colors disabled:bg-[#FFC0DC] disabled:text-white"
         >
           {isVerified ? '인증완료' : isSending ? '발송중...' : '인증받기'}
         </button>
@@ -99,9 +99,9 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
 
       {isRequested && !isVerified && (
         <div className="flex flex-col gap-2 mt-4">
-          <label className="text-sm text-[#28323C] font-medium">인증번호</label>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+          <label className="text-[13px] text-[#28323C] font-medium">인증번호</label>
+          <div className="flex items-end gap-[9px]">
+            <div className="relative min-w-0 flex-1">
               <input
                 type="text"
                 inputMode="numeric"
@@ -109,7 +109,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
                 placeholder="6자리 입력"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
-                className="w-full border-b border-[#E9EBEE] px-1 py-2 pr-12 outline-none"
+                className="h-11 w-full border-b border-[#E9EBEE] bg-transparent px-0 pt-[14px] pb-[14px] pr-12 text-[13px] font-medium outline-none"
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2">
                 <AuthTimer duration={180} onExpire={handleResend} />
@@ -119,7 +119,7 @@ export default function PhoneInput({ onVerified }: PhoneInputProps) {
             <button
               onClick={handleVerify}
               disabled={!isCodeValid || isVerifying}
-              className="w-24 h-10 rounded-lg text-sm whitespace-nowrap bg-[#F70071] text-white disabled:bg-[#FFC0DC] disabled:text-white"
+              className="h-[38px] w-[81px] shrink-0 rounded-[7px] text-[13px] whitespace-nowrap bg-[#F70071] text-white transition-colors disabled:bg-[#FFC0DC] disabled:text-white"
             >
               {isVerifying ? '확인중...' : '확인완료'}
             </button>

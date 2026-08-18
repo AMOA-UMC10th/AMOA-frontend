@@ -8,6 +8,7 @@ import {
   type ReservationListItem,
 } from '../../data/reservationAPI';
 import MyReservationCard from '../../components/mypage/reservation/MyReservationCard';
+import Spinner from '../../components/common/Spinner';
 
 const PAGE_SIZE = 10;
 
@@ -180,7 +181,7 @@ export default function MyReservationListPage() {
       <div className="sticky relative top-0 z-10 flex items-center justify-center bg-white gap-[15px] border-b border-[#E9EBEE] h-[50px]">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/home')}
           className="absolute left-[14px] cursor-pointer"
           aria-label="뒤로가기"
         >
@@ -194,11 +195,7 @@ export default function MyReservationListPage() {
 
       {isLoading ? (
         <div className="flex h-[calc(100vh-50px)] items-center justify-center">
-          <span
-            className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
-            role="status"
-            aria-label="예약 내역 불러오는 중"
-          />
+          <Spinner size={20} ariaLabel="예약 내역 불러오는 중" />
         </div>
       ) : errorMessage && reservations.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-6 py-24">
@@ -289,11 +286,7 @@ export default function MyReservationListPage() {
               className="flex h-20 items-center justify-center"
             >
               {isLoadingMore && (
-                <span
-                  className="h-6 w-6 animate-spin rounded-full border-2 border-[#E9EBEE] border-t-[#F70071]"
-                  role="status"
-                  aria-label="예약 내역 추가로 불러오는 중"
-                />
+                <Spinner size={20} ariaLabel="예약 내역 추가로 불러오는 중" />
               )}
             </div>
           )}

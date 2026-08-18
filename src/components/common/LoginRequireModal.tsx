@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import LoginModalImage from '../../assets/LoginModalImage.png';
 import Modal from './Modal';
+import Spinner from './Spinner';
 
 import {
   saveKakaoLoginResult,
@@ -195,7 +196,12 @@ export default function LoginRequiredModal({
         "
       >
         {isLoading ? (
-          <LoadingSpinner />
+          <Spinner
+            size={20}
+            color="#1E1E1E"
+            fadedColor="rgba(30, 30, 30, 0.25)"
+            ariaLabel="로그인 처리 중"
+          />
         ) : (
           <>
             <KakaoIcon />
@@ -225,24 +231,6 @@ function CloseIcon() {
         strokeLinecap="round"
       />
     </svg>
-  );
-}
-
-function LoadingSpinner() {
-  return (
-    <span
-      role="status"
-      aria-label="로그인 처리 중"
-      className="
-        h-[17px]
-        w-[17px]
-        animate-spin
-        rounded-full
-        border-2
-        border-black/20
-        border-t-black
-      "
-    />
   );
 }
 
