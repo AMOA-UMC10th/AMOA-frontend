@@ -18,6 +18,7 @@ import {
   searchRegions,
   getPresentRegion,
   shortenSido,
+  spaceSigungu,
   type Region,
   type RegionMatch,
 } from '../../data/region';
@@ -70,7 +71,7 @@ function toSelectedRegion(region: InterestedRegion): SelectedRegionWithId {
   return {
     id: String(region.regionId),
     regionId: region.regionId,
-    district: `${shortenSido(region.region1DepthName)} ${region.region2DepthName}`.trim(),
+    district: `${shortenSido(region.region1DepthName)} ${spaceSigungu(region.region2DepthName)}`.trim(),
     keyword: region.region3DepthName,
   };
 }
@@ -315,7 +316,7 @@ export default function MyRegionReconfigPage() {
     if (!currentRegion) return;
     addRegion({
       regionId: currentRegion.regionId,
-      district: `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth}`.trim(),
+      district: `${shortenSido(currentRegion.firstDepth)} ${spaceSigungu(currentRegion.secondDepth)}`.trim(),
       keyword: currentRegion.thirdDepth,
     });
     setView('search');
@@ -350,7 +351,7 @@ export default function MyRegionReconfigPage() {
   if (view === 'map') {
     // 하단 시트도 설계서 표기대로 "시+구+동"으로 줄여 보여준다.
     const address = currentRegion
-      ? `${shortenSido(currentRegion.firstDepth)} ${currentRegion.secondDepth} ${currentRegion.thirdDepth}`.trim()
+      ? `${shortenSido(currentRegion.firstDepth)} ${spaceSigungu(currentRegion.secondDepth)} ${currentRegion.thirdDepth}`.trim()
       : '';
 
     return (
