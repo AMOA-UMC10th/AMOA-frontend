@@ -1,6 +1,5 @@
-// G101 필독 네일 트렌드 배너 (스와이프 캐러셀)
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { TrendSlide } from '../../data/home';
 import trendBannerImg from '../../assets/trendBanner.png';
 
@@ -10,6 +9,7 @@ interface TrendBannerProps {
 
 export default function TrendBanner({ slides }: TrendBannerProps) {
   const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
 
   const handleTouchStart = (e: React.TouchEvent) => {
     (e.currentTarget as HTMLElement).dataset.startX = String(
@@ -32,6 +32,10 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
   if (slides.length === 0) return null;
   const current = slides[index];
 
+  const handleBannerClick = () => {
+    navigate(`/trend/${current.id}`);
+  };
+
   return (
     <div className="py-3 pb-6">
       <h3 className="text-lg font-semibold mb-3 px-4">
@@ -39,7 +43,8 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
         <span className="text-[#28323C]"> 놓치기 아쉬운 네일 트렌드 ✨</span>
       </h3>
       <div
-        className="relative w-full aspect-[360/238] overflow-hidden bg-[#E9EBEE]"
+        className="relative w-full aspect-[360/238] overflow-hidden bg-[#E9EBEE] cursor-pointer"
+        onClick={handleBannerClick}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

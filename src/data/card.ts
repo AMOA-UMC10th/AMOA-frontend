@@ -21,6 +21,7 @@ export interface CardDetail {
 
 export interface RecommendedCard {
   cardId: number;
+  shopId: number;
   shopName: string;
   instagramUrl: string;
   artType: string;

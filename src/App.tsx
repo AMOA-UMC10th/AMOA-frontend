@@ -26,6 +26,7 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationListPage from './pages/mypage/MyReservationListPage';
 import MyReservationDetailPage from './pages/mypage/MyReservationDetailPage';
 import NailShopDetailPage from './pages/NailShopDetailPage';
+import TrendDetailPage from './pages/TrendDetailPage';
 import MyPage from './pages/mypage/MyPage';
 import WithdrawPage from './pages/mypage/WithdrawPage';
 import TermsDetailView from './components/mypage/TermsDetailView';
@@ -42,7 +43,6 @@ const NAV_HIDDEN_PATHS = [
   '/mypage/notice',
   '/mypage/terms',
   '/mypage/withdraw',
-  // 재설정 화면은 하단 [저장] 버튼이 화면 끝에 붙어서 탭바와 겹친다.
   '/mypage/designre',
   '/mypage/regionre',
 ];
@@ -94,6 +94,7 @@ function MyReservationDetailPageRoute() {
   const { reservationId } = useParams();
   return <MyReservationDetailPage key={reservationId} />;
 }
+
 function NailShopDetailPageRoute() {
   const { shopId } = useParams();
   return <NailShopDetailPage key={shopId} />;
@@ -115,29 +116,15 @@ function App() {
             <Route path="/onboarding/region" element={<RegionPageRoute />} />
             <Route path="/onboarding/nickname" element={<NicknamePage />} />
             <Route path="/onboarding/phone" element={<PhoneAuthPage />} />
-            <Route
-              path="/onboarding/complete"
-              element={<SignupCompletePage />}
-            />
+            <Route path="/onboarding/complete" element={<SignupCompletePage />} />
             <Route path="/art-search" element={<ArtSearchPage />} />
-            <Route
-              path="/art-detail/:cardId"
-              element={<ArtDetailPageRoute />}
-            />
-            <Route
-              path="/art/:cardId/reservation"
-              element={<ReservationPage />}
-            />
+            <Route path="/art-detail/:cardId" element={<ArtDetailPageRoute />} />
+            <Route path="/art/:cardId/reservation" element={<ReservationPage />} />
             <Route path="/wishlist" element={<WishListPage />} />
-            <Route
-              path="/mypage/reservations"
-              element={<MyReservationListPage />}
-            />
-            <Route
-              path="/reservations/:reservationId"
-              element={<MyReservationDetailPageRoute />}
-            />
+            <Route path="/mypage/reservations" element={<MyReservationListPage />} />
+            <Route path="/reservations/:reservationId" element={<MyReservationDetailPageRoute />} />
             <Route path="/shop/:shopId" element={<NailShopDetailPageRoute />} />
+            <Route path="/trend/:id" element={<TrendDetailPage />} />
             <Route path="/SplashPage" element={<SplashPage />} />
             <Route path="/mypage/withdraw" element={<WithdrawPage />} />
             <Route path="/mypage/terms" element={<TermsDetailView />} />

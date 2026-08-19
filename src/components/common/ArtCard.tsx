@@ -122,16 +122,16 @@ export default function ArtCard({
           </div>
         </div>
 
-        <p className="text-[16px] font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate mt-0.5 -my-0.5">
+        <p className="text-[15px] font-bold text-[#28323C] group-hover:text-[#FF007A] transition-colors truncate mt-0.5 -my-0.5">
           {shopName || '이름 없음'}
         </p>
 
-        <p className="text-[#ADB0B5] flex text-sm items-center gap-0.5 -mt-0.2">
-          <AddressPinIcon className="w-4 h-4 text-[#D4D7DC]" />
+        <p className="text-[#ADB0B5] flex text-[13px] items-center gap-0.5 -mt-0.2">
+          <AddressPinIcon className="w-3.5 h-3.5 text-[#D4D7DC]" />
           {regionName || '지역 정보 없음'}
         </p>
 
-        <p className="text-[13px] text-[#646F7C] font-semibold -mt-0.2">
+        <p className="text-[12px] text-[#646F7C] font-semibold -mt-0.2">
           {minPrice ? `${minPrice.toLocaleString()}원` : '0원'} ~{' '}
           {maxPrice ? `${maxPrice.toLocaleString()}원` : '0원'}
         </p>
