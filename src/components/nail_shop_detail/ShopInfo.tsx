@@ -36,10 +36,6 @@ export default function ShopInfo({
                 <h1 className="text-xl font-bold" style={{ color: '#28323C' }}>
                   {shop.shopName}
                 </h1>
-
-                <span className="w-4 h-4 flex items-center justify-center shrink-0">
-                  {star({ className: 'w-full h-full' })}
-                </span>
               </div>
 
               <div className="flex flex-wrap gap-1.5 mt-2">
@@ -97,7 +93,7 @@ export default function ShopInfo({
           <ShopLikeBtn
             initialLiked={isLiked}
             shopId={shop.shopId}
-            size={22}
+            size={25}
             onToggle={onShopLikeChange}
           />
         </div>

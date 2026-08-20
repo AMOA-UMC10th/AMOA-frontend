@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { HeartIcon } from '../../assets/icons';
 import { likeShop, unlikeShop, LikeApiError } from '../../data/like';
 import { setShopLiked } from '../../data/likeStore';
 import LikeToast from './LikeToast';
@@ -122,18 +123,17 @@ export default function ShopLikeBtn({
         onClick={handleClick}
         disabled={isRequesting}
         aria-label="샵 찜하기"
-        className="text-gray-400 hover:text-red-500 pointer-events-auto transition-transform active:scale-125"
+        className="transition-transform active:scale-125 flex items-center justify-center pointer-events-auto"
       >
-        <svg
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill={liked ? '#FF007A' : 'none'}
-          stroke={liked ? '#FF007A' : '#ADB0B5'}
-          strokeWidth="2"
+        <span
+          style={{ width: size, height: size }}
+          className="flex items-center justify-center"
         >
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
+          {HeartIcon({
+            className: 'w-[35px] h-[35px] block',
+            filled: liked,
+          })}
+        </span>
       </button>
 
       {showToast && <LikeToast saved={isSaved} fadingOut={animateOut} />}

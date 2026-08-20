@@ -53,17 +53,17 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
           alt={current.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/20 z-0"></div>
-        <span className="absolute bottom-4 right-3 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full z-10">
+        <div className="absolute inset-0 z-0"></div>
+        <span className="absolute bottom-4 right-3 bg-white/50 text-black/70 text-xs px-3 py-1 rounded-full z-10">
           {index + 1}/{slides.length}
         </span>
 
         <div className="absolute bottom-4 left-4 right-16 z-10 text-white">
-          <p className="font-bold text-lg leading-snug whitespace-pre-line">
+          <p className="font-semibold text-lg leading-snug whitespace-pre-line py-0.8">
             {current.title}
           </p>
           <p className="text-xs text-white/80 mt-1 font-normal">
-            감도높은 디자인으로 분위기 변신
+            감도 높은 디자인으로 분위기 변신
           </p>
         </div>
       </div>

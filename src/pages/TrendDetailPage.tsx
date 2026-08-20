@@ -28,7 +28,7 @@ export default function TrendDetailPage() {
   const [shopDataList, setShopDataList] = useState<TrendShopGroup[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-const TARGET_SHOP_NAMES = ['아보카도네일', '샤네일']; // 13번, 20번 샵의 실제 이름을 적어주세요.
+const TARGET_SHOP_NAMES = ['아보카도네일', '샤네일']; 
 
 useEffect(() => {
   async function loadTrendData() {
@@ -203,11 +203,10 @@ function ShopArtSection({ shop }: { shop: TrendShopGroup }) {
               cardId={art.cardId}
               instagramUrl={art.instagramUrl}
               shopName={shop.shopName}
-              regionName={art.regionName}
+              regionName={art.regionName || shop.location}
               minPrice={art.minPrice}
               maxPrice={art.maxPrice}
-              artType={art.artType || 'ART'}
-              isLiked={art.isLiked ?? false}
+              artType={art.artType}
               createdMonth={art.createdMonth}
             />
           </div>

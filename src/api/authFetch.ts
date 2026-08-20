@@ -68,7 +68,6 @@ export async function authFetch(url: string, options: RequestInit = {}) {
     }
 
     localStorage.clear();
-    window.location.href = '/login';
   }
 
   return response;

@@ -5,7 +5,6 @@ import type { LikedCard } from '../../data/likeList';
 
 interface WishArtCardProps {
   card: LikedCard;
-  // 하트를 끄면 목록에서 바로 빼기 위해 알려준다. (요청 자체는 ArtCard 안에서 보낸다)
   onUnlike: (cardId: number) => void;
 }
 
