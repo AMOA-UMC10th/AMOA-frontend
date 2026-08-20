@@ -105,7 +105,7 @@ export default function ArtCard({
 
       <div className="mt-2.5 px-2 cursor-pointer" onClick={handleCardClick}>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-2 py-0.5 rounded font-semibold">
+          <span className="text-[10px] bg-[#FFF0F6] text-[#374553] px-2 py-0.5 rounded -translate-x-1 font-semibold">
             {artMonth}월 {getArtTypeLabel(artType, createdMonth)}
           </span>
           <div onClick={(e) => e.stopPropagation()} className="mr-1.5 translate-y-1">
