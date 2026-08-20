@@ -82,17 +82,17 @@ export default function PhoneAuthPage() {
           <div className="mt-[42px] flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-xs text-[#ADB0B5]">닉네임</label>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-end gap-[9px]">
                 <input
                   type="text"
                   value={nickname}
                   disabled
-                  className="flex-1 border-b border-[#E9EBEE] px-1 py-2 text-sm text-[#ADB0B5] bg-transparent"
+                  className="h-11 min-w-0 flex-1 border-b border-[#E9EBEE] bg-transparent px-0 pt-[14px] pb-[14px] text-[13px] font-medium text-[#ADB0B5] outline-none"
                 />
                 <button
                   disabled
                   type="button"
-                  className="w-24 h-10 rounded-lg text-sm whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white cursor-default"
+                  className="h-[38px] w-[81px] shrink-0 rounded-[7px] text-[13px] whitespace-nowrap flex items-center justify-center bg-[#FFC0DC] text-white cursor-default"
                 >
                   확인완료
                 </button>
