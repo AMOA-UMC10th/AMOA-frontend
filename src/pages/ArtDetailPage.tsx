@@ -126,7 +126,7 @@ export default function ArtDetailPage() {
         onClick={handleShopClick}
         className="flex items-center gap-2 px-4 py-4 w-full"
       >
-        <span className="w-9 h-9 rounded-full bg-[#FFC0DC] shrink-0" />
+        <span className="w-9 h-9 rounded-full bg-[#FFEEF6] shrink-0" />
 
         <div className="text-left">
           <p className="text-sm font-bold text-[#171B1C]">{card.shopName}</p>
