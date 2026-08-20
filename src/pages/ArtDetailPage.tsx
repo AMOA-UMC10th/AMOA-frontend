@@ -138,7 +138,7 @@ export default function ArtDetailPage() {
         </div>
       </button>
 
-      <div className="border-t border-[#E9EBEE] mx-4 mb-4" />
+      <div className="border-t border-[#E9EBEE] mb-4" />
 
       <div className="px-4 py-1">
         <p className="text-xs text-[#646F7C] font-bold mb-1">
