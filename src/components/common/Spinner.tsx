@@ -14,7 +14,7 @@ export default function Spinner({
   ariaLabel = '로딩 중',
 }: SpinnerProps) {
   const spinnerSize = size * (16.67 / 20);
-  const borderWidth = size * (2.7 / 20);
+  const borderWidth = size * (1.5 / 20);
 
   return (
     <span

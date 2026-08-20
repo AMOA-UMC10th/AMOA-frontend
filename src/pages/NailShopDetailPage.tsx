@@ -8,6 +8,7 @@ import {
   type ShopDetail,
   type ShopCardListResult,
 } from '../data/shop';
+import Spinner from '../components/common/Spinner';
 
 export default function NailShopDetailPage() {
   const navigate = useNavigate();
@@ -49,8 +50,8 @@ export default function NailShopDetailPage() {
 
   if (loading || !shopInfo || !cardData) {
     return (
-      <div className="max-w-[430px] mx-auto min-h-screen bg-white flex items-center justify-center text-sm text-gray-400">
-        로딩 중...
+      <div className="flex justify-center py-24">
+        <Spinner size={32} />
       </div>
     );
   }

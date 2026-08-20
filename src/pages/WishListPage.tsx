@@ -17,6 +17,7 @@ import {
   markCardsLiked,
   markShopsLiked,
 } from '../data/likeStore';
+import Spinner from '../components/common/Spinner';
 
 type WishTab = 'ART' | 'SHOP';
 type SortOption =
@@ -240,9 +241,9 @@ export default function WishListPage() {
         </div>
 
         {isLoading && (
-          <p className="py-20 text-center text-sm text-[#ADB0B5]">
-            불러오는 중...
-          </p>
+          <div className="flex justify-center py-24">
+            <Spinner size={32} />
+          </div>
         )}
 
         {!isLoading && !isLoggedIn && (

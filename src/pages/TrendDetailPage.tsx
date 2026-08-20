@@ -12,6 +12,7 @@ import ArtCard from '../components/common/ArtCard';
 import ShopLikeBtn from '../components/common/ShopLikeBtn';
 import { useShopLiked } from '../data/likeStore';
 import { authFetchCards, type RecommendedCard } from '../data/card';
+import Spinner from '../components/common/Spinner';
 
 interface TrendShopGroup {
   shopId: number;
@@ -130,8 +131,8 @@ useEffect(() => {
 
       <div className="mt-6 flex flex-col gap-8">
         {loading ? (
-          <div className="text-center py-10 text-gray-400 text-sm">
-            불러오는 중...
+          <div className="flex justify-center py-24">
+            <Spinner size={32} />
           </div>
         ) : error ? (
           <div className="text-center py-10 text-red-500 text-sm">{error}</div>
