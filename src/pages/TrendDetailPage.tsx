@@ -5,7 +5,6 @@ import {
   AddressPinIcon,
   ChevronRightSmallIcon,
 } from '../assets/icons';
-import trendBannerImg from '../assets/trendBanner.png';
 import trend1Img from '../assets/trend_1.png';
 import trend2Img from '../assets/trend_2.png';
 import trend3Img from '../assets/trend_3.png';

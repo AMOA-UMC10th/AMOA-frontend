@@ -27,15 +27,15 @@ export default function WishShopCard({ shop, onUnlike }: WishShopCardProps) {
               <button
                 type="button"
                 onClick={handleShopClick}
-                className="truncate text-[13px] font-bold text-[#171B1C]"
+                className="truncate text-[14px] font-bold text-[#171B1C] -translate-y-1"
               >
                 {shop.shopName}
               </button>
-              <div className="translate-y-0.5">
+              <div className="translate-y-1">
                 <ShopLikeBtn
                   initialLiked
                   shopId={shop.shopId}
-                  size={15}
+                  size={14}
                   onToggle={(liked) => {
                     if (!liked) onUnlike(shop.shopId);
                   }}
@@ -43,7 +43,7 @@ export default function WishShopCard({ shop, onUnlike }: WishShopCardProps) {
               </div>
             </div>
             
-            <p className="-mt-0.5 flex items-center gap-0.5 text-xs text-[#ADB0B5]">
+            <p className="-mt-2 flex items-center gap-0.5 text-xs text-[#ADB0B5]">
               <AddressPinIcon className="h-3.5 w-3.5 text-[#ADB0B5]" />
               {shop.regionName}
             </p>
