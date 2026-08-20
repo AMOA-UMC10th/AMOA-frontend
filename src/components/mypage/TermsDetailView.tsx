@@ -17,9 +17,23 @@ export default function TermsDetailView() {
   const [selectedTerm, setSelectedTerm] = useState<TermDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  // 마이페이지 > 이용약관 노출 순서 (화면설계서 기준, API 응답 순서와 다름)
+  const TERM_ORDER = [
+    '서비스 이용약관',
+    '개인정보 수집·이용',
+    '개인정보 처리방침',
+    '취소/환불 규정',
+    '마케팅 수신',
+  ];
+
   useEffect(() => {
     fetchTermList()
-      .then(setTerms)
+      .then((list) => {
+        const sorted = [...list].sort(
+          (a, b) => TERM_ORDER.indexOf(a.title) - TERM_ORDER.indexOf(b.title),
+        );
+        setTerms(sorted);
+      })
       .catch((err) => {
         console.error(err);
         setListError('이용약관을 불러오지 못했어요');
