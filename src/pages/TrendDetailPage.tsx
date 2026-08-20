@@ -6,6 +6,7 @@ import {
   ChevronRightSmallIcon,
 } from '../assets/icons';
 import trendBannerImg from '../assets/trendBanner.png';
+import trend1Img from '../assets/trend_1.png';
 import trend2Img from '../assets/trend_2.png';
 import trend3Img from '../assets/trend_3.png';
 import ArtCard from '../components/common/ArtCard';
@@ -94,13 +95,13 @@ useEffect(() => {
 
       <div className="relative w-full aspect-[360/280] overflow-hidden bg-gray-100">
         <img
-          src={trendBannerImg}
+          src={trend1Img}
           alt="네일 모음"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />
         <div className="absolute bottom-6 left-5 right-5 text-white">
-          <h1 className="text-xl font-bold leading-tight drop-shadow-sm">
+          <h1 className="text-xl font-semibold leading-tights">
             조금은 색다른 분위기를 원해?
             <br />
             레이스 네일 모음 Zip.
@@ -170,7 +171,7 @@ function ShopArtSection({ shop }: { shop: TrendShopGroup }) {
               >
                 {shop.shopName}
               </button>
-              <div className="translate-y-0.5">
+              <div className="translate-y-2">
                 <ShopLikeBtn
                   shopId={shop.shopId}
                   initialLiked={shopLiked}
@@ -179,7 +180,7 @@ function ShopArtSection({ shop }: { shop: TrendShopGroup }) {
               </div>
             </div>
 
-            <p className="-mt-0.5 flex items-center gap-0.5 text-xs text-[#ADB0B5]">
+            <p className="-mt-0.5 flex items-center gap-0.5 text-xs text-[#ADB0B5] -translate-y-1 -translate-x-0.5">
               <AddressPinIcon className="h-3.5 w-3.5 text-[#ADB0B5]" />
               {shop.location}
             </p>

@@ -264,12 +264,12 @@ export default function ArtSearchPage() {
             type="button"
             onClick={() => setFilterOpen(true)}
             className={`flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
-              filters.minPrice !== 30000 || filters.maxPrice !== 100000
+              filters.minPrice !== 40000 || filters.maxPrice !== 120000
                 ? 'border-transparent bg-[#FF007A] text-white font-semibold'
                 : 'border-[#b7bec8] text-[#56606d]'
             }`}
           >
-            {filters.minPrice !== 30000 || filters.maxPrice !== 100000
+            {filters.minPrice !== 40000 || filters.maxPrice !== 120000
               ? `${(filters.minPrice / 10000).toFixed(0)}~${(filters.maxPrice / 10000).toFixed(0)}만원`
               : '가격'}
             <FiChevronDown />

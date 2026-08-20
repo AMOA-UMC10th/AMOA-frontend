@@ -82,7 +82,7 @@ export default function ShopArtList({
           <button
             key={filter}
             onClick={() => handleFilterClick(filter)}
-            className={`px-4.5 py-2 rounded-full text-xs transition-colors border whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-full text-xs transition-colors border whitespace-nowrap ${
               activeFilter === filter
                 ? 'bg-[#FF007A] text-white border-[#FF007A]'
                 : 'bg-white text-[#646F7C] border-gray-200'

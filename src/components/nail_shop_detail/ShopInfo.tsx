@@ -88,14 +88,14 @@ export default function ShopInfo({
               </div>
             </div>
           </div>
-
-          {/* 로그인 검사는 ShopLikeBtn 내부에서 처리한다. */}
+          <div className='-translate-y-1'>
           <ShopLikeBtn
             initialLiked={isLiked}
             shopId={shop.shopId}
-            size={25}
+            size={21}
             onToggle={onShopLikeChange}
           />
+          </div>
         </div>
       </div>
 

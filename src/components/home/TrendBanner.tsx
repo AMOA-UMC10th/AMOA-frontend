@@ -53,7 +53,7 @@ export default function TrendBanner({ slides }: TrendBannerProps) {
           alt={current.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 z-0"></div>
+        <div className="absolute inset-0 z-0 bg-black/20"></div>
         <span className="absolute bottom-4 right-3 bg-white/50 text-black/70 text-xs px-3 py-1 rounded-full z-10">
           {index + 1}/{slides.length}
         </span>
