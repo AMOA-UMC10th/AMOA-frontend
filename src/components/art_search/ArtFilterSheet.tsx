@@ -156,8 +156,8 @@ export default function ArtFilterSheet({
           onClick={() => {
             setTempFilters({
               regions: [],
-              minPrice: 0,
-              maxPrice: 200000,
+              minPrice: 40000,
+              maxPrice: 120000,
               artTypes: [],
               designs: [],
             });
