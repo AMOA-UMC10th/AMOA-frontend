@@ -216,10 +216,10 @@ export default function NicknameInput({
               text-[13px] text-white transition-colors
               ${
                 isChecked
-                  ? 'cursor-default bg-[#F0BED7]'
+                  ? 'cursor-default bg-[#FFC0DC]'
                   : isLengthValid && !isLoading
                     ? 'bg-[#F70071]'
-                    : 'cursor-not-allowed bg-[#F0BED7]'
+                    : 'cursor-not-allowed bg-[#FFC0DC]'
               }
             `}
           >
