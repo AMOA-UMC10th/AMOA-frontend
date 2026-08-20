@@ -55,11 +55,18 @@ export default function TermsSheet({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // 온보딩 약관 동의는 서비스 이용약관/개인정보 수집·이용/마케팅 수신 3개만 노출한다.
+  // (개인정보 처리방침, 취소/환불 규정은 마이페이지 > 이용약관에서만 보여준다 - 화면설계서 기준)
+  const ONBOARDING_TERM_TITLES = ['서비스 이용약관', '개인정보 수집·이용', '마케팅 수신'];
+
   useEffect(() => {
     fetchTermList()
       .then(async (list) => {
+        const onboardingList = list.filter((item) =>
+          ONBOARDING_TERM_TITLES.includes(item.title),
+        );
         const withDetail = await Promise.all(
-          list.map(async (item) => {
+          onboardingList.map(async (item) => {
             let detailContent = '';
             try {
               const detail = await fetchTermDetail(item.termId);
